@@ -71,7 +71,7 @@ enum Custom_OLED_Colors {
  * @return int 0 또는 -1
  *         0: 정상적으로 처리가 완료됨, -1: 문자의 출력 범위를 넘어 처리가 제대로 완료되지 않음
  */
-int Custom_OLED_Putchar(char c, uint16_t color, uint8_t x, uint8_t y, uint8_t size);
+int Custom_OLED_Putchar(char c, uint16_t color, uint8_t x, uint8_t y);
 
 /**
  * @brief 서식을 포함한 문자열을 OLED에 출력하는 함수.

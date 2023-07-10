@@ -18,17 +18,34 @@
  * [ OLED GDDRAM ]
  * Graphic Display Data RAM(GDDRAM)은 OLED 화면에 표시될 데이터를 보관하는 저장소이다.
  * GDDRAM의 크기는 96 x 64 x 16bits이다. (가로 96픽셀, 세로 64픽셀, 픽셀 당 16비트)
- * 각 픽셀은 3개의 sub-pixel로 이루어져 있으며, 색상 A, B, C에 각각 5bits, 6bits, 5bit가 할당돼 있다.
- * 우리는 OLED를 초기화 할 때 색상 A, B, C는 각각 Green, Red, Blue으로 설정한다. 그리고 비트맵 구조는 아래와 같다.
- *   Bit:  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
- *   Map: A0 A1 A2 A3 A4 B0 B1 B2 B3 B4 B5 C0 C1 C2 C3 C4
+ *
+ * SSD1331의 GDDRAM은 16비트만 사용하고, 색상 A, B, C를 정의하자. (색상 A, B, C가 무엇을 의미하는 지는 나중에 서술)
+ * 16비트 중에서 5비트는 색상 A, 6비트는 색상 B, 남은 5비트는 색상 C로 사용한다.
+ * 16비트로 A, B, C 색상을 표시하는 것을 다음과 같이 정의하자.
+ *   Bit: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+ *   Map: C4 C3 C2 C1 C0 B5 B4 B3 B2 B1 B0 A4 A3 A2 A1 A0
+ *
+ * 우리는 일상적으로 24비트 컬러를 사용한다. 각각 다음과 같이 나타낼 수 있다.
+ *           7  6  5  4  3  2  1  0
+ *   Red:   R7 R6 R5 R4 R3 R2 R1 R0
+ *   Green: G7 G6 G5 G4 G3 G2 G1 G0
+ *   Blue:  B7 B6 B5 B4 B3 B2 B1 B0
+ *
+ * SSD1331은 5~6비트만 사용하므로, 색 표현에서 가장 중요한 상위 비트 몇 개만 사용한다.
+ * 이 중 빨강은 R3~R7, 총 5비트만, 초록은 G2~G7, 총 6비트, 파랑은 B3~B7, 총 5비트를 사용한다.
+ *   Bit: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+ *   Map: R7 R6 R5 R4 R3 G7 G6 G5 G4 G3 G2 B7 B6 B5 B4 B3
+ *
  * DC 핀이 High일 때, SPI 통신으로 데이터를 전송하면 GDDRAM에 기록된다.
- * 기록되는 위치는 내부적으로 상태가 보존되며, 비트 하나가 기록되면 그 다음 비트를 알아서 가리키도록 설계돼있다.
+ * 기록되는 위치는 내부적으로 상태가 보존되며, 데이터 하나가 기록되면 그 다음 데이터를 알아서 가리키도록 설계돼있다.
  * 이때 다음 비트를 선택하는 기준은 세로(다음 열)가 될 수 있고, 가로(다음 행)가 될 수 있다.
- * 우리의 폰트는 가로로 읽는 것이 편하기 때문에 가로(다음 행)으로 다음 픽셀을 선택하도록 설정한다(OLED_CMD_SETREMAP).
+ * 우리의 폰트는 가로로 읽는 것이 편하기 때문에 가로(다음 행)으로 다음 픽셀을 선택하도록 설정했다.(OLED_CMD_SETREMAP).
  *
  *  Created on: Jun 27, 2023
  *      Author: Seongho Lee
+ *
+ *    Modified: July 7, 2023
+ *      Author: Pierre de Starlit
  */
 
 #include <stdio.h>
@@ -49,23 +66,6 @@
 #define OLED_SPI			SPI2
 #define OLED_WIDTH			96
 #define OLED_HEIGHT			64
-
-enum OLED_Modes {
-	OLED_MODE_COMMAND = 0,
-	OLED_MODE_DATA = 1,
-};
-
-/**
- * @brief SPI 통신으로 OLED에 값을 보낼 때 데이터로 보낼 지, 명령어로 보낼 지 설정하는 함수.
- *        명령어 모드(OLED_MODE_COMMAND)일 경우에는 값에 따른 명령어가 수행되고,
- *        데이터 모드(OLED_MODE_DATA)일 경우에는 GDDRAM에 값이 직접 쓰여진다.
- * 
- * @param mode OLED_MODE_COMMAND(명령어 모드), OLED_MODE_DATA(데이터 모드)
- */
-static inline void Custom_OLED_Set_Mode(int mode) {
-	// 0 is command mode, 1 is data mode
-	Custom_GPIO_Set(OLED_DC_GPIO_Port, OLED_DC_Pin, mode);
-}
 
 enum OLED_Commands {
 	OLED_CMD_SETCOLUMN = 0x15, // Set column address
@@ -100,19 +100,66 @@ enum OLED_Commands {
 };
 
 /**
- * @brief SPI 통신으로 OLED에 값을 보내는 함수.
- *        매개변수로 전달 받은 데이터를 모두 보낼 때까지 동기적(synchronous)으로 동작한다.
- * 
- * @param data 보낼 값들
- * @param length 보낼 값들의 총 길이
+ * @brief SPI 통신으로 OLED에 데이터를 전송하는 함수.
+ *        매개변수로 전달 받은 데이터의 전송이 완료될 때까지 기다린다. 즉, 동기적(synchronous)으로 동작한다.
+ *
+ * @param cmd 보낼 명령어의 배열
+ * @param length 보낼 명령어들의 총 길이
  */
-static inline void Custom_OLED_Write_Blocking(const uint8_t *data, size_t length) {
+static inline void Custom_OLED_SPI_Tramsnit_Blocking(const uint8_t data) {
+	while (!LL_SPI_IsActiveFlag_TXE(OLED_SPI));
+	LL_SPI_TransmitData8(OLED_SPI, data);
+	while (LL_SPI_IsActiveFlag_BSY(OLED_SPI));
+}
+
+/**
+ * @brief OLED에 명령을 보내는 함수.
+ * 
+ * @param cmd 보낼 명령어의 배열
+ * @param length 보낼 명령어들의 총 길이
+ */
+static inline void Custom_OLED_Write_Command(const uint8_t *cmd, size_t length) {
+	Custom_GPIO_Set(OLED_DC_GPIO_Port, OLED_DC_Pin, 0); // 0 is command mode
 	Custom_GPIO_Set(OLED_CS_GPIO_Port, OLED_CS_Pin, 0);
 
 	for (int i = 0; i < length; i++) {
-		while (!LL_SPI_IsActiveFlag_TXE(OLED_SPI));
-		LL_SPI_TransmitData8(OLED_SPI, data[i]);
-		while (LL_SPI_IsActiveFlag_BSY(OLED_SPI));
+		Custom_OLED_SPI_Tramsnit_Blocking(cmd[i]);
+	}
+
+	Custom_GPIO_Set(OLED_CS_GPIO_Port, OLED_CS_Pin, 1);
+}
+
+/**
+ * @brief SPI 통신으로 OLED의 GDDRAM에 값(색상 데이터)을 작성하는 함수.
+ *        매개변수로 전달 받은 데이터를 모두 보낼 때까지 동기적(synchronous)으로 동작한다.
+ *
+ * @param data 16비트 형태의 색상값들의 배열
+ * @param length 보낼 값들의 갯수 (바이트 수가 아님을 주의)
+ */
+static inline void Custom_OLED_Write_Data(const uint16_t *data, size_t length){
+	Custom_GPIO_Set(OLED_DC_GPIO_Port, OLED_DC_Pin, 1); // 1 is data mode
+	Custom_GPIO_Set(OLED_CS_GPIO_Port, OLED_CS_Pin, 0);
+
+	/**
+	 * SSD1331 GDDRAM에 데이터를 어떻게 보내야 하는지 알아보자.
+	 * 우리는 SSD1331을 초기화할 때 Remap & Color Depth setting에서 color format을 65k format 1 모드로 설정했다.
+	 * 65k format 1모드는 다음과 같이 데이터를 전송하라고 정의한다.
+	 *   Bit: 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+	 *   1st:  x  x  x  x  x  x  x  x C4 C3 C2 C1 C0 B5 B4 B3
+	 *   2nd:  x  x  x  x  x  x  x  x B2 B1 B0 A4 A3 A2 A1 A0
+	 *
+	 * 우리가 사용하는 MCU는 Cortex-M4 시리즈이며, little endian으로 데이터를 저장한다.
+	 * 하지만, SSD1331은 big endian 방식으로 데이터를 처리하므로, little-big 사이의 변환이 필요하다.
+	 * 이를테면, 모든 A 비트가 1인 상황인 0x001F([15:0] 0000 0000 0001 1111)는
+	 * MCU 메모리 어딘가 첫 번째 번지에 0x1F 값이 들어가고, 그 다음 번지에 0x00이 들어간다.
+	 * 그러면, SPI 통신으로 데이터를 8비트씩 보낼 때 0번지 부터 값을 보낼 것이므로 0x1F을 보내고 0x00을 그 다음으로 보낼 것이다.
+	 * SSD1331은 C1 C0 B5 B4 B3 데이터가 1인 것으로 인식할 것이며 이러면 안되므로,
+	 * 상위 8비트 0x00을 보내고 나서 하위 8비트 0x1F 보내는 식으로 진행해야 한다.
+	 * 다른 색상 정보도 마찬가지로 데이터를 전송할 때 상위 8비트를 먼저 보내야 한다.
+	 */
+	for (int i = 0; i < length; i++) {
+		Custom_OLED_SPI_Tramsnit_Blocking(data[i] >> 8);   // 상위 8비트 전송
+		Custom_OLED_SPI_Tramsnit_Blocking(data[i] & 0xFF); // 하위 8비트 전송
 	}
 
 	Custom_GPIO_Set(OLED_CS_GPIO_Port, OLED_CS_Pin, 1);
@@ -137,8 +184,7 @@ static inline void Custom_OLED_Set_Window(uint8_t x1, uint8_t y1, uint8_t x2, ui
 		y1, y2,
 	};
 
-	Custom_OLED_Set_Mode(OLED_MODE_COMMAND);
-	Custom_OLED_Write_Blocking(cmd, sizeof(cmd));
+	Custom_OLED_Write_Command(cmd, sizeof(cmd));
 }
 
 void Custom_OLED_Clear() {
@@ -146,9 +192,8 @@ void Custom_OLED_Clear() {
 
 	Custom_OLED_Set_Window(0, 0, OLED_WIDTH - 1, OLED_HEIGHT - 1);
 
-	Custom_OLED_Set_Mode(OLED_MODE_DATA);
     for (int i = 0; i < OLED_WIDTH * OLED_HEIGHT; i++) {
-        Custom_OLED_Write_Blocking((uint8_t *)&data, sizeof(data));
+        Custom_OLED_Write_Data(&data, 1);
     }
 }
 
@@ -189,15 +234,13 @@ void Custom_OLED_Init() {
 		OLED_CMD_DISPLAYON
 	};
 
-	Custom_OLED_Set_Mode(OLED_MODE_COMMAND);
-	Custom_OLED_Write_Blocking(init_cmd, sizeof(init_cmd));
-
+	Custom_OLED_Write_Command(init_cmd, sizeof(init_cmd));
 	Custom_OLED_Clear();
 }
 
-int Custom_OLED_Putchar(char c, uint16_t color, uint8_t x, uint8_t y) {
-	uint8_t xe = x + FONT_WIDTH - 1;
-	uint8_t ye = y + FONT_HEIGHT - 1;
+int Custom_OLED_Putchar(char c, uint16_t color, uint8_t x, uint8_t y, uint8_t size) {
+	uint8_t xe = x + FONT_WIDTH * size - 1;
+	uint8_t ye = y + FONT_HEIGHT * size - 1;
 
 	if (xe >= OLED_WIDTH || ye >= OLED_HEIGHT) {
 		// OLED 화면을 넘어서면 유효하지 않은 명령이다.
@@ -207,24 +250,26 @@ int Custom_OLED_Putchar(char c, uint16_t color, uint8_t x, uint8_t y) {
 	Custom_OLED_Set_Window(x, y, xe, ye);
 
 	const char *font = FONT[(int)c];
-	static uint16_t data[FONT_WIDTH * FONT_HEIGHT];
+	static uint16_t data[FONT_WIDTH * FONT_HEIGHT * 4];
 
 	for (int i = 0; i < FONT_WIDTH; i++) {
 		for (int j = 0; j < FONT_HEIGHT; j++) {
-			data[FONT_HEIGHT * i + j] = font[i] & (1 << j) ? color : 0x0000;
+			for(int x = 0; x < size; x++){
+				for(int y = 0; y < size; y++){
+			    	data[FONT_HEIGHT * size * (i*size+ x) + j*size + y] = font[i] & (1 << j) ? color : 0x0000;
+			    }
+			}
 		}
 	}
 
-	Custom_OLED_Set_Mode(OLED_MODE_DATA);
-	Custom_OLED_Write_Blocking((uint8_t *)data, sizeof(data));
-
+	Custom_OLED_Write_Data(data, sizeof(data) / sizeof(uint16_t) / 4 * size * size);
 	return 0;
 }
 
 void Custom_OLED_Printf(const char *format, ...) {
 	char buffer[OLED_BUFFER_SIZE];
-	uint8_t pos_x = 0;
-	uint8_t pos_y = 0;
+	uint8_t posX = 0;
+	uint8_t posY = 0;
 	
 	/*
 	 * printf 함수처럼 가변 인자를 받고 vsprintf 함수를 통해 buffer에 서식 문자가 적용된 문자열을 저장한다.
@@ -239,6 +284,7 @@ void Custom_OLED_Printf(const char *format, ...) {
 	 */
 	int cursor = 0;
 	uint16_t color = OLED_COLOR_WHITE;
+	uint8_t size = 1;
 
 	while (buffer[cursor]) {
 
@@ -253,8 +299,8 @@ void Custom_OLED_Printf(const char *format, ...) {
 				switch (nextChar) {
 				// 문자를 표시할 행을 지정하는 서식 문자
 				case '0': case '1': case '2': case '3': case '4': case '5': case '6':
-					pos_x = 0;
-					pos_y = (FONT_HEIGHT + 1) * (nextChar - '0'); // FONT_HEIGHT + 1를 해주는 이유는, 폰트 아래 한 칸 여백을 남겨두기 위함이다.
+					posX = 0;
+					posY = (FONT_HEIGHT + 1) * (nextChar - '0'); // FONT_HEIGHT + 1를 해주는 이유는, 폰트 아래 한 칸 여백을 남겨두기 위함이다.
 					break;
 				// 색상을 지정할 서식 문자
 				case 'w': color = OLED_COLOR_WHITE;   break;
@@ -264,6 +310,39 @@ void Custom_OLED_Printf(const char *format, ...) {
 				case 'y': color = OLED_COLOR_YELLOW;  break;
 				case 'c': color = OLED_COLOR_CYAN;    break;
 				case 'm': color = OLED_COLOR_MAGENTA; break;
+				case 'o': color = OLED_COLOR_ORANGE;  break;
+				case 'l': color = OLED_COLOR_LIME;    break;
+				case 't': color = OLED_COLOR_MINT;    break;
+				case 's': color = OLED_COLOR_SEA;     break;
+				case 'v': color = OLED_COLOR_VIOLET;  break;
+				case 'p': color = OLED_COLOR_ROSE;    break;
+				case 'K': color = OLED_COLOR_GRAY;    break;
+				case 'k': color = OLED_COLOR_BLACK;   break;
+				// TODO: 크기 지정 문자 추가
+				case 'A': size = 2;                   break;
+				case 'a': size = 1;                   break;
+				case '#':
+                    {
+                        uint32_t colordata = 0;
+                        for(uint32_t i = 0; i < 6; i++){
+                            if(buffer[cursor + i + 2] >= 'A' && buffer[cursor + i + 2] <= 'F'){
+                            	colordata *= 16;
+                            	colordata += buffer[cursor + i + 2] - 'A' + 10;
+                            }
+                            else if(buffer[cursor + i + 2] >= 'a' && buffer[cursor + i + 2] <= 'f'){
+                            	colordata *= 16;
+                            	colordata += buffer[cursor + i + 2] - 'a' + 10;
+                            }
+                            else if(buffer[cursor + i + 2] >= '0' && buffer[cursor + i + 2] <= '9'){
+                            	colordata *= 16;
+                            	colordata += buffer[cursor + i + 2] - '0';
+                            }
+                        }
+                        color = ((colordata >> 8) & 0xF800) | ((colordata >> 5) & 0x07F0) | ((colordata >> 3) & 0x001F);
+
+                    }
+                cursor += 6;
+                break;
 				}
 
 				cursor += 2;
@@ -271,8 +350,8 @@ void Custom_OLED_Printf(const char *format, ...) {
 			}
 		}
 
-		Custom_OLED_Putchar(buffer[cursor], color, pos_x, pos_y); // 문자를 화면에 표시한다.
-		pos_x += FONT_WIDTH + 1; // FONT_WIDTH + 1를 해주는 이유는, 폰트 오른쪽 한 칸 여백을 남겨두기 위함이다.
+		Custom_OLED_Putchar(buffer[cursor], color, posX, posY, size); // 문자를 화면에 표시한다.
+		posX += (FONT_WIDTH + 1) * size; // FONT_WIDTH + 1를 해주는 이유는, 폰트 오른쪽 한 칸 여백을 남겨두기 위함이다.
 		cursor++;
 	}
 }

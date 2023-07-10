@@ -35,9 +35,9 @@ void Init() {
 	LL_USART_Enable(USART2);
 
 	/*
-	* 1ms 주기로 동작하는 SysTick을 기화한다. custom_delay.h 파일의 Custom_Delay_Get_SysTick
-	* 현재 SvsTick이 초기화된 시점부터 경과한 시간을 구할 수 있다.
-	*/
+	* 1ms 주기로 동작하는 SysTick을 조기화한다. custom_delay.h 파일의 Custom_Delay_Get_Sys
+	* 현재 SvsTick
+	* */
 	Custom_Delay_Init_SysTick();
 
 	/*

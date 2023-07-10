@@ -35,12 +35,6 @@ void Init() {
 	LL_USART_Enable(USART2);
 
 	/*
-	* 1ms 주기로 동작하는 SysTick을 기화한다. custom_delay.h 파일의 Custom_Delay_Get_SysTick
-	* 현재 SvsTick이 초기화된 시점부터 경과한 시간을 구할 수 있다.
-	*/
-	Custom_Delay_Init_SysTick();
-
-	/*
 	 * OLED를 사용하기 전에는 Custom_OLED_Init 함수를 호출하여 여러가지 초기화를 수행해야 한다.
 	 * 이 함수는 OLED 처음 쓰기 전에 딱 한 번만 호출하면 된다.
 	 */

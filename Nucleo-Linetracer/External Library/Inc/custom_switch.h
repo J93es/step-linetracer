@@ -20,7 +20,6 @@
 #include <stdbool.h>
 
 uint8_t Custom_Switch_Read(void);
-uint8_t Custom_Switch_Wait_Read(uint32_t millisecond);
 
 /*
  ******************************************************************************

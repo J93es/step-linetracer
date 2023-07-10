@@ -1,9 +1,9 @@
 /*
- ******************************************************************************
- * file			custom_switch.c
- * author		Joonho Gwon
- * brief		Switch input
- ******************************************************************************
+ * custom_switch.h
+ *
+ * Modified on: Jul 7, 2023
+ *      Author: Joonho Gwon
+ *    Modifier: Pierre de Starlit
  */
 
 #include "custom_switch.h"
@@ -14,13 +14,14 @@
 #define SHORT_OFF	0x08
 
 #define TIME_SHROT	80	// Unit : millisecond
-#define TIME_LONG	500 // Unit : millisecond
+#define TIME_LONG	300 // Unit : millisecond
 
 typedef struct {
 	GPIO_TypeDef *port;	// Port of switch
 	uint32_t pinMask;	// Pin of switch
-	uint32_t timer;		//
-	uint8_t state;		//
+	uint32_t timer;
+	uint32_t prevTick;
+	uint8_t state;
 } ButtonState_t;
 
 static void Custom_Switch_Init_ButtonState(ButtonState_t *State,
@@ -28,16 +29,21 @@ static void Custom_Switch_Init_ButtonState(ButtonState_t *State,
 	State->port = GPIOx;
 	State->pinMask = PinMask;
 	State->timer = 0;
+	State->prevTick = Custom_Delay_Get_SysTick();
 	State->state = LONG_OFF;
 }
 
 static uint8_t Custom_Switch_State_Machine(ButtonState_t *State) {
 	/**
 	 * 이 함수는 State 구조체의 값을 기반으로 아래 설명된 바와 같이 state machine을 구현한다.
-	 * 이 함수는 1ms마다 호출됨을 전제로 한다.
+	 * 원래는 1ms마다 호출됨을 전제로 하였으나 OLED 화면 출력과 같은 시간이 많이 소요되는 함로로 인해 부하가 걸리면
+	 * 1ms 시간이 부족하여 스위치가 동작이 제대로 수행되지 않는 문제점이 있었다.
+	 * 함수가 호출된 시간을 측정하여 타이머 값에 시간을 뺀 뒤 기준 시간이 지났음을 감지하여 버튼 입력값을 출력하는 방식으로 변경하였다.
 	 */
 	bool currentPushed = !(LL_GPIO_ReadInputPort(State->port) & State->pinMask);
 	bool pushEvent = false;
+
+	uint32_t currTick = Custom_Delay_Get_SysTick();
 
 	switch (State->state) {
 
@@ -49,12 +55,12 @@ static uint8_t Custom_Switch_State_Machine(ButtonState_t *State) {
 			break;
 
 		case SHORT_ON:
-			State->timer--;
-			if (State->timer == 0) {
+			if (State->timer <= currTick - State->prevTick) {
 				pushEvent = true;
 				State->state = LONG_ON;
 				State->timer = TIME_LONG;
 			}
+			State->timer -= currTick - State->prevTick;
 			break;
 
 		case LONG_ON:
@@ -63,20 +69,23 @@ static uint8_t Custom_Switch_State_Machine(ButtonState_t *State) {
 				State->timer = TIME_SHROT;
 				break;
 			}
-			State->timer--;
-			if (State->timer == 0) {
+			if (State->timer <= currTick - State->prevTick) {
 				pushEvent = true;
 				State->timer = TIME_LONG;
 			}
+			State->timer -= currTick - State->prevTick;
 			break;
 
 		case SHORT_OFF:
-			State->timer--;
-			if (State->timer == 0) {
+			if (State->timer <= currTick - State->prevTick) {
 				State->state = LONG_OFF;
 			}
+			State->timer -= currTick - State->prevTick;
 			break;
 	}
+
+	// 다음 호출 시 이전에 함수가 호출된 시간을 참조해야 하므로 prevTick값에 저장한다.
+	State->prevTick = currTick;
 
 	return pushEvent;
 }
@@ -135,7 +144,6 @@ uint8_t Custom_Switch_Read(void) {
 		Custom_Switch_Init_ButtonState(&sw2, SW2_PORT, SW2_PIN);
 	}
 
-	Custom_Delay_ms(1);
 	uint8_t sw1PushEvent = Custom_Switch_State_Machine(&sw1);
 	uint8_t sw2PushEvent = Custom_Switch_State_Machine(&sw2);
 
@@ -158,12 +166,4 @@ uint8_t Custom_Switch_Read(void) {
 	if (sw2PushEvent) buttonPushEvent |= CUSTOM_SW_2;
 
 	return buttonPushEvent;
-}
-
-uint8_t Custom_Switch_Wait_Read(uint32_t millisecond) {
-	for (int i = 0; i < millisecond; i++) {
-		uint8_t swState = Custom_Switch_Read();
-		if (swState) return swState;
-	}
-	return 0;
 }
