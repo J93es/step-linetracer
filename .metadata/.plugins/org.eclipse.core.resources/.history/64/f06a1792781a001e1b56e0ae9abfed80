@@ -1,0 +1,25 @@
+/*
+ * init.h
+ */
+
+#ifndef INC_INIT_H_
+#define INC_INIT_H_
+
+
+#include "main.h"
+
+
+#define MENU_TEXT_LENGTH	20
+
+
+typedef struct menuData
+{
+	char menuName[MENU_TEXT_LENGTH];
+	void (*func)(void);
+} menuData;
+
+
+void Init(void);
+
+
+#endif /* INC_INIT_H_ */

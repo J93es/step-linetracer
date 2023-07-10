@@ -1,0 +1,14 @@
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1124:22:LL_TIM_EnableCounter	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1135:22:LL_TIM_DisableCounter	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:3457:22:LL_TIM_EnableIT_UPDATE	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:3468:22:LL_TIM_DisableIT_UPDATE	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:16:22:Custom_Delay_us	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:24:22:Custom_Delay_ms	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External Library/Inc/custom_gpio.h:54:20:Custom_GPIO_Set_t	16	static
+../Main/Src/motor.c:41:6:motorPowerOff	8	static
+../Main/Src/motor.c:55:6:Motor_Start	8	static
+../Main/Src/motor.c:65:6:Motor_Stop	8	static
+../Main/Src/motor.c:77:6:Motor_L_TIM3_IRQ	8	static
+../Main/Src/motor.c:89:6:Motor_R_TIM4_IRQ	8	static
+../Main/Src/motor.c:101:6:Motor_Test_Phase	24	static
+../Main/Src/motor.c:146:6:Motor_Test_Velocity	8	static
