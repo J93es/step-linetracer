@@ -25,6 +25,8 @@ Main/Src/init.o: ../Main/Src/init.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
  /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h \
  /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/drive.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h \
  /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h \
  /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_oled.h \
  /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_switch.h \
@@ -57,6 +59,8 @@ Main/Src/init.o: ../Main/Src/init.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
 /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h:
 /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/drive.h:
+/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h:
+/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h:
 /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h:
 /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_oled.h:
 /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_switch.h:

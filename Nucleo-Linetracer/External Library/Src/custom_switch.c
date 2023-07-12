@@ -14,7 +14,7 @@
 #define SHORT_OFF	0x08
 
 #define TIME_SHROT	80	// Unit : millisecond
-#define TIME_LONG	300 // Unit : millisecond
+#define TIME_LONG	200 // Unit : millisecond
 
 typedef struct {
 	GPIO_TypeDef *port;	// Port of switch

@@ -74,19 +74,19 @@ void Init() {
 			{ "Test Normalized", Sensor_Test_Normalized },
 			{ "Test State", Sensor_Test_State },
 			{ "Test Phase", Motor_Test_Phase },
+			{ "Test Velocity", Motor_Test_Velocity },
+			{ "Test Position", Drive_Test_Position },
+			{ "Drive_First", Drive_First },
 	};
 
-	uint32_t count = 0;
-	uint32_t menuCnt = sizeof(menus) / sizeof(t_menuData);
+	uint8_t sw = 0;
+	uint8_t count = 0;
+	uint8_t menuCnt = sizeof(menus) / sizeof(t_menuData);
 
+	Custom_OLED_Clear();
 	while(1) {
-		Custom_OLED_Clear();
-		Custom_OLED_Printf("%s", menus[count].menuName);
-
-		while(1) {
-			uint32_t sw;
-
-			while (!(sw = Custom_Switch_Read()));
+		while(CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
+			Custom_OLED_Printf("%s", menus[count].menuName);
 
 			if (sw == CUSTOM_SW_1) {
 				if (count == 0)
@@ -100,13 +100,9 @@ void Init() {
 				else
 					count++;
 			}
-			else if (sw == CUSTOM_SW_BOTH) break;
-
-			Custom_OLED_Clear();
-			Custom_OLED_Printf("%s", menus[count].menuName);
 		}
-
 		Custom_OLED_Clear();
 		menus[count].func();
 	}
+	Custom_OLED_Clear();
 }

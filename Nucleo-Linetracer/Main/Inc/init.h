@@ -10,9 +10,7 @@
 void	Init(void);
 
 
-
 #define MENU_TEXT_LENGTH	25
-
 
 
 typedef struct	s_menuData
