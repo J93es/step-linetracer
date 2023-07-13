@@ -8,13 +8,10 @@
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1135:22:LL_TIM_DisableCounter	16	static
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:3457:22:LL_TIM_EnableIT_UPDATE	16	static
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:3468:22:LL_TIM_DisableIT_UPDATE	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:20:22:Custom_Delay_us	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:28:22:Custom_Delay_ms	16	static
-../Main/Src/sensor.c:34:6:Sensor_Start	8	static
-../Main/Src/sensor.c:44:6:Sensor_Stop	8	static
-../Main/Src/sensor.c:52:26:Sensor_ADC_Read	16	static,ignoring_inline_asm
-../Main/Src/sensor.c:65:6:Sensor_TIM5_IRQ	8	static
-../Main/Src/sensor.c:102:6:Sensor_Calibration	72	static
-../Main/Src/sensor.c:153:6:Sensor_Test_Raw	48	static
-../Main/Src/sensor.c:170:6:Sensor_Test_Normalized	48	static
-../Main/Src/sensor.c:187:6:Sensor_Test_State	56	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External Library/Inc/custom_delay.h:20:22:Custom_Delay_us	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External Library/Inc/custom_delay.h:28:22:Custom_Delay_ms	16	static
+../Main/Src/sensor.c:38:6:Sensor_Start	8	static
+../Main/Src/sensor.c:50:6:Sensor_Stop	8	static
+../Main/Src/sensor.c:62:26:Sensor_ADC_Read	16	static,ignoring_inline_asm
+../Main/Src/sensor.c:79:6:Sensor_TIM5_IRQ	8	static
+../Main/Src/sensor.c:150:6:Sensor_Calibration	72	static

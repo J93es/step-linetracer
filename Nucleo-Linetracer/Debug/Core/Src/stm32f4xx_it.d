@@ -1,4 +1,8 @@
-Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
+Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_tools.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/init.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h \
+ ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_adc.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h \
@@ -21,13 +25,15 @@ Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_gpio.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h \
  ../Core/Inc/stm32f4xx_it.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/init.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/drive.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/init.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_tools.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/init.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_adc.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
@@ -51,10 +57,9 @@ Core/Src/stm32f4xx_it.o: ../Core/Src/stm32f4xx_it.c ../Core/Inc/main.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_gpio.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:
 ../Core/Inc/stm32f4xx_it.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/init.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/drive.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/sensor.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/init.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h:

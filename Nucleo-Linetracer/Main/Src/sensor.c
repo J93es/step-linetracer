@@ -14,20 +14,24 @@
 
 
 
+#define MODULO_8(i)			(i & 0x07)
+#define MIDIAN_FIRST(i)		((i) & 0x07)
+#define MIDIAN_SECOND(i)	(8 + ((i) & 0x07))
+#define MIDIAN_THIRD(i)		(16 + ((i) & 0x07))
+#define SWAP(a, b)			({ a ^= b; b ^= a; a ^= b; })
 
-uint8_t		sensorRawVals[8] = { 0, };
 
-uint8_t		sensorNormVals[8] = { 0, };
-uint8_t		normalizeCoef[8] = { 1, };
 
-uint8_t		whiteMaxs[8] = { 0, };
-uint8_t		blackMaxs[8] = { 0, };
+uint8_t				sensorRawVals[8] = { 0, };
 
-uint8_t		threshold = THRESHOLD_RESET_VAL;
-uint8_t		state = 0x00;
+uint8_t				sensorNormVals[8] = { 0, };
+static uint8_t		normalizeCoef[8] = { 1, };
+static uint8_t		whiteMaxs[8] = { 255, };
+static uint8_t		blackMaxs[8] = { 0, };
 
-int32_t		positionVal = 0;
-float		positionCoef = POSITION_COEF_INIT;
+uint8_t				state = 0x00;
+uint8_t				threshold = THRESHOLD_RESET_VAL;
+
 
 
 
@@ -41,11 +45,17 @@ void Sensor_Start() {
 
 
 
+
+
 void Sensor_Stop() {
 	LL_ADC_Disable(ADC1);
 	LL_TIM_DisableCounter(TIM5);
 	LL_TIM_DisableIT_UPDATE(TIM5);
 }
+
+
+
+
 
 
 
@@ -62,40 +72,78 @@ __STATIC_INLINE uint16_t Sensor_ADC_Read() {
 
 
 
+
+
+
+
 void Sensor_TIM5_IRQ() {
-	static int32_t	i = 0; // 현재 값을 읽을 센서 인덱스
-	static int32_t	positionBuffer = 0;
-	static int32_t	sensorNormValsSum = 1;
-	static int32_t	positionCoef[8] = { -14000, -10000, -6000, -2000, 2000, 6000, 10000, 14000 };
+	static uint8_t	i = 0; // 현재 값을 읽을 센서 인덱스
+	static uint8_t	midian[24] = { 0, };
 
-	//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
-	GPIOC->ODR = (GPIOC->ODR & ~0x07) | i | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
+	if (i < 8) {
+		//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
+		GPIOC->ODR = (GPIOC->ODR & ~0x07) | MODULO_8(i) | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
 
-	// ADC 읽기
-	sensorRawVals[i] = Sensor_ADC_Read() >> 4;
+		// ADC 읽기
+		midian[MIDIAN_FIRST(i)] = Sensor_ADC_Read() >> 4;
 
-	// 선택한 IR LED 끄기
-	GPIOC->ODR &= ~0x08;
+		// 선택한 IR LED 끄기
+		GPIOC->ODR &= ~0x08;
+	}
+	else if (i < 16) {
+		//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
+		GPIOC->ODR = (GPIOC->ODR & ~0x07) | MODULO_8(i) | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
 
-	// normalized value 계산
-	sensorNormVals[i] = ( (255 * (sensorRawVals[i] - blackMaxs[i]) / normalizeCoef[i]) \
-		& ((sensorRawVals[i] < blackMaxs[i]) - 0x01) ) \
-		| ((sensorRawVals[i] < whiteMaxs[i]) - 0x01);
-	//	black: normal 1111    abnormal 0000        white: normal 0000    abnormal 1111
+		// ADC 읽기
+		midian[MIDIAN_SECOND(i)] = Sensor_ADC_Read() >> 4;
 
-	// sensor state 계산
-	state = ( state & ~(0x01 << i) ) | ( (sensorNormVals[i] > threshold) << i );
+		// 선택한 IR LED 끄기
+		GPIOC->ODR &= ~0x08;
+	}
+	else {
+		//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
+		GPIOC->ODR = (GPIOC->ODR & ~0x07) | MODULO_8(i) | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
 
-	//position 값 계산
-	positionBuffer += sensorNormVals[i] * positionCoef[i];
-	sensorNormValsSum += sensorNormVals[i];
-	positionVal = ( (((i != 0x07) - 0x01) & (positionBuffer / sensorNormValsSum)) | (((i == 7) - 0x01) & positionVal) );
-	positionBuffer = (i != 0x07) * positionBuffer;
-	sensorNormValsSum = (i != 0x07) * sensorNormValsSum + 1;
+		// ADC 읽기
+		midian[MIDIAN_THIRD(i)] = Sensor_ADC_Read() >> 4;
 
-	// 인덱스 증가
-	i = (i + 1) & 0x07;
+		// 선택한 IR LED 끄기
+		GPIOC->ODR &= ~0x08;
+
+		// 중앙값을 sensorRawVals[i]에 저장
+		if (midian[MIDIAN_FIRST(i)] > midian[MIDIAN_SECOND(i)]) {
+			SWAP(midian[MIDIAN_FIRST(i)], midian[MIDIAN_SECOND(i)]);
+		}
+		if (midian[MIDIAN_SECOND(i)] > midian[MIDIAN_THIRD(i)]) {
+			SWAP(midian[MIDIAN_SECOND(i)], midian[MIDIAN_THIRD(i)]);
+		}
+		sensorRawVals[MODULO_8(i)] =  midian[MIDIAN_SECOND(i)];
+		// normalized value 계산
+		/*
+			if (sensorRawVals[i] < blackMaxs[i])
+				sensorNormVals[i] = 0;
+			else if (sensorRawVals[i] > whiteMaxs[i])
+				sensorNormVals[i] = 255;
+			else
+				sensorNormVals[i] = (255 * (sensorRawVals[i] - blackMaxs[i]) / (whiteMaxs[i] - blackMax[i]));
+		 */
+		sensorNormVals[MODULO_8(i)] = ( (255 * (sensorRawVals[MODULO_8(i)] - blackMaxs[MODULO_8(i)]) / normalizeCoef[MODULO_8(i)]) \
+			& ((sensorRawVals[MODULO_8(i)] < blackMaxs[MODULO_8(i)]) - 0x01) ) \
+			| ((sensorRawVals[MODULO_8(i)] < whiteMaxs[MODULO_8(i)]) - 0x01);
+
+		// sensor state 계산
+		state = ( state & ~(0x01 << MODULO_8(i)) ) | ( (sensorNormVals[MODULO_8(i)] > threshold) << MODULO_8(i) );
+	}
+
+	i++;
+	if (i == 24)
+		i = 0;
 }
+
+
+
+
+
 
 
 
@@ -142,72 +190,6 @@ void Sensor_Calibration() {
 	// Calculate ADC coefficients
 	for (int i = 0; i < 8; i++) {
 		normalizeCoef[i] = whiteMaxs[i] - blackMaxs[i];
-	}
-
-	Custom_OLED_Clear();
-	Sensor_Stop();
-}
-
-
-
-void Sensor_Test_Raw() {
-	Sensor_Start();
-	Custom_OLED_Clear();
-
-	// 센서의 Raw 값을 디스플레이에 출력해 확인하기
-	while (CUSTOM_SW_BOTH != Custom_Switch_Read()) {
-		Custom_OLED_Printf("%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
-			sensorRawVals[0], sensorRawVals[1], sensorRawVals[2], sensorRawVals[3], \
-			sensorRawVals[4], sensorRawVals[5], sensorRawVals[6], sensorRawVals[7]);
-	}
-
-	Custom_OLED_Clear();
-	Sensor_Stop();
-}
-
-
-
-void Sensor_Test_Normalized() {
-	Sensor_Start();
-	Custom_OLED_Clear();
-
-	// 센서의 Normalized 값을 디스플레이에 출력해 확인하기
-	while (CUSTOM_SW_BOTH != Custom_Switch_Read()) {
-		Custom_OLED_Printf("%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
-			sensorNormVals[0], sensorNormVals[1], sensorNormVals[2], sensorNormVals[3], \
-			sensorNormVals[4], sensorNormVals[5], sensorNormVals[6], sensorNormVals[7]);
-	}
-
-	Custom_OLED_Clear();
-	Sensor_Stop();
-}
-
-
-
-void Sensor_Test_State() {
-	uint8_t sw = 0;
-
-	Sensor_Start();
-	Custom_OLED_Clear();
-
-	// 센서의 State 값을 디스플레이에 출력해 확인하기
-	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
-		Custom_OLED_Printf("%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
-			(state >> 0) & 1, (state >> 1) & 1, (state >> 2) & 1, (state >> 3) & 1, \
-			(state >> 4) & 1, (state >> 5) & 1, (state >> 6) & 1, (state >> 7) & 1);
-		Custom_OLED_Printf("/1threshold: %3d", threshold);
-
-
-		if (sw == CUSTOM_SW_1) {
-			if (threshold > THRESHOLD_MIN) {
-				threshold -= THRESHOLD_CHANGE_VAL;
-			}
-		}
-		else if (sw == CUSTOM_SW_2) {
-			if (threshold < THRESHOLD_MAX) {
-				threshold += THRESHOLD_CHANGE_VAL;
-			}
-		}
 	}
 
 	Custom_OLED_Clear();

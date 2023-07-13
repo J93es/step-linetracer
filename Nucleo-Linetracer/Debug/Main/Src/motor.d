@@ -21,12 +21,12 @@ Main/Src/motor.o: ../Main/Src/motor.c ../Core/Inc/main.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_gpio.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_oled.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_switch.h \
- /Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_gpio.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_oled.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_switch.h \
+ /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_adc.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h:
@@ -50,9 +50,9 @@ Main/Src/motor.o: ../Main/Src/motor.c ../Core/Inc/main.h \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_gpio.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/Main/Inc/motor.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_gpio.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_oled.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_switch.h:
-/Users/j93es/STM32CubeIDE/workspace_1.12.1/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_gpio.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_oled.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_switch.h:
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External\ Library/Inc/custom_delay.h:

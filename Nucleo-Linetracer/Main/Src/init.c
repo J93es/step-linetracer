@@ -2,12 +2,14 @@
  * init.c
  */
 
+#include <drive_tools.h>
 #include <stdio.h>
 #include "init.h"
 #include "main.h"
 #include "motor.h"
-#include "drive.h"
 #include "sensor.h"
+#include "drive_first.h"
+#include "linetracer_test.h"
 #include "custom_oled.h"
 #include "custom_switch.h"
 #include "custom_filesystem.h"
@@ -69,14 +71,14 @@ void Init() {
 	 * Custom_Switch_Read 함수 내부에는 1ms 딜레이가 존재하기 때문에, 이 함수를 주행 알고리즘 내부에 집어넣으면 성능이 크게 떨어지니 주의한.
 	 */
 	t_menuData menus[] = {
-			{ "Calibration", Sensor_Calibration },
-			{ "Test Raw", Sensor_Test_Raw },
+			{ "Calibration    ", Sensor_Calibration },
+			{ "Drive First    ", Drive_First },
+			{ "Test Raw       ", Sensor_Test_Raw },
 			{ "Test Normalized", Sensor_Test_Normalized },
-			{ "Test State", Sensor_Test_State },
-			{ "Test Phase", Motor_Test_Phase },
-			{ "Test Velocity", Motor_Test_Velocity },
-			{ "Test Position", Drive_Test_Position },
-			{ "Drive_First", Drive_First },
+			{ "Test State     ", Sensor_Test_State },
+			{ "Test Phase     ", Motor_Test_Phase },
+			{ "Test Velocity  ", Motor_Test_Velocity },
+			{ "Test Position  ", Drive_Test_Position },
 	};
 
 	uint8_t sw = 0;

@@ -7,17 +7,30 @@
 
 
 
+
+
 void	Init(void);
 
 
-#define MENU_TEXT_LENGTH	25
+
+
+
+#define MAX_OLED_LEN	15
+
+
+
+
 
 
 typedef struct	s_menuData
 {
-	char menuName[MENU_TEXT_LENGTH];
+	char menuName[MAX_OLED_LEN];
 	void (*func)(void);
 }				t_menuData;
+
+
+
+
 
 
 
