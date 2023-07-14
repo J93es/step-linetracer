@@ -14,11 +14,8 @@
 
 
 
-#define MODULO_8(i)			(i & 0x07)
-#define MIDIAN_FIRST(i)		((i) & 0x07)
-#define MIDIAN_SECOND(i)	(8 + ((i) & 0x07))
-#define MIDIAN_THIRD(i)		(16 + ((i) & 0x07))
 #define SWAP(a, b)			({ a ^= b; b ^= a; a ^= b; })
+
 
 
 
@@ -78,66 +75,46 @@ __STATIC_INLINE uint16_t Sensor_ADC_Read() {
 
 void Sensor_TIM5_IRQ() {
 	static uint8_t	i = 0; // 현재 값을 읽을 센서 인덱스
-	static uint8_t	midian[24] = { 0, };
+	static uint8_t	midian[3] = { 0, };
 
-	if (i < 8) {
-		//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
-		GPIOC->ODR = (GPIOC->ODR & ~0x07) | MODULO_8(i) | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
 
-		// ADC 읽기
-		midian[MIDIAN_FIRST(i)] = Sensor_ADC_Read() >> 4;
+	//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
+	GPIOC->ODR = (GPIOC->ODR & ~0x07) | i | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
 
-		// 선택한 IR LED 끄기
-		GPIOC->ODR &= ~0x08;
+	// ADC 읽기
+	midian[0] = Sensor_ADC_Read() >> 4;
+	midian[1] = Sensor_ADC_Read() >> 4;
+	midian[2] = Sensor_ADC_Read() >> 4;
+
+	// 선택한 IR LED 끄기
+	GPIOC->ODR &= ~0x08;
+
+	// 중앙값을 sensorRawVals[i]에 저장
+	if (midian[0] > midian[1]) {
+		SWAP(midian[0], midian[1]);
 	}
-	else if (i < 16) {
-		//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
-		GPIOC->ODR = (GPIOC->ODR & ~0x07) | MODULO_8(i) | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
-
-		// ADC 읽기
-		midian[MIDIAN_SECOND(i)] = Sensor_ADC_Read() >> 4;
-
-		// 선택한 IR LED 끄기
-		GPIOC->ODR &= ~0x08;
+	if (midian[1] > midian[2]) {
+		SWAP(midian[1], midian[2]);
 	}
-	else {
-		//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
-		GPIOC->ODR = (GPIOC->ODR & ~0x07) | MODULO_8(i) | 0x08;   // 0000 {1}(XXX) == 0000 {LED}(i)
+	sensorRawVals[i] =  midian[1];
 
-		// ADC 읽기
-		midian[MIDIAN_THIRD(i)] = Sensor_ADC_Read() >> 4;
+	// normalized value 계산
+	/*
+		if (sensorRawVals[i] < blackMaxs[i])
+			sensorNormVals[i] = 0;
+		else if (sensorRawVals[i] > whiteMaxs[i])
+			sensorNormVals[i] = 255;
+		else
+			sensorNormVals[i] = (255 * (sensorRawVals[i] - blackMaxs[i]) / (whiteMaxs[i] - blackMax[i]));
+	 */
+	sensorNormVals[i] = ( (255 * (sensorRawVals[i] - blackMaxs[i]) / normalizeCoef[i]) \
+		& ((sensorRawVals[i] < blackMaxs[i]) - 0x01) ) \
+		| ((sensorRawVals[i] < whiteMaxs[i]) - 0x01);
 
-		// 선택한 IR LED 끄기
-		GPIOC->ODR &= ~0x08;
+	// sensor state 계산
+	state = ( state & ~(0x01 << i) ) | ( (sensorNormVals[i] > threshold) << i );
 
-		// 중앙값을 sensorRawVals[i]에 저장
-		if (midian[MIDIAN_FIRST(i)] > midian[MIDIAN_SECOND(i)]) {
-			SWAP(midian[MIDIAN_FIRST(i)], midian[MIDIAN_SECOND(i)]);
-		}
-		if (midian[MIDIAN_SECOND(i)] > midian[MIDIAN_THIRD(i)]) {
-			SWAP(midian[MIDIAN_SECOND(i)], midian[MIDIAN_THIRD(i)]);
-		}
-		sensorRawVals[MODULO_8(i)] =  midian[MIDIAN_SECOND(i)];
-		// normalized value 계산
-		/*
-			if (sensorRawVals[i] < blackMaxs[i])
-				sensorNormVals[i] = 0;
-			else if (sensorRawVals[i] > whiteMaxs[i])
-				sensorNormVals[i] = 255;
-			else
-				sensorNormVals[i] = (255 * (sensorRawVals[i] - blackMaxs[i]) / (whiteMaxs[i] - blackMax[i]));
-		 */
-		sensorNormVals[MODULO_8(i)] = ( (255 * (sensorRawVals[MODULO_8(i)] - blackMaxs[MODULO_8(i)]) / normalizeCoef[MODULO_8(i)]) \
-			& ((sensorRawVals[MODULO_8(i)] < blackMaxs[MODULO_8(i)]) - 0x01) ) \
-			| ((sensorRawVals[MODULO_8(i)] < whiteMaxs[MODULO_8(i)]) - 0x01);
-
-		// sensor state 계산
-		state = ( state & ~(0x01 << MODULO_8(i)) ) | ( (sensorNormVals[MODULO_8(i)] > threshold) << MODULO_8(i) );
-	}
-
-	i++;
-	if (i == 24)
-		i = 0;
+	i = (i + 1) & 0x07;
 }
 
 

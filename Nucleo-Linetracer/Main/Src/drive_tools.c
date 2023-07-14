@@ -50,12 +50,14 @@ void Drive_TIM9_IRQ() {
 	static int32_t	positionBuffer[8] = { 0, };
 	static int32_t	sensorNormValsBuffer[8] = { 1, };
 	static int32_t	getPositionCoef[8] = { -14000, -10000, -6000, -2000, 2000, 6000, 10000, 14000 };
+
 	/*
 	 * 이 인터럽트가 필요한 이유는 가속도 제어 때문이다.
 	 * while문을 사용하면 특정 시간마다 한 번씩 제어하기가 어려운 반면(불가능한 것은 아님)
 	 * 인터럽트를 사용하면 그런 작업이 쉽게 가능하다.
 	 * 그러나 인터럽트 함수인 만큼 너무 많은 작업을 하면 안 된다.
 	 */
+	// 가속도 조절
 	if (targetSpeed > currentSpeed) {
 		currentSpeed += accele / 2000;
 		if (targetSpeed < currentSpeed) {
@@ -68,7 +70,6 @@ void Drive_TIM9_IRQ() {
 			currentSpeed = targetSpeed;
 		}
 	}
-
 
 	// i == 7 일 때 position 값 업데이트
 	if (i == 7) {

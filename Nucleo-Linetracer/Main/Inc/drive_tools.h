@@ -15,7 +15,7 @@
 
 #define POSITION_COEF_INIT			0.00004f
 #define TARGET_SPEED_INIT			1.f
-#define ACCELE_INIT					2.f					//	m/ms
+#define ACCELE_INIT					2.f						//	m/ms
 #define	MAX_SPEED_INIT				2.f						//	m/s
 #define MIN_SPEED_INIT				SPEED_COEF / 65535.f	//	SPEED_COEF / (65535)ARR_MAX (m/s) 의 근사값
 
@@ -54,7 +54,7 @@ void	Accele_Control_Stop();
 
 __STATIC_INLINE void	Drive_Fit_In(float s, float pinSpeed) {
 	targetSpeed = pinSpeed;
-	accele = (currentSpeed * currentSpeed) / (2 * s);
+	accele = (pinSpeed * pinSpeed) - (currentSpeed * currentSpeed) / (2 * s);
 	while (currentSpeed > 0.5) ;
 }
 

@@ -31,7 +31,7 @@ void Drive_First() {
 		Custom_OLED_Printf("/2speedL: %5f", currentSpeed * (1 + positionVal * positionCoef));
 		Custom_OLED_Printf("/3speedR: %5f", currentSpeed * (1 - positionVal * positionCoef));
 	}
-	Drive_Fit_In(0.25, 0.005);
+	Drive_Fit_In(0.25, 0.01);
 
 	Custom_Delay_ms(500);
 	Motor_Power_Off();
