@@ -14,9 +14,7 @@ void	Init(void);
 
 
 
-
 #define MAX_OLED_LEN	15
-
 
 
 

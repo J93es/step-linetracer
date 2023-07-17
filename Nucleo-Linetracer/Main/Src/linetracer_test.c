@@ -2,18 +2,7 @@
  * linetracer_test.c
  */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "main.h"
-#include "motor.h"
-#include "sensor.h"
-#include "drive_tools.h"
-#include "custom_delay.h"
-#include "custom_gpio.h"
-#include "custom_oled.h"
-#include "custom_switch.h"
-#include "custom_filesystem.h"
-#include "custom_exception.h"
+#include "header_init.h"
 
 
 
@@ -229,4 +218,16 @@ void Drive_Test_Position() {
 	Accele_Control_Stop();
 	Sensor_Stop();
 	Custom_OLED_Clear();
+}
+
+
+
+
+void Drive_Test_Info_Oled() {
+	Custom_OLED_Printf("/0target: %5f", targetSpeed);
+	Custom_OLED_Printf("/1current: %5f", currentSpeed);
+	Custom_OLED_Printf("/2accele: %5f", accele);
+	Custom_OLED_Printf("/3speedL: %5f", currentSpeed * (1 + positionVal * positionCoef));
+	Custom_OLED_Printf("/4speedR: %5f", currentSpeed * (1 - positionVal * positionCoef));
+	Custom_OLED_Printf("/5state: %5d", curStateIdx);
 }

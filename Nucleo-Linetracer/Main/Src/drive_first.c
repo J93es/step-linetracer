@@ -2,16 +2,7 @@
  * drive_first.c
  */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "motor.h"
-#include "sensor.h"
-#include "drive_tools.h"
-#include "state_machine.h"
-#include "custom_gpio.h"
-#include "custom_oled.h"
-#include "custom_switch.h"
-#include "custom_exception.h"
+#include "header_init.h"
 
 
 
@@ -19,20 +10,21 @@
 void Drive_First() {
 	Custom_OLED_Clear();
 	Sensor_Start();
+
 	Drive_Setting();
 
 	Motor_Start();
 	Accele_Control_Start();
 
 	while (state != 0) {
-		Drive_Position();
-		Custom_OLED_Printf("/0target: %5f", targetSpeed);
-		Custom_OLED_Printf("/1current: %5f", currentSpeed);
-		Custom_OLED_Printf("/2speedL: %5f", currentSpeed * (1 + positionVal * positionCoef));
-		Custom_OLED_Printf("/3speedR: %5f", currentSpeed * (1 - positionVal * positionCoef));
+		Drive_Test_Info_Oled();
+		First_Drive_State_Machine();
+		if (curStateIdx == STATE_END_MARK) {
+			Drive_Fit_In(0.25, 0.f);
+			break ;
+		}
 	}
-	Drive_Fit_In(0.25, 0.01);
-
+	Drive_Test_Info_Oled();
 	Custom_Delay_ms(500);
 	Motor_Power_Off();
 

@@ -4,5 +4,5 @@
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External Library/Inc/custom_delay.h:20:22:Custom_Delay_us	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External Library/Inc/custom_delay.h:28:22:Custom_Delay_ms	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External Library/Inc/custom_delay.h:39:22:Custom_Delay_Init_SysTick	4	static
-../Main/Src/init.c:24:5:__io_putchar	16	static
-../Main/Src/init.c:33:6:Init	176	static
+../Main/Src/init.c:12:5:__io_putchar	16	static
+../Main/Src/init.c:21:6:Init	176	static

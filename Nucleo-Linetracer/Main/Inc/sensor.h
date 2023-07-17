@@ -8,17 +8,6 @@
 
 
 
-
-void	Sensor_TIM5_IRQ();
-void	Sensor_Start();
-void	Sensor_Stop();
-void	Sensor_Calibration();
-
-
-
-
-
-
 #define	THRESHOLD_MAX 			125
 #define	THRESHOLD_MIN			25
 #define	THRESHOLD_CHANGE_VAL	5
@@ -32,13 +21,19 @@ void	Sensor_Calibration();
 
 
 
-extern uint8_t		sensorRawVals[8];
-extern uint8_t		sensorNormVals[8];
-extern uint8_t		state;
+extern volatile uint8_t		sensorRawVals[8];
+extern volatile uint8_t		sensorNormVals[8];
+extern volatile uint8_t		state;
+extern volatile uint8_t		threshold;
 
-extern uint8_t		threshold;
 
 
+
+
+void	Sensor_TIM5_IRQ();
+void	Sensor_Start();
+void	Sensor_Stop();
+void	Sensor_Calibration();
 
 
 

@@ -2,19 +2,7 @@
  * init.c
  */
 
-#include <drive_tools.h>
-#include <stdio.h>
-#include "init.h"
-#include "main.h"
-#include "motor.h"
-#include "sensor.h"
-#include "drive_first.h"
-#include "linetracer_test.h"
-#include "custom_oled.h"
-#include "custom_switch.h"
-#include "custom_filesystem.h"
-
-
+#include "header_init.h"
 
 
 

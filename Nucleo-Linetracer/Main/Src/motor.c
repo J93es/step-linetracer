@@ -2,17 +2,7 @@
  * motor.c
  */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "main.h"
-#include "motor.h"
-#include "custom_delay.h"
-#include "custom_gpio.h"
-#include "custom_oled.h"
-#include "custom_switch.h"
-
-
-
+#include "header_init.h"
 
 
 
@@ -35,7 +25,7 @@ static Custom_GPIO_t	motorR[4] = {
 
 volatile static uint8_t	phases[8] = { 0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09 };
 
-
+volatile uint8_t	curStateIdx = STATE_STRAIGHT;
 
 
 
@@ -99,6 +89,17 @@ void Motor_L_TIM3_IRQ() {
 	Custom_GPIO_Set_t(motorL + 3, 0x08 & phases[7 - phaseL]);
 
 	phaseL = (phaseL + 1) & 0x07;
+
+	if (curStateIdx == STATE_STRAIGHT) {
+		targetSpeed = STRAIGHT_SPEED;
+	}
+	else if (curStateIdx == STATE_CURVE_L) {
+		targetSpeed = CURVE_SPEED;
+	}
+	else if (curStateIdx == STATE_MEASURE_CURVE_L) {
+		targetSpeed = CURVE_MEASURE_SPEED;
+	}
+
 }
 
 
@@ -115,5 +116,15 @@ void Motor_R_TIM4_IRQ() {
 	Custom_GPIO_Set_t(motorR + 3, 0x08 & phases[phaseR]);
 
 	phaseR = (phaseR + 1) & 0x07;
+
+	if (curStateIdx == STATE_CURVE_R) {
+		targetSpeed = CURVE_SPEED;
+	}
+	else if (curStateIdx == STATE_MEASURE_STRAIGHT) {
+		targetSpeed = STRAIGHT_MEASURE_SPEED;
+	}
+	else if (curStateIdx == STATE_MEASURE_CURVE_R) {
+		targetSpeed = CURVE_MEASURE_SPEED;
+	}
 }
 

@@ -2,25 +2,18 @@
  * drive_tools.c
  */
 
-
-#include <stdint.h>
-#include <stdbool.h>
-#include "motor.h"
-#include "sensor.h"
-#include "drive_tools.h"
-#include "custom_oled.h"
-#include "custom_switch.h"
-#include "custom_exception.h"
+#include "header_init.h"
 
 
-int32_t	positionVal = 0;
-float	positionCoef = POSITION_COEF_INIT;
 
-float	targetSpeed = 0;
-float	currentSpeed = MIN_SPEED_INIT;
-float	minSpeed = MIN_SPEED_INIT;
-float	maxSpeed = MAX_SPEED_INIT;
-float	accele = ACCELE_INIT;
+volatile int32_t	positionVal = 0;
+volatile float	positionCoef = POSITION_COEF_INIT;
+
+volatile float	targetSpeed = 0;
+volatile float	currentSpeed = MIN_SPEED_INIT;
+volatile float	minSpeed = MIN_SPEED_INIT;
+volatile float	maxSpeed = MAX_SPEED_INIT;
+volatile float	accele = ACCELE_INIT;
 
 
 
@@ -44,11 +37,10 @@ void Accele_Control_Stop(){
 void Drive_TIM9_IRQ() {
 	static int32_t	i = 0;
 	static int32_t	j = 0;
-	static int32_t	temp = 0;
-	static uint8_t	positionIdxMax = 7;
-	static uint8_t	positionIdxMin = 1;
-	static int32_t	positionBuffer[8] = { 0, };
-	static int32_t	sensorNormValsBuffer[8] = { 1, };
+	static uint8_t	positionIdxMax = 5;
+	static uint8_t	positionIdxMin = 2;
+	static int32_t	positionBuffer = 0;
+	static int32_t	sensorNormValsSum = 1;
 	static int32_t	getPositionCoef[8] = { -14000, -10000, -6000, -2000, 2000, 6000, 10000, 14000 };
 
 	/*
@@ -86,20 +78,19 @@ void Drive_TIM9_IRQ() {
 			positionIdxMin = 3;
 		}
 
-		temp = 0;
 		for (j = positionIdxMin; j != positionIdxMax + 1; j++) {
-			temp += positionBuffer[j];
-			i += sensorNormValsBuffer[j];						//i를 임시변수로 이용
+			positionBuffer += getPositionCoef[i] * sensorNormVals[j];
+			sensorNormValsSum += sensorNormVals[j];
 		}
-		positionVal = temp / (i + 1);							//divide by zero 방지하기 위해 i + 1로 나눔
-		i = 0;
+
+		//divide by zero 방지하기 위해 sensorNormValsSum + 1로 나눔
+		positionVal = positionBuffer / (sensorNormValsSum + 1);
+
+		//position 값애 따른 좌우 모터 속도 조정
+		Motor_L_Speed_Control( currentSpeed * (1 + positionCoef * positionVal) );
+		Motor_R_Speed_Control( currentSpeed * (1 - positionCoef * positionVal) );
 	}
-	// position 값 누적
-	else {
-		positionBuffer[i] = getPositionCoef[i] * sensorNormVals[i];
-		sensorNormValsBuffer[i] = sensorNormVals[i];
-		i++;
-	}
+	i = (i + 1) & 0x07;
 }
 
 
