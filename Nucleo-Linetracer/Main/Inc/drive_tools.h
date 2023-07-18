@@ -8,6 +8,7 @@
 
 
 
+
 #include "init.h"
 #include "motor.h"
 #include "speed_def_var.h"
@@ -15,7 +16,11 @@
 
 
 
+
 #define ABS(x) ( ((x) > 0) ? (x) : (-1 * (x)))
+
+
+
 
 
 typedef struct	s_driveMenu {
@@ -32,10 +37,10 @@ void	Drive_Setting();
 void	Accele_Control_Start();
 void	Accele_Control_Stop();
 
-
-
-
-
 void	Drive_Fit_In(float s, float pinSpeed);
+
+
+
+
 
 #endif /* INC_DRIVE_TOOLS_H_ */

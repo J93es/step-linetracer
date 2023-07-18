@@ -215,7 +215,7 @@ void Sensor_Calibration() {
 	Custom_OLED_Printf("next White Max");
 	while (CUSTOM_SW_BOTH != Custom_Switch_Read()) ;
 	while (CUSTOM_SW_BOTH != Custom_Switch_Read()) {
-		for (int i = 0; i < 8; i++) {
+		for (uint8_t i = 0; i < 8; i++) {
 			if (whiteMaxs[i] < (tmp = sensorRawVals[i])) {
 				whiteMaxs[i] = tmp;
 			}
@@ -230,7 +230,7 @@ void Sensor_Calibration() {
 	Custom_OLED_Printf("next Black Max");
 	while (CUSTOM_SW_BOTH != Custom_Switch_Read()) ;
 	while (CUSTOM_SW_BOTH != Custom_Switch_Read()) {
-		for (int i = 0; i < 8; i++) {
+		for (uint8_t i = 0; i < 8; i++) {
 			if (blackMaxs[i] < (tmp = sensorRawVals[i])) {
 				blackMaxs[i] = tmp;
 			}
@@ -241,7 +241,7 @@ void Sensor_Calibration() {
 	}
 
 	// Calculate ADC coefficients
-	for (int i = 0; i < 8; i++) {
+	for (uint8_t i = 0; i < 8; i++) {
 		normalizeCoef[i] = whiteMaxs[i] - blackMaxs[i];
 	}
 

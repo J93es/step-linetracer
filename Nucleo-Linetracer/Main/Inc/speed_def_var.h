@@ -30,8 +30,8 @@
 #define CURVE_DECELE_INIT			-0.5f
 
 
-#define TIRE_RADIUS	0.025f					// m
-#define	SPEED_COEF	15707.f * TIRE_RADIUS
+#define TIRE_RADIUS					0.025f					// m
+#define	SPEED_COEF					15707.f * TIRE_RADIUS
 #define POSITION_COEF_INIT			0.00004f
 /*
  * (2 * l(m) * 3.141592) / (t(s) * 400) = v(m/s) * (arr+1)
@@ -64,6 +64,8 @@ extern volatile float		minSpeed_init;
 extern volatile float		maxSpeed_init;
 extern volatile float		accele_init;
 extern volatile float		curveDecele_init;
+
+
 
 
 

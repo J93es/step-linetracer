@@ -9,7 +9,6 @@
 
 
 extern volatile uint8_t		endMarkCnt;
-
 extern volatile uint8_t		curDecisionIdx;
 
 

@@ -46,7 +46,7 @@ void Accele_Control_Stop(){
 
 // 500us마다 호출됨.
 void Drive_TIM9_IRQ() {
-	static int32_t	i = 0;
+	static uint8_t	i = 0;
 	static uint8_t	positionIdxMax = 5;
 	static uint8_t	positionIdxMin = 2;
 	static int32_t	positionBuffer = 0;
@@ -137,7 +137,7 @@ void Drive_Setting() {
 
 
 
-	for (int i = 0; i < valCnt; i++) {
+	for (uint8_t i = 0; i < valCnt; i++) {
 		Custom_OLED_Clear();
 		while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 			Custom_OLED_Printf("/0%s", values[i].valName);
