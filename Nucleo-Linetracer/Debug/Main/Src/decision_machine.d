@@ -1,4 +1,4 @@
-Main/Src/drive_tools.o: ../Main/Src/drive_tools.c \
+Main/Src/decision_machine.o: ../Main/Src/decision_machine.c \
  /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/header_init.h \
  /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/decision_machine.h \
  /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_first.h \

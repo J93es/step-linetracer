@@ -12,6 +12,8 @@
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External Library/Inc/custom_delay.h:28:22:Custom_Delay_ms	1
 ../Main/Src/sensor.c:28:6:Sensor_Start	1
 ../Main/Src/sensor.c:44:6:Sensor_Stop	1
-../Main/Src/sensor.c:56:26:Sensor_ADC_Read	2
-../Main/Src/sensor.c:73:6:Sensor_TIM5_IRQ	5
-../Main/Src/sensor.c:184:6:Sensor_Calibration	11
+../Main/Src/sensor.c:55:26:Sensor_ADC_Read	2
+../Main/Src/sensor.c:70:22:Make_Sensor_Norm_Vals	3
+../Main/Src/sensor.c:90:22:Make_Sensor_State	1
+../Main/Src/sensor.c:99:6:Sensor_TIM5_IRQ	3
+../Main/Src/sensor.c:203:6:Sensor_Calibration	11

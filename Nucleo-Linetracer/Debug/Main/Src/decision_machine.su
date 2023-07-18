@@ -1,0 +1,4 @@
+../Main/Src/decision_machine.c:17:25:Get_Line_Sensor_Cnt	4	static
+../Main/Src/decision_machine.c:24:25:Get_Marker_Sensor_Cnt	4	static
+../Main/Src/decision_machine.c:33:22:First_Drive_Decision	16	static
+../Main/Src/decision_machine.c:72:6:First_Drive_Decision_Machine	8	static

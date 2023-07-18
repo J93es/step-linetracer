@@ -13,23 +13,23 @@ void Drive_First() {
 
 	Drive_Setting();
 
-	Motor_Start();
 	Accele_Control_Start();
+	Motor_Start();
 
 	while (state != 0) {
 		Drive_Test_Info_Oled();
-		First_Drive_State_Machine();
-		if (curStateIdx == STATE_END_MARK) {
-			Drive_Fit_In(0.25, 0.f);
+		First_Drive_Decision_Machine();
+		if (curDecisionIdx == DESISION_END_MARK) {
+			Drive_Fit_In(0.25f, 0.f);
 			break ;
 		}
 	}
 	Drive_Test_Info_Oled();
-	Custom_Delay_ms(500);
+	Custom_Delay_ms(50);
 	Motor_Power_Off();
 
-	Accele_Control_Stop();
 	Motor_Stop();
+	Accele_Control_Stop();
 	Sensor_Stop();
 	Custom_OLED_Clear();
 

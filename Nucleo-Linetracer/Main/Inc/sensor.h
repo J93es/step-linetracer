@@ -19,12 +19,14 @@
 
 
 
+extern volatile uint8_t	sensorRawVals[8];
+extern volatile uint8_t	sensorNormVals[8];
+extern volatile uint8_t	state;
+extern volatile uint8_t	threshold;
 
-
-extern volatile uint8_t		sensorRawVals[8];
-extern volatile uint8_t		sensorNormVals[8];
-extern volatile uint8_t		state;
-extern volatile uint8_t		threshold;
+extern volatile uint8_t	normalizeCoef[8];
+extern volatile uint8_t	whiteMaxs[8];
+extern volatile uint8_t	blackMaxs[8];
 
 
 

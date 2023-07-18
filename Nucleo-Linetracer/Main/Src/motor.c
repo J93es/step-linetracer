@@ -6,16 +6,14 @@
 
 
 
-
-static Custom_GPIO_t	motorL[4] = {
+volatile static Custom_GPIO_t	motorL[4] = {
 		{ Motor_L1_GPIO_Port, Motor_L1_Pin },
 		{ Motor_L3_GPIO_Port, Motor_L3_Pin },
 		{ Motor_L2_GPIO_Port, Motor_L2_Pin },
 		{ Motor_L4_GPIO_Port, Motor_L4_Pin },
 };
 
-
-static Custom_GPIO_t	motorR[4] = {
+volatile static Custom_GPIO_t	motorR[4] = {
 		{ Motor_R1_GPIO_Port, Motor_R1_Pin },
 		{ Motor_R3_GPIO_Port, Motor_R3_Pin },
 		{ Motor_R2_GPIO_Port, Motor_R2_Pin },
@@ -24,8 +22,6 @@ static Custom_GPIO_t	motorR[4] = {
 
 
 volatile static uint8_t	phases[8] = { 0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09 };
-
-volatile uint8_t	curStateIdx = STATE_STRAIGHT;
 
 
 
@@ -80,9 +76,10 @@ void Motor_Stop() {
 
 
 void Motor_L_TIM3_IRQ() {
-	// motorL
-	static uint8_t phaseL  = 0;
+	static uint8_t			phaseL  = 0;
 
+
+	// motorL phase 잡기
 	Custom_GPIO_Set_t(motorL + 0, 0x01 & phases[7 - phaseL]);
 	Custom_GPIO_Set_t(motorL + 1, 0x02 & phases[7 - phaseL]);
 	Custom_GPIO_Set_t(motorL + 2, 0x04 & phases[7 - phaseL]);
@@ -90,16 +87,18 @@ void Motor_L_TIM3_IRQ() {
 
 	phaseL = (phaseL + 1) & 0x07;
 
-	if (curStateIdx == STATE_STRAIGHT) {
-		targetSpeed = STRAIGHT_SPEED;
-	}
-	else if (curStateIdx == STATE_CURVE_L) {
-		targetSpeed = CURVE_SPEED;
-	}
-	else if (curStateIdx == STATE_MEASURE_CURVE_L) {
-		targetSpeed = CURVE_MEASURE_SPEED;
-	}
 
+
+	// state 판단 및 기록
+	if (curDecisionIdx == DESISION_STRAIGHT) {
+		targetSpeed = targetSpeed_init;
+	}
+	else if (curDecisionIdx == DESISION_CURVE_L) {
+		targetSpeed = targetSpeed_init + curveDecele;
+	}
+	else if (curDecisionIdx == DESISION_MEASURE_CURVE_L) {
+		targetSpeed = targetSpeed_init + curveDecele;
+	}
 }
 
 
@@ -107,9 +106,10 @@ void Motor_L_TIM3_IRQ() {
 
 
 void Motor_R_TIM4_IRQ() {
-	// motorR
-	static uint8_t phaseR  = 0;
+	static uint8_t			phaseR  = 0;
 
+
+	// motorR phase 잡기
 	Custom_GPIO_Set_t(motorR + 0, 0x01 & phases[phaseR]);
 	Custom_GPIO_Set_t(motorR + 1, 0x02 & phases[phaseR]);
 	Custom_GPIO_Set_t(motorR + 2, 0x04 & phases[phaseR]);
@@ -117,14 +117,18 @@ void Motor_R_TIM4_IRQ() {
 
 	phaseR = (phaseR + 1) & 0x07;
 
-	if (curStateIdx == STATE_CURVE_R) {
-		targetSpeed = CURVE_SPEED;
+
+
+
+	// decision에 해당하는 속도 조정 및 거리 기록
+	if (curDecisionIdx == DESISION_CURVE_R) {
+		targetSpeed = targetSpeed_init + curveDecele;
 	}
-	else if (curStateIdx == STATE_MEASURE_STRAIGHT) {
-		targetSpeed = STRAIGHT_MEASURE_SPEED;
+	else if (curDecisionIdx == DESISION_MEASURE_STRAIGHT) {
+		targetSpeed = targetSpeed_init;
 	}
-	else if (curStateIdx == STATE_MEASURE_CURVE_R) {
-		targetSpeed = CURVE_MEASURE_SPEED;
+	else if (curDecisionIdx == DESISION_MEASURE_CURVE_R) {
+		targetSpeed = targetSpeed_init + curveDecele;
 	}
 }
 

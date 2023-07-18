@@ -12,40 +12,27 @@
 
 
 
-#define CURVE_SPEED				1.f
-#define STRAIGHT_SPEED			2.f
-
-#define CURVE_MEASURE_SPEED		1.f
-#define STRAIGHT_MEASURE_SPEED	2.f
-
-
-#define STATE_END_MARK			0
-#define STATE_CROSS				1
-#define STATE_STRAIGHT			2
-#define STATE_CURVE_R			3
-#define STATE_CURVE_L			4
-#define STATE_MEASURE_STRAIGHT	5
-#define STATE_MEASURE_CURVE_R	6
-#define STATE_MEASURE_CURVE_L	7
+#define DESISION_END_MARK			0
+#define DESISION_CROSS				1
+#define DESISION_STRAIGHT			2
+#define DESISION_CURVE_R			3
+#define DESISION_CURVE_L			4
+#define DESISION_MEASURE_STRAIGHT	5
+#define DESISION_MEASURE_CURVE_R	6
+#define DESISION_MEASURE_CURVE_L	7
 
 
 
-
+#define ACCELE_INIT					4.f
+#define TARGET_SPEED_INIT			2.f
+#define MAX_SPEED_INIT				2.4f
+#define MIN_SPEED_INIT				0.1f
+#define CURVE_DECELE_INIT			-0.5f
 
 
 #define TIRE_RADIUS	0.025f					// m
 #define	SPEED_COEF	15707.f * TIRE_RADIUS
-
-
-
-
-
-
 #define POSITION_COEF_INIT			0.00004f
-#define TARGET_SPEED_INIT			1.f
-#define ACCELE_INIT					4.f						//	m/ms
-#define	MAX_SPEED_INIT				2.f						//	m/s
-#define MIN_SPEED_INIT				SPEED_COEF / 65535.f	//	SPEED_COEF / (65535)ARR_MAX (m/s) 의 근사값
 /*
  * (2 * l(m) * 3.141592) / (t(s) * 400) = v(m/s) * (arr+1)
  *
@@ -69,8 +56,14 @@ extern volatile float		currentSpeed;
 extern volatile float		minSpeed;
 extern volatile float		maxSpeed;
 extern volatile float		accele;
+extern volatile float		curveDecele;
 
-extern volatile uint8_t		curStateIdx;
+extern volatile float		targetSpeed_init;
+extern volatile float		currentSpeed_init;
+extern volatile float		minSpeed_init;
+extern volatile float		maxSpeed_init;
+extern volatile float		accele_init;
+extern volatile float		curveDecele_init;
 
 
 

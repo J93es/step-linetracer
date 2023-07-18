@@ -120,6 +120,22 @@ void Motor_Test_Phase() {
 	uint8_t	stateL = 0;
 	uint8_t	stateR = 0;
 
+	static Custom_GPIO_t	motorL[4] = {
+			{ Motor_L1_GPIO_Port, Motor_L1_Pin },
+			{ Motor_L3_GPIO_Port, Motor_L3_Pin },
+			{ Motor_L2_GPIO_Port, Motor_L2_Pin },
+			{ Motor_L4_GPIO_Port, Motor_L4_Pin },
+	};
+
+	static Custom_GPIO_t	motorR[4] = {
+			{ Motor_R1_GPIO_Port, Motor_R1_Pin },
+			{ Motor_R3_GPIO_Port, Motor_R3_Pin },
+			{ Motor_R2_GPIO_Port, Motor_R2_Pin },
+			{ Motor_R4_GPIO_Port, Motor_R4_Pin },
+	};
+
+	static uint8_t	phases[8] = { 0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09 };
+
 	/*
 	 * 모터의 각 상을 잠깐씩 잡아본다.
 	 * 모터에 무리를 주지 않기 위해 100ms 동안만 상을 잡은 후 바로 놓는다.
@@ -229,5 +245,5 @@ void Drive_Test_Info_Oled() {
 	Custom_OLED_Printf("/2accele: %5f", accele);
 	Custom_OLED_Printf("/3speedL: %5f", currentSpeed * (1 + positionVal * positionCoef));
 	Custom_OLED_Printf("/4speedR: %5f", currentSpeed * (1 - positionVal * positionCoef));
-	Custom_OLED_Printf("/5state: %5d", curStateIdx);
+	Custom_OLED_Printf("/decision: %5d", curDecisionIdx);
 }

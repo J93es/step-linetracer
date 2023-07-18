@@ -8,6 +8,6 @@
 ../Main/Src/linetracer_test.c:55:6:Sensor_Test_Normalized	2
 ../Main/Src/linetracer_test.c:75:6:Sensor_Test_State	6
 ../Main/Src/linetracer_test.c:118:6:Motor_Test_Phase	4
-../Main/Src/linetracer_test.c:169:6:Motor_Test_Velocity	4
-../Main/Src/linetracer_test.c:205:6:Drive_Test_Position	2
-../Main/Src/linetracer_test.c:226:6:Drive_Test_Info_Oled	1
+../Main/Src/linetracer_test.c:185:6:Motor_Test_Velocity	4
+../Main/Src/linetracer_test.c:221:6:Drive_Test_Position	2
+../Main/Src/linetracer_test.c:242:6:Drive_Test_Info_Oled	1

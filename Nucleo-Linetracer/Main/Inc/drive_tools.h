@@ -36,24 +36,6 @@ void	Accele_Control_Stop();
 
 
 
-/*
-//선의 위치에 따라 좌우 모터의 속도를 변경하는 함수
-__STATIC_INLINE void	Drive_Position() {
-	Motor_L_Speed_Control( currentSpeed * (1 + positionCoef * positionVal) );
-	Motor_R_Speed_Control( currentSpeed * (1 - positionCoef * positionVal) );
-}
-*/
-
-
-
-
-__STATIC_INLINE void	Drive_Fit_In(float s, float pinSpeed) {
-	targetSpeed = pinSpeed;
-	accele =  ABS( (pinSpeed - currentSpeed) * (pinSpeed + currentSpeed) / (2 * s) );
-	Drive_Test_Info_Oled();
-	while (currentSpeed > 0.1f + pinSpeed) ;
-}
-
-
+void	Drive_Fit_In(float s, float pinSpeed);
 
 #endif /* INC_DRIVE_TOOLS_H_ */
