@@ -102,6 +102,8 @@ void Drive_TIM9_IRQ() {
 
 
 
+
+
 // 주행 전 초기값 대입
 __STATIC_INLINE void Drive_Setting_Var() {
 
@@ -115,7 +117,7 @@ __STATIC_INLINE void Drive_Setting_Var() {
 	currentSpeed = minSpeed_init;
 
 
-	// 엔드마크 개수 초기화
+	// 엔드마크 읽은 개수 초기화
 	endMarkCnt = 0;
 
 	// 현재 마크 인식 상태를 직선 주행으로 초기화
@@ -130,8 +132,8 @@ __STATIC_INLINE void Drive_Setting_Var() {
 	// 부스트 판단 값 초기화
 	isBoost = CUSTOM_FALSE;
 
-	// driveData에 접근하는 포인터 1번 인덱스로 초기화 (0번 인덱스는 할당되지 않은 포인터에 접근하지 않도록 고정시켜둠)
-	driveDataPtr = driveData + 1;
+	// driveData에 접근하는 포인터 0번 인덱스로 초기화 (0번 인덱스는 할당되지 않은 포인터에 접근하지 않도록 고정시켜둠)
+	driveDataPtr = driveData + 0;
 
 	// 1차 주행에서만 초기화할 변수
 	if (driveIdx == DRIVE_FIRST) {
@@ -148,6 +150,7 @@ __STATIC_INLINE void Drive_Setting_Var() {
 		driveData[0].isExist = CUSTOM_TRUE;
 		driveData[0].tickCnt = 0;
 	}
+
 	// 2차 주행에서만 초기화할 변수
 	else {
 		// driveData 값 초기화
