@@ -10,6 +10,6 @@
 ../Main/Src/motor.c:83:22:Set_First_Drive_Data	16	static
 ../Main/Src/motor.c:102:22:Set_Second_Drive_Data	4	static
 ../Main/Src/motor.c:123:22:Straight_Boost_Aceleing	4	static
-../Main/Src/motor.c:137:22:Straight_Boost_Deceleing	8	static
-../Main/Src/motor.c:156:6:Motor_L_TIM3_IRQ	8	static
-../Main/Src/motor.c:226:6:Motor_R_TIM4_IRQ	8	static
+../Main/Src/motor.c:141:22:Straight_Boost_Deceleing	8	static
+../Main/Src/motor.c:160:6:Motor_L_TIM3_IRQ	8	static
+../Main/Src/motor.c:230:6:Motor_R_TIM4_IRQ	8	static

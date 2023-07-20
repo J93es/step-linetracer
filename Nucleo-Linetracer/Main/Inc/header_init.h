@@ -13,7 +13,9 @@
 
 #include "decision_machine.h"
 #include "drive_def_var.h"
+#include "drive_execution.h"
 #include "drive_first.h"
+#include "drive_preset.h"
 #include "drive_tools.h"
 #include "init.h"
 #include "linetracer_test.h"

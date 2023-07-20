@@ -106,11 +106,13 @@ __STATIC_INLINE void	Set_Second_Drive_Data() {
 		// drivePtr 값 인덱스 증가
 		driveDataPtr += 1;
 
-		// 이전의 주행에서 마크를 정상적으로 읽었는지 판단
-		if ((driveDataPtr - 1)->isReadAllMark == CUSTOM_TRUE) {
+		// 주행중 decisionState와 1차 주행에서 저장된 decisionState가 동일하다면 정상적으로 읽었다고 판단
+		if (curDecisionState == driveDataPtr->decisionState) {
 
-			// 주행중 decisionState와 1차 주행에서 저장된 decisionState가 동일하다면 정상적으로 읽었다고 판단
-			if (curDecisionState == driveDataPtr->decisionState) {
+			// 이전의 주행에서 마크를 정상적으로 읽었는지 판단
+			if ((driveDataPtr - 1)->isReadAllMark == CUSTOM_TRUE) {
+
+				// 마크 인식 정상 여부를 업데이트
 				driveDataPtr->isReadAllMark = CUSTOM_TRUE;
 			}
 		}
@@ -136,6 +138,7 @@ __STATIC_INLINE void	Straight_Boost_Aceleing() {
 		}
 	}
 }
+
 
 
 __STATIC_INLINE void	Straight_Boost_Deceleing() {
@@ -183,12 +186,14 @@ void Motor_L_TIM3_IRQ() {
 		accele = accele_init;
 
 
-		// 2차 주행일 경우 driveData 값 업데이트
+		// 2차 주행일 경우
 		if (driveIdx == DRIVE_SECOND) {
+			// driveData 값 업데이트
 			Set_Second_Drive_Data();
 		}
-		// 1차 주행일 경우 driveData 값 업데이트
+		// 1차 주행일 경우
 		else {
+			// driveData 값 업데이트
 			Set_First_Drive_Data(DESISION_CURVE_R);
 		}
 	}
@@ -205,19 +210,23 @@ void Motor_L_TIM3_IRQ() {
 		}
 
 
-		// 2차 주행일 경우 driveData 값 업데이트
+		// 2차 주행일 경우
 		if (driveIdx == DRIVE_SECOND) {
+			// 부스터 여부를 결정하고 부스터를 하는 함수
 			// driveDataPtr가 다음 인덱스로 아직 안 넘어감
 			Straight_Boost_Aceleing();
 
+			// driveData 값 업데이트
 			// driveDataPtr가 이 함수에서 다음 인덱스로 넘어감
 			Set_Second_Drive_Data();
 
+			// 부스터 종료 여부를 결정하고 감속하는 함수
 			// driveDataPtr가 다음 인덱스로 넘어가 있음
 			Straight_Boost_Deceleing();
 		}
-		// 1차 주행일 경우 driveData 값 업데이트
+		// 1차 주행일 경우
 		else {
+			// driveData 값 업데이트
 			Set_First_Drive_Data(DESISION_STRAIGHT);
 		}
 	}
@@ -242,7 +251,7 @@ void Motor_R_TIM4_IRQ() {
 
 
 
-	// decision에 해당하는 속도 조정 및 거리 기록
+	// 왼쪽 커브일 경우
 	if (curDecisionState == DESISION_CURVE_L) {
 		// tick 값 증가
 		curTick++;
@@ -252,12 +261,14 @@ void Motor_R_TIM4_IRQ() {
 		accele = accele_init;
 
 
-		// 2차 주행일 경우 driveData 값 업데이트
+		// 2차 주행일 경우
 		if (driveIdx == DRIVE_SECOND) {
+			// driveData 값 업데이트
 			Set_Second_Drive_Data();
 		}
-		// 1차 주행일 경우 driveData 값 업데이트
+		// 1차 주행일 경우
 		else {
+			// driveData 값 업데이트
 			Set_First_Drive_Data(DESISION_CURVE_L);
 		}
 	}
@@ -268,12 +279,14 @@ void Motor_R_TIM4_IRQ() {
 		curTick++;
 
 
-		// 2차 주행일 경우 driveData 값 업데이트
+		// 2차 주행일 경우
 		if (driveIdx == DRIVE_SECOND) {
+			// driveData 값 업데이트
 			Set_Second_Drive_Data();
 		}
 		// 1차 주행일 경우 driveData 값 업데이트
 		else {
+			// driveData 값 업데이트
 			Set_First_Drive_Data(DESISION_END_MARK);
 		}
 	}
