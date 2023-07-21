@@ -12794,6 +12794,8 @@ __STATIC_INLINE void	Straight_Boost_Aceleing() {
  8005880:	b2db      	uxtb	r3, r3
  8005882:	2b01      	cmp	r3, #1
  8005884:	d10c      	bne.n	80058a0 <Straight_Boost_Aceleing+0x3c>
+
+			// 부스트
 			targetSpeed = targetSpeed_init + 8.f;
  8005886:	4b0b      	ldr	r3, [pc, #44]	; (80058b4 <Straight_Boost_Aceleing+0x50>)
  8005888:	edd3 7a00 	vldr	s15, [r3]
@@ -12801,6 +12803,8 @@ __STATIC_INLINE void	Straight_Boost_Aceleing() {
  8005890:	ee77 7a87 	vadd.f32	s15, s15, s14
  8005894:	4b08      	ldr	r3, [pc, #32]	; (80058b8 <Straight_Boost_Aceleing+0x54>)
  8005896:	edc3 7a00 	vstr	s15, [r3]
+
+			// 부스트 판단값 업데이트
 			isBoost = CUSTOM_TRUE;
  800589a:	4b08      	ldr	r3, [pc, #32]	; (80058bc <Straight_Boost_Aceleing+0x58>)
  800589c:	2201      	movs	r2, #1
