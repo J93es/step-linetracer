@@ -247,3 +247,75 @@ void Drive_Test_Info_Oled() {
 	Custom_OLED_Printf("/4speedR: %5f", currentSpeed * (1 - positionVal * positionCoef));
 	Custom_OLED_Printf("/decision: %5d", curDecisionState);
 }
+
+
+
+
+
+void Drive_Test_Data() {
+	uint8_t sw = 0;
+	uint8_t count = 0;
+	uint8_t markCnt = 2;
+
+	for (volatile t_driveData *ptr = (driveData + 0); ptr->isExist != CUSTOM_FALSE; ptr += 1) {
+
+		// 현재상태가 좌측 곡선인 경우
+		if (ptr->decisionState == DECISION_CURVE_L) {
+
+			// 다음 상태가 우측 곡선이었을 경우 == 연속 커브
+			if ((ptr + 1)->decisionState == DECISION_CURVE_R) {
+				markCnt += 1;
+			}
+			else {
+				markCnt += 2;
+			}
+		}
+
+		// 현재상태가 우측 곡선인 경우
+		else if (ptr->decisionState == DECISION_CURVE_R) {
+			// 다음 상태가 좌측 곡선이었을 경우 == 연속 커브
+			if ((ptr + 1)->decisionState == DECISION_CURVE_L) {
+				markCnt += 1;
+			}
+			else {
+				markCnt += 2;
+			}
+		}
+
+		else if (ptr->decisionState == DECISION_END_MARK) {
+			markCnt += 2;
+		}
+	}
+
+	Custom_OLED_Clear();
+
+	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
+
+		if (sw == CUSTOM_SW_1) {
+
+			// 첫번째 인덱스가 아닌 경우에만 카운트 감소
+			if (count != 0) {
+				count--;
+			}
+		}
+		else if (sw == CUSTOM_SW_2) {
+
+			// 마지막 인덱스가 아닌 경우에 카운트 증가
+			if ((driveData + count)->isExist != CUSTOM_FALSE) {
+				count++;
+			}
+		}
+
+		// OLED에 변수명 변수값 출력
+		Custom_OLED_Printf("/0markCnt:");
+		Custom_OLED_Printf("/1%d", markCnt);
+		Custom_OLED_Printf("/2tickCnt:  %d");
+		Custom_OLED_Printf("/3%d", driveData[count].tickCnt);
+		Custom_OLED_Printf("/4decision: %d");
+		Custom_OLED_Printf("/5%d", driveData[count].decisionState);
+	}
+	Custom_OLED_Clear();
+}
+
+
+

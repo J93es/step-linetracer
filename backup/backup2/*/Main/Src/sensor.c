@@ -135,67 +135,6 @@ void Sensor_TIM5_IRQ() {
 
 
 
-/*
-// 0 123 012 3
-void Sensor_TIM5_IRQ() {
-	static uint8_t	midian[3] = { 0, };
-
-	//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜고 읽기
-	// 0000 {1}(XXX) == 0000 {LED}(i)
-	GPIOC->ODR = (GPIOC->ODR & ~0x07) | sensorReadIdx | 0x08;
-
-	midian[0] = Sensor_ADC_Read() >> 4;
-	midian[1] = Sensor_ADC_Read() >> 4;
-	midian[2] = Sensor_ADC_Read() >> 4;
-
-	// 선택한 IR LED 끄기
-	GPIOC->ODR &= ~0x08;
-
-	Make_Sensor_Norm_Vals(sensorReadIdx);
-	Make_Sensor_State(sensorReadIdx);
-
-
-
-	// 중앙값을 sensorRawVals[i]에 저장
-	if (midian[0] > midian[1]) {
-		SWAP(midian[0], midian[1]);
-	}
-	if (midian[1] > midian[2]) {
-		SWAP(midian[1], midian[2]);
-	}
-	sensorRawVals[sensorReadIdx] = midian[1];
-
-
-	//sMux를 사용하여 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜고 읽기
-	// 0000 {1}(XXX) == 0000 {LED}(i)
-	GPIOC->ODR = (GPIOC->ODR & ~0x07) | (7 - sensorReadIdx) | 0x08;
-
-	midian[0] = Sensor_ADC_Read() >> 4;
-	midian[1] = Sensor_ADC_Read() >> 4;
-	midian[2] = Sensor_ADC_Read() >> 4;
-
-	// 선택한 IR LED 끄기
-	GPIOC->ODR &= ~0x08;
-
-	// 중앙값을 sensorRawVals[i]에 저장
-	if (midian[0] > midian[1]) {
-		SWAP(midian[0], midian[1]);
-	}
-	if (midian[1] > midian[2]) {
-		SWAP(midian[1], midian[2]);
-	}
-	sensorRawVals[7 - sensorReadIdx] = midian[1];
-
-
-	Make_Sensor_Norm_Vals(7 - sensorReadIdx);
-	Make_Sensor_State(7 - sensorReadIdx);
-
-	sensorReadIdx = (sensorReadIdx + 1) & 0x03;
-}
-*/
-
-
-
 
 
 

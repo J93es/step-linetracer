@@ -67,7 +67,7 @@ void Init() {
 			{ "Test Phase     ", Motor_Test_Phase },
 			{ "Test Velocity  ", Motor_Test_Velocity },
 			{ "Test Position  ", Drive_Test_Position },
-			{ "Test_Data      ", Drive_Test_Data },
+			{ "Test Data      ", Drive_Test_Data },
 	};
 
 	uint8_t sw = 0;

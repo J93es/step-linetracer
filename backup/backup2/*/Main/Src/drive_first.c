@@ -5,16 +5,18 @@
 #include "header_init.h"
 
 
+volatile int8_t			driveIdx;
+
 
 //1차 주행
 void Drive_First() {
 
 	driveIdx = DRIVE_FIRST;
+	Sensor_Start();
 
 	//주행 전 변수값 초기화
-	Drive_Setting();
+	Drive_Preset();
 
-	Sensor_Start();
 	Accele_Control_Start();
 	Motor_Start();
 
@@ -23,16 +25,15 @@ void Drive_First() {
 		//Drive_Test_Info_Oled();
 
 		Decision_Machine();
+		Decision_Execution();
 
-		if (curDecisionState == DESISION_END_MARK) {
+		if (curDecisionState == DECISION_END_MARK) {
 			Drive_Fit_In(0.25f, 0.f);
 			while (currentSpeed > 0.1f) ;
 			break ;
 		}
 	}
 	Custom_Delay_ms(50);
-
-	Drive_Test_Info_Oled();
 
 	Motor_Power_Off();
 

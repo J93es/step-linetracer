@@ -6,26 +6,6 @@
 
 
 
-static Custom_GPIO_t	motorL[4] = {
-		{ Motor_L1_GPIO_Port, Motor_L1_Pin },
-		{ Motor_L3_GPIO_Port, Motor_L3_Pin },
-		{ Motor_L2_GPIO_Port, Motor_L2_Pin },
-		{ Motor_L4_GPIO_Port, Motor_L4_Pin },
-};
-
-
-static Custom_GPIO_t	motorR[4] = {
-		{ Motor_R1_GPIO_Port, Motor_R1_Pin },
-		{ Motor_R3_GPIO_Port, Motor_R3_Pin },
-		{ Motor_R2_GPIO_Port, Motor_R2_Pin },
-		{ Motor_R4_GPIO_Port, Motor_R4_Pin },
-};
-
-
-volatile static uint8_t	phases[8] = { 0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09 };
-
-
-
 
 
 
@@ -117,8 +97,8 @@ void Sensor_Test_State() {
 
 void Motor_Test_Phase() {
 	uint8_t	sw = 0;
-	uint8_t	stateL = 0;
-	uint8_t	stateR = 0;
+	uint8_t	phaseL = 0;
+	uint8_t	phaseR = 0;
 
 	static Custom_GPIO_t	motorL[4] = {
 			{ Motor_L1_GPIO_Port, Motor_L1_Pin },
@@ -141,34 +121,34 @@ void Motor_Test_Phase() {
 	 * 모터에 무리를 주지 않기 위해 100ms 동안만 상을 잡은 후 바로 놓는다.
 	 */
 	Custom_OLED_Clear();
-	Custom_OLED_Printf("/0phaseL: %1x", stateL);
-	Custom_OLED_Printf("/1phaseR: %1x", stateR);
+	Custom_OLED_Printf("/0phaseL: %1x", phaseL);
+	Custom_OLED_Printf("/1phaseR: %1x", phaseR);
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 
 		if (sw == CUSTOM_SW_1) {
-			Custom_GPIO_Set_t(motorL + 0, 0x01 & phases[stateL]);
-			Custom_GPIO_Set_t(motorL + 1, 0x02 & phases[stateL]);
-			Custom_GPIO_Set_t(motorL + 2, 0x04 & phases[stateL]);
-			Custom_GPIO_Set_t(motorL + 3, 0x08 & phases[stateL]);
+			Custom_GPIO_Set_t(motorL + 0, (phases[7 - phaseL] >> 0) & 0x01);
+			Custom_GPIO_Set_t(motorL + 1, (phases[7 - phaseL] >> 1) & 0x01);
+			Custom_GPIO_Set_t(motorL + 2, (phases[7 - phaseL] >> 2) & 0x01);
+			Custom_GPIO_Set_t(motorL + 3, (phases[7 - phaseL] >> 3) & 0x01);
 
 			Custom_Delay_ms(100);
 			Motor_Power_Off();
 
-			Custom_OLED_Printf("/0phaseL: %1x", stateL);
-			stateL = (stateL + 1) & 0x07;
+			Custom_OLED_Printf("/0phaseL: %1x", phaseL);
+			phaseL = (phaseL + 1) & 0x07;
 		}
 
 		else if (sw == CUSTOM_SW_2) {
-			Custom_GPIO_Set_t(motorR + 0, 0x01 & phases[stateR]);
-			Custom_GPIO_Set_t(motorR + 1, 0x02 & phases[stateR]);
-			Custom_GPIO_Set_t(motorR + 2, 0x04 & phases[stateR]);
-			Custom_GPIO_Set_t(motorR + 3, 0x08 & phases[stateR]);
+			Custom_GPIO_Set_t(motorR + 0, (phases[phaseR] >> 0) & 0x01);
+			Custom_GPIO_Set_t(motorR + 1, (phases[phaseR] >> 1) & 0x01);
+			Custom_GPIO_Set_t(motorR + 2, (phases[phaseR] >> 2) & 0x01);
+			Custom_GPIO_Set_t(motorR + 3, (phases[phaseR] >> 3) & 0x01);
 
 			Custom_Delay_ms(100);
 			Motor_Power_Off();
 
-			Custom_OLED_Printf("/1phaseR: %1x", stateR);
-			stateR = (stateR + 1) & 0x07;
+			Custom_OLED_Printf("/1phaseR: %1x", phaseR);
+			phaseR = (phaseR + 1) & 0x07;
 		}
 	}
 
@@ -196,11 +176,11 @@ void Motor_Test_Velocity() {
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 		Motor_L_Speed_Control(speed);
 		Motor_R_Speed_Control(speed);
-		if ( (speed + accele > maxSpeed) || (speed + accele < minSpeed) ) {
+		if ( (speed + accele / 2000 > maxSpeed) || (speed + accele / 2000 < minSpeed) ) {
 			accele *= -1;
 		}
 		Custom_Delay_ms(1);
-		speed += accele;
+		speed += accele / 2000;
 	}
 	Motor_Stop();
 }
@@ -223,7 +203,7 @@ void Drive_Test_Position() {
 
 	Custom_OLED_Clear();
 	Sensor_Start();
-	Accele_Control_Start();
+	Speed_Control_Start();
 
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 		Custom_OLED_Printf("/0pos: %10d", positionVal);
@@ -231,7 +211,7 @@ void Drive_Test_Position() {
 		Custom_OLED_Printf("/3speedR: %5f", (1 - positionVal * positionCoef));
 	}
 
-	Accele_Control_Stop();
+	Speed_Control_Stop();
 	Sensor_Stop();
 	Custom_OLED_Clear();
 }

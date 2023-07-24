@@ -127,7 +127,11 @@ __STATIC_INLINE void	Straight_Boost_Aceleing() {
 
 		// 주행에서 마크를 정상적으로 읽었으면 부스트
 		if (driveDataPtr->isReadAllMark == CUSTOM_TRUE) {
+
+			// 부스트
 			targetSpeed = targetSpeed_init + 8.f;
+
+			// 부스트 판단값 업데이트
 			isBoost = CUSTOM_TRUE;
 		}
 	}

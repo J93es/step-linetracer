@@ -17,8 +17,8 @@ void Drive_First() {
 	//주행 전 변수값 초기화
 	Drive_Preset();
 
-	Accele_Control_Start();
 	Motor_Start();
+	Accele_Control_Start();
 
 	while (state != 0) {
 
@@ -28,14 +28,12 @@ void Drive_First() {
 		Decision_Execution();
 
 		if (curDecisionState == DECISION_END_MARK) {
-			Drive_Fit_In(0.25f, 0.f);
-			while (currentSpeed > 0.1f) ;
+			Drive_Fit_In(0.25f, 0.1f);
+			while (currentSpeed > 1.f) ;
 			break ;
 		}
 	}
-	Custom_Delay_ms(50);
-
-	Motor_Power_Off();
+	Custom_Delay_ms(100);
 
 	Motor_Stop();
 	Accele_Control_Stop();
