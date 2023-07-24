@@ -8,12 +8,13 @@
 
 
 
-volatile float		targetSpeed_init = TARGET_SPEED_INIT;
-volatile float		currentSpeed_init = MIN_SPEED_INIT;
 volatile float		minSpeed_init = MIN_SPEED_INIT;
 volatile float		maxSpeed_init = MAX_SPEED_INIT;
 volatile float		accele_init = ACCELE_INIT;
-volatile float		curveDecele_init = CURVE_DECELE_INIT;
+volatile float		straightSpeed_init = STRAIGHT_SPEED_INIT;
+volatile float		curveSpeed_init = CURVE_SPEED_INIT;
+volatile float		boostSpeed_init = BOOST_SPEED_INIT;
+volatile float		positionCoef_init = POSITION_COEF_INIT;
 
 
 
@@ -23,7 +24,9 @@ volatile float		currentSpeed;
 volatile float		minSpeed;
 volatile float		maxSpeed;
 volatile float		accele;
-volatile float		curveDecele;
+volatile float		curveSpeed;
+volatile float		straightSpeed;
+volatile float		boostSpeed;
 
 
 
@@ -36,14 +39,18 @@ __STATIC_INLINE void Drive_Preset_Var() {
 
 	// 좌우모터 포지션 값을 0으로 초기화
 	positionVal = 0;
+	positionCoef = positionCoef_init;
 
 	// 속도 관련 변수 초기화
 	accele = accele_init;
-	targetSpeed = targetSpeed_init;
+	targetSpeed = straightSpeed_init;
+	currentSpeed = minSpeed_init;
 	maxSpeed = maxSpeed_init;
 	minSpeed = minSpeed_init;
-	curveDecele = curveDecele_init;
-	currentSpeed = minSpeed_init;
+	straightSpeed = straightSpeed_init;
+	curveSpeed = curveSpeed_init;
+	boostSpeed = boostSpeed_init;
+
 
 
 	// 엔드마크 읽은 개수 초기화
@@ -99,12 +106,13 @@ void Drive_Preset() {
 
 
 	t_driveMenu	values[] = {
-			{ "accele      ", &accele_init, 0.1},
-			{ "targetSpeed ", &targetSpeed_init, 0.1 },
-			{ "max speed   ", &maxSpeed_init, 0.1 },
-			{ "min speed   ", &minSpeed_init, 0.1 },
-			{ "curve decele", &curveDecele_init, 0.1 },
-			//{ "pos coef    ", &curveDecele_init, 0.1 },
+			{ "accele         ", &accele_init, 0.1},
+			{ "straight speed ", &straightSpeed_init, 0.1 },
+			{ "curve speed    ", &curveSpeed_init, 0.1 },
+			{ "boost speed    ", &boostSpeed_init, 0.1 },
+			//{ "max speed      ", &maxSpeed_init, 0.1 },
+			//{ "min speed      ", &minSpeed_init, 0.1 },
+			{ "pos coef       ", &positionCoef_init, 0.00001 },
 	};
 	uint8_t valCnt = sizeof(values) / sizeof(t_driveMenu);
 

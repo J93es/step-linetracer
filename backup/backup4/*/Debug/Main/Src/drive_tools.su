@@ -8,5 +8,5 @@
 ../Main/Src/drive_tools.c:34:6:Accele_Control_Start	8	static
 ../Main/Src/drive_tools.c:39:6:Accele_Control_Stop	8	static
 ../Main/Src/drive_tools.c:50:6:Drive_TIM9_IRQ	8	static
-../Main/Src/drive_tools.c:106:22:Drive_Setting_Var	24	static
-../Main/Src/drive_tools.c:167:6:Drive_Setting	136	static
+../Main/Src/drive_tools.c:108:22:Drive_Setting_Var	24	static
+../Main/Src/drive_tools.c:170:6:Drive_Setting	136	static

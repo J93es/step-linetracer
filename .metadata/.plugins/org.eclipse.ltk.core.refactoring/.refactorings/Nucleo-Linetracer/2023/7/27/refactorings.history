@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;nucleo-linetracer-template/Nucleo-Linetracer.ioc&apos; to &apos;nucleo-linetracer-template.ioc&apos;" description="Rename resource &apos;Nucleo-Linetracer.ioc&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Nucleo-Linetracer.ioc" name="nucleo-linetracer-template.ioc" stamp="1688370427515" updateReferences="true"/>
+</session>

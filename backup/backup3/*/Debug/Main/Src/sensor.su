@@ -16,4 +16,4 @@
 ../Main/Src/sensor.c:70:22:Make_Sensor_Norm_Vals	16	static
 ../Main/Src/sensor.c:90:22:Make_Sensor_State	16	static
 ../Main/Src/sensor.c:99:6:Sensor_TIM5_IRQ	8	static
-../Main/Src/sensor.c:203:6:Sensor_Calibration	56	static
+../Main/Src/sensor.c:142:6:Sensor_Calibration	56	static

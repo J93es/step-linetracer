@@ -9,10 +9,10 @@
 
 
 
-#include <drive_def_var.h>
+#include "drive_def_var.h"
 #include "init.h"
 #include "motor.h"
-#include "linetracer_test.h"
+#include "sensor.h"
 
 
 
@@ -26,11 +26,19 @@ typedef struct	s_driveMenu {
 
 
 
-
-void	Drive_TIM9_IRQ();
-void	Drive_Setting();
 void	Accele_Control_Start();
 void	Accele_Control_Stop();
+void	Drive_TIM9_IRQ();
+
+
+
+
+// 피트인 함수
+__STATIC_INLINE void Drive_Fit_In(float s, float pinSpeed) {
+	targetSpeed = pinSpeed;
+	accele = ABS( (pinSpeed - currentSpeed) * (pinSpeed + currentSpeed) / (2 * s) );
+}
+
 
 
 
