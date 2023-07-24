@@ -1,0 +1,11 @@
+stm32f4xx_ll_tim.h:1124:22:LL_TIM_EnableCounter	1
+stm32f4xx_ll_tim.h:1135:22:LL_TIM_DisableCounter	1
+stm32f4xx_ll_tim.h:3457:22:LL_TIM_EnableIT_UPDATE	1
+stm32f4xx_ll_tim.h:3468:22:LL_TIM_DisableIT_UPDATE	1
+custom_gpio.h:54:20:Custom_GPIO_Set_t	2
+motor.c:30:6:Motor_Start	1
+motor.c:38:6:Motor_Stop	2
+motor.c:51:6:Motor_L_TIM3_IRQ	1
+motor.c:56:6:Motor_R_TIM4_IRQ	1
+motor.c:61:6:Motor_Test_Phase	1
+motor.c:69:6:Motor_Test_Velocity	1

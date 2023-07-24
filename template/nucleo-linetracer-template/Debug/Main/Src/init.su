@@ -1,0 +1,7 @@
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:410:22:LL_USART_Enable	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:1814:26:LL_USART_IsActiveFlag_TXE	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:2426:22:LL_USART_TransmitData8	16	static
+/Users/hoya/STM32CubeIDE/workspace_1.12.1/nucleo-linetracer/src/External Library/Inc/custom_delay.h:16:22:Custom_Delay_us	16	static
+/Users/hoya/STM32CubeIDE/workspace_1.12.1/nucleo-linetracer/src/External Library/Inc/custom_delay.h:24:22:Custom_Delay_ms	16	static
+../Main/Src/init.c:17:5:__io_putchar	16	static
+../Main/Src/init.c:24:6:Init	16	static
