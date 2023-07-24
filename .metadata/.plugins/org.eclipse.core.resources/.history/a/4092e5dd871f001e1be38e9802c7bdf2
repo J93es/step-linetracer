@@ -1,0 +1,19 @@
+/*
+ * drive.h
+ */
+
+#ifndef INC_DRIVE_H_
+#define INC_DRIVE_H_
+
+
+
+extern void		Drive_TIM9_IRQ();
+
+
+
+extern float	targetSpeed = 0;
+extern float	currentSpeed = 0;
+
+
+
+#endif /* INC_DRIVE_H_ */
