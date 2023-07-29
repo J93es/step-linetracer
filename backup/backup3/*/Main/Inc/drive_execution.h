@@ -18,6 +18,7 @@
 
 
 __STATIC_INLINE void	Set_First_Drive_Data(uint8_t decisionState) {
+
 	// decisionState가 변경되었을 경우
 	if (curDecisionState != driveDataPtr->decisionState) {
 		// 현재 인덱스의 구조체의 값이 존재함을 저장
@@ -37,6 +38,7 @@ __STATIC_INLINE void	Set_First_Drive_Data(uint8_t decisionState) {
 
 
 __STATIC_INLINE void	Set_Second_Drive_Data() {
+
 	// decisionState가 변경되었을 경우
 	if (curDecisionState != driveDataPtr->decisionState) {
 
@@ -57,19 +59,23 @@ __STATIC_INLINE void	Set_Second_Drive_Data() {
 }
 
 
-__STATIC_INLINE void	Straight_Boost_Aceleing() {
+__STATIC_INLINE void	Straight_Boost_Acceleing() {
 
-	// decisionState가 변경되었을 경우
-	if (curDecisionState != driveDataPtr->decisionState) {
+	// 현재 상태에서 부스트 지시가 있다면
+	if (driveData->instruct == INSTRUCT_ACCELE) {
 
-		// 주행에서 마크를 정상적으로 읽었으면 부스트
+		// 주행에서 마크를 정상적으로 읽었으면
 		if (driveDataPtr->isReadAllMark == CUSTOM_TRUE) {
 
-			// 부스트
-			targetSpeed = targetSpeed_init + 8.f;
+			// 이전 코스가 끝나는 지점으로 부터 30cm 이동한 거리에서 부스트 시작
+			if (curTick > (driveDataPtr - 1)->tickCnt + 0.3f * TICK_PER_M) {
 
-			// 부스트 판단값 업데이트
-			isBoost = CUSTOM_TRUE;
+				// 부스트
+				targetSpeed = boostSpeed;
+
+				// 부스트 판단값 업데이트
+				isBoost = CUSTOM_TRUE;
+			}
 		}
 	}
 }
@@ -79,13 +85,10 @@ __STATIC_INLINE void Straight_Boost_Deceleing() {
 
 	// 부스트 중일 경우
 	if (isBoost == CUSTOM_TRUE) {
-		if (curTick - driveDataPtr->tickCnt > (driveDataPtr->tickCnt - (driveDataPtr + 1)->tickCnt) * DECELE_POINT_RATIO) {
+		if (curTick > (driveDataPtr - 1)->tickCnt + (driveDataPtr->tickCnt - (driveDataPtr - 1)->tickCnt) * BOOST_DECELE_POINT_RATIO) {
 
 			// 감속
-			Drive_Fit_In((driveDataPtr->tickCnt - (driveDataPtr + 1)->tickCnt) * (1 - DECELE_POINT_RATIO), targetSpeed_init);
-
-			// 부스트 판단값 업데이트
-			isBoost = CUSTOM_FALSE;
+			Drive_Fit_In((driveDataPtr->tickCnt - (driveDataPtr - 1)->tickCnt) * (0.95f - BOOST_DECELE_POINT_RATIO), straightSpeed);
 		}
 	}
 }
@@ -94,9 +97,13 @@ __STATIC_INLINE void Straight_Boost_Deceleing() {
 
 
 __STATIC_INLINE void Decision_Execution_Curve(uint8_t decisionCurve) {
+
 	// 속도/가속도 업데이트
-	targetSpeed = targetSpeed_init + curveDecele;
 	accele = accele_init;
+	targetSpeed = curveSpeed;
+
+	// 부스트 판단값 업데이트
+	isBoost = CUSTOM_FALSE;
 
 
 	// 2차 주행일 경우
@@ -133,22 +140,21 @@ __STATIC_INLINE void Decision_Execution() {
 	// 직선일 경우
 	else if (curDecisionState == DECISION_STRAIGHT) {
 
-		// 부스트 중이 아니라면 속도/가속도 업데이트
-		if (isBoost != CUSTOM_TRUE) {
-			targetSpeed = targetSpeed_init;
-			accele = accele_init;
+		// 부스트 중이 아니라면 속도 업데이트
+		if (isBoost == CUSTOM_FALSE) {
+			targetSpeed = straightSpeed;
 		}
 
 
 		// 2차 주행일 경우
 		if (driveIdx == DRIVE_SECOND) {
-			// 부스터 여부를 결정하고 부스터를 하는 함수
-			// driveDataPtr가 다음 인덱스로 아직 안 넘어감
-			Straight_Boost_Aceleing();
-
 			// driveData 값 업데이트
 			// driveDataPtr가 이 함수에서 다음 인덱스로 넘어감
 			Set_Second_Drive_Data();
+
+			// 부스터 여부를 결정하고 부스터를 하는 함수
+			// driveDataPtr가 다음 인덱스로 넘어가 있음
+			Straight_Boost_Acceleing();
 
 			// 부스터 종료 여부를 결정하고 감속하는 함수
 			// driveDataPtr가 다음 인덱스로 넘어가 있음

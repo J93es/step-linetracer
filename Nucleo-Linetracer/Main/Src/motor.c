@@ -59,6 +59,8 @@ void Motor_Start() {
 
 
 void Motor_Stop() {
+	Motor_Power_Off();
+
 	LL_TIM_DisableIT_UPDATE(TIM3);
 	LL_TIM_DisableCounter(TIM3);
 

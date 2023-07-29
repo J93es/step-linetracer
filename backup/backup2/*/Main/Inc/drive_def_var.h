@@ -30,34 +30,41 @@
 
 
 // 속도와 관련된 매크로
-#define ACCELE_INIT					4.f
 #define MAX_SPEED_INIT				2.4f
-#define MIN_SPEED_INIT				0.01f
-#define STRAIGHT_SPEED_INIT			1.5f
+#define MIN_SPEED_INIT				0.1f
+#define ACCELE_INIT					4.0f
+
+#define STRAIGHT_SPEED_INIT			1.7f
 #define CURVE_SPEED_INIT			1.5f
 #define BOOST_SPEED_INIT			2.0f
 
+#define SPEED_CHANGE_VAL			0.1f
 
-// POSITION_COEF(포지션 상수)를 도출하기 위한 매크
+
+// POSITION_COEF(포지션 상수)를 도출하기 위한 매크로
 #define TIRE_RADIUS					0.025f					// m
 #define	SPEED_COEF					15707.f * TIRE_RADIUS
 #define POSITION_COEF_INIT			0.00001f
+#define POSITION_COEF_CHANGE_VAL	0.00001f
 /*
- * (2 * l(m) * 3.141592) / (t(s) * 400) = v(m/s) * (arr+1)
+ * (2 * l(m) * 3.14159) / (t(s) * 400) = v(m/s) * (arr+1)
  *
  * t =  1 / 1Mhz = 1 / 1,000,000 = 타이머 주
  * 1 / (t * 400) = 2,500
  *
  * l(m) = 타이어 반지름
- * 2 * l * 3.14
+ * 2 * l * 3.14159
  *
  * v * (arr + 1) = SPEED_COEF
  */
 
 
-// 2차 주행에서 가속할지 말지를 판단하는 매크로
-#define INSTRUCT_NORMAL				0
-#define INSTRUCT_ACCELE				1
+// 1 m 당 tick 개수
+#define TICK_PER_M	400 * 1 / (2 * TIRE_RADIUS * 3.14159)
+/*
+ * 400(바퀴가 1바퀴 도는데 소요되는 tick 개수) * { 1(m) / (2 * TIRE_RADIUS * 3.14159)(1바퀴의 거리) }{ 1m 가는데 소요되는 바퀴 회전 횟수 }
+ */
+
 
 
 // 1차주행, 2차 주행의 driveData 관련 매크로
@@ -65,16 +72,15 @@
 #define T_DRIVE_DATA_INIT			{ CUSTOM_FALSE, DECISION_STRAIGHT, INSTRUCT_NORMAL, CUSTOM_FALSE, 0 }
 
 
-// 1m 를 움직이기 위해 필요한 tick 수
-// 1(m) / (2 * TIRE_RADIUS(m) * 3.141592 * 0.9(1 tick당 회전 각도) / 360)
-#define TICK_PER_M					1 / ( 2 * TIRE_RADIUS * 3.141592 * 0.9 / 360 )
+// 2차 주행에서 가속할지 말지를 판단하는 매크로
+#define INSTRUCT_NORMAL				0
+#define INSTRUCT_BOOST				1
 
 
-// 2차 주행에서 어느 정도 지나면 감속할 지 결정하는 코드; 10의 거리를 부스트 할 때  DECELE_POINT_RATIO가 0.7이라면 7에서 부스트 종료 후 감속
-#define BOOST_DECELE_POINT_RATIO	0.7f
-
-
-
+// 2차 주행에서 어느 정도 지나면 가감속할 지 결정하는 코드
+// 예를 들어 10의 거리가 주어졌을 때 DECELE_POINT_RATIO가 0.7이라면 7에서 부스트 종료 후 감속
+#define ACCELE_POINT_RATIO			0.3f
+#define DECELE_POINT_RATIO			0.8f
 
 
 
@@ -84,11 +90,8 @@ typedef struct	s_driveData {
 		volatile uint8_t	decisionState;
 		volatile uint8_t	instruct;
 		volatile uint8_t	isReadAllMark;
-		volatile uint32_t	tickCnt;			// 현재 decisionState가 끝났을 때의 tick 값
+		volatile uint32_t	tickCnt;
 }				t_driveData;
-
-
-
 
 
 // 현재 1차주행, 2차주행의 여부를 저장하는 변수
@@ -99,6 +102,7 @@ extern volatile int8_t		driveIdx;
 extern volatile float		minSpeed_init;
 extern volatile float		maxSpeed_init;
 extern volatile float		accele_init;
+
 extern volatile float		straightSpeed_init;
 extern volatile float		curveSpeed_init;
 extern volatile float		boostSpeed_init;
@@ -106,18 +110,18 @@ extern volatile float		boostSpeed_init;
 
 // 좌우 모터 포지션에 관한 변수
 extern volatile int32_t		positionVal;
+extern volatile float		positionCoef_init;
 extern volatile float		positionCoef;
 
 
 // 주행 중 변하는 속도 값에 관한 변수
 extern volatile float		targetSpeed;
 extern volatile float		currentSpeed;
+
 extern volatile float		minSpeed;
 extern volatile float		maxSpeed;
 extern volatile float		accele;
 
-
-// 상태에 따른 스피드 값
 extern volatile float		straightSpeed;
 extern volatile float		curveSpeed;
 extern volatile float		boostSpeed;
@@ -131,7 +135,7 @@ extern volatile uint8_t		endMarkCnt;
 extern volatile uint8_t		curDecisionState;
 
 
-// 현재 모터에 몇번 상이 잡혔는 지를 카운트하는 변수
+// 현재 모터에 몇번 상이 잡혔는지를 카운트하는 변수
 extern volatile uint32_t	curTick;
 
 

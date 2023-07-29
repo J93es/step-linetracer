@@ -20,16 +20,16 @@
 
 
 
-extern volatile uint8_t	sensorRawVals[8];
-extern volatile uint8_t	sensorNormVals[8];
-extern volatile uint8_t	state;
+extern volatile uint8_t		sensorRawVals[8];
+extern volatile uint8_t		sensorNormVals[8];
+extern volatile uint8_t		state;
 
-extern volatile uint8_t	threshold_init;
-extern volatile uint8_t	threshold;
+extern volatile uint32_t	threshold_init;
+extern volatile uint8_t		threshold;
 
-extern volatile uint8_t	normalizeCoef[8];
-extern volatile uint8_t	whiteMaxs[8];
-extern volatile uint8_t	blackMaxs[8];
+extern volatile uint8_t		normalizeCoef[8];
+extern volatile uint8_t		whiteMaxs[8];
+extern volatile uint8_t		blackMaxs[8];
 
 
 
@@ -44,11 +44,14 @@ void	Sensor_Calibration();
 
 
 __STATIC_INLINE uint16_t	Sensor_ADC_Read() {
+	static uint16_t adcValue = 0;
+
+
 	__disable_irq();
 	LL_ADC_ClearFlag_EOCS(ADC1);
 	LL_ADC_REG_StartConversionSWStart(ADC1);
 	while (!LL_ADC_IsActiveFlag_EOCS(ADC1));
-	uint16_t adcValue = LL_ADC_REG_ReadConversionData12(ADC1);
+	adcValue = LL_ADC_REG_ReadConversionData12(ADC1);
 	LL_ADC_ClearFlag_EOCS(ADC1);
 	__enable_irq();
 	return adcValue;
@@ -91,7 +94,7 @@ __STATIC_INLINE void		Sensor_TIM5_IRQ() {
 	static uint8_t	sensorReadIdx = 0;
 	static uint8_t	midian[3] = { 0, };
 
-
+	GPIOC->ODR = (GPIOC->ODR & ~0x07) | (sensorReadIdx) | 0x08;
 	// ADC 읽기
 	midian[0] = Sensor_ADC_Read() >> 4;
 	midian[1] = Sensor_ADC_Read() >> 4;
@@ -103,7 +106,7 @@ __STATIC_INLINE void		Sensor_TIM5_IRQ() {
 
 	//sMux를 사용하여 다음 IR LED 및 수광 센서 선택 및 선택한 IR LED 켜기
 	// 0000 {1}(XXX) == 0000 {LED}(다음 번 i)
-	GPIOC->ODR = (GPIOC->ODR & ~0x07) | ( (sensorReadIdx + 1) & 0x07 ) | 0x08;
+//	GPIOC->ODR = (GPIOC->ODR & ~0x07) | ( (sensorReadIdx + 1) & 0x07 ) | 0x08;
 
 
 	// 중앙값을 sensorRawVals[i]에 저장

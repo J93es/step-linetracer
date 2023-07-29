@@ -18,25 +18,25 @@ void Drive_First() {
 	Drive_Preset();
 
 	Motor_Start();
-	Accele_Control_Start();
+	Speed_Control_Start();
 
 	while (state != 0) {
 
-		//Drive_Test_Info_Oled();
+		Drive_Test_Info_Oled();
 
 		Decision_Machine();
-		Decision_Execution();
+		Drive_Decision_Ctrl();
 
 		if (curDecisionState == DECISION_END_MARK) {
 			Drive_Fit_In(0.25f, 0.1f);
-			while (currentSpeed > 1.f) ;
+			while (currentSpeed > 0.5f) ;
 			break ;
 		}
 	}
-	Custom_Delay_ms(100);
+	Custom_Delay_ms(50);
 
 	Motor_Stop();
-	Accele_Control_Stop();
+	Speed_Control_Stop();
 	Sensor_Stop();
 
 

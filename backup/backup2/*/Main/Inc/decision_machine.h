@@ -1,28 +1,28 @@
 /*
- * state_machine.h
+ * decision_machine.h
  */
 
 #ifndef INC_DECISION_MACHINE_H_
 #define INC_DECISION_MACHINE_H_
 
 
-#include "main.h"
 #include "drive_def_var.h"
 #include "sensor.h"
+#include "main.h"
 
 
 
 
 
 // line sensor가 읽은 값을 개수를 리턴함
-__STATIC_INLINE uint8_t Get_Line_Sensor_Cnt() {
+__STATIC_INLINE uint8_t	Get_Line_Sensor_Cnt() {
 	return ((state >> 6) & 0x01) + ((state >> 5) & 0x01) + ((state >> 4) & 0x01) + \
 			((state >> 3) & 0x01) + ((state >> 2) & 0x01) + ((state >> 1) & 0x01);
 }
 
 
 // marker sensor가 읽은 값을 개수를 리턴함
-__STATIC_INLINE uint8_t Get_Marker_Sensor_Cnt() {
+__STATIC_INLINE uint8_t	Get_Marker_Sensor_Cnt() {
 	return ((state >> 7) & 0x01) + ((state >> 0) & 0x01);
 }
 
@@ -31,13 +31,12 @@ __STATIC_INLINE uint8_t Get_Marker_Sensor_Cnt() {
 
 
 // end line, right mark, left mark, cross를 판별하고 정해진 동작을 실행하는 함수
-__STATIC_INLINE void Decision(uint8_t sensorStateSum) {
+__STATIC_INLINE void	Decision(uint8_t sensorStateSum) {
 
 	// cross
-	// 0x7e == 0b01111110
-	// 라인 센서가 모두 인식됐을 경우 cross로 판별
-	if ( (sensorStateSum & 0x7e) == 0x7e ) {
-
+	// 라인/마크 센서가 모두 인식됐을 경우 cross로 판별
+	if (~sensorStateSum == 0x00) {
+		// ignore
 	}
 
 	// end line
@@ -84,7 +83,7 @@ __STATIC_INLINE void Decision(uint8_t sensorStateSum) {
 
 
 
-__STATIC_INLINE void Decision_Machine() {
+__STATIC_INLINE void	Decision_Machine() {
 	static uint8_t	sensorStateSum = 0x00;	//센서 값 누적
 
 	sensorStateSum = 0x00;
@@ -96,7 +95,12 @@ __STATIC_INLINE void Decision_Machine() {
 		while (Get_Line_Sensor_Cnt() >= 4) {
 			sensorStateSum |= state;
 		}
-		Decision(sensorStateSum);
+		// cross
+		// 0x7e == 0b01111110
+		// 라인 센서가 모두 인식됐을 경우 cross로 판별
+		if ( (sensorStateSum & 0x7e) == 0x7e ) {
+			Decision(sensorStateSum);
+		}
 	}
 
 	// 라인 센서 3개 이하 and 마크 센서 1개 이상

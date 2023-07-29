@@ -21,6 +21,11 @@
 #define DRIVE_FIRST					0
 #define DRIVE_SECOND				1
 
+// state machine에서 나온 상태
+#define DRIVE_STATE_IDLE			0
+#define DRIVE_STATE_CROSS			1
+#define DRIVE_STATE_MARKER			2
+#define DRIVE_STATE_DECISION		3
 
 // 현재 decision의 상태값 매크로
 #define DECISION_STRAIGHT			0
@@ -34,22 +39,26 @@
 #define MIN_SPEED_INIT				0.1f
 #define ACCELE_INIT					4.0f
 
-#define STRAIGHT_SPEED_INIT			1.7f
-#define CURVE_SPEED_INIT			1.5f
+#define TARGET_SPEED_INIT			1.5f
+
 #define BOOST_SPEED_INIT			2.0f
 
-#define SPEED_CHANGE_VAL			0.1f
+#define SPEED_INIT_CHANGE_VAL		0.1f
+
+// 커브에서 어느정도 감속할지 결정하는 코드
+#define CURVE_DECEL_COEF			22000
+#define CURVE_DECEL_COEF_CHANGE_VAL	1000
 
 
 // POSITION_COEF(포지션 상수)를 도출하기 위한 매크로
 #define TIRE_RADIUS					0.025f					// m
 #define	SPEED_COEF					15707.f * TIRE_RADIUS
-#define POSITION_COEF_INIT			0.00001f
+#define POSITION_COEF_INIT			0.0001f
 #define POSITION_COEF_CHANGE_VAL	0.00001f
 /*
  * (2 * l(m) * 3.14159) / (t(s) * 400) = v(m/s) * (arr+1)
  *
- * t =  1 / 1Mhz = 1 / 1,000,000 = 타이머 주
+ * t =  1 / 1Mhz = 1 / 1,000,000 = 타이머 주기
  * 1 / (t * 400) = 2,500
  *
  * l(m) = 타이어 반지름
@@ -68,7 +77,7 @@
 
 
 // 1차주행, 2차 주행의 driveData 관련 매크로
-#define MAX_MARKER_CNT				100
+#define MAX_MARKER_CNT				1000
 #define T_DRIVE_DATA_INIT			{ CUSTOM_FALSE, DECISION_STRAIGHT, INSTRUCT_NORMAL, CUSTOM_FALSE, 0 }
 
 
@@ -76,11 +85,18 @@
 #define INSTRUCT_NORMAL				0
 #define INSTRUCT_BOOST				1
 
+// 최소 몇 미터 이상에서 부스트할지를 저장한 매크로
+#define MIN_BOOST_METER				3
+
 
 // 2차 주행에서 어느 정도 지나면 가감속할 지 결정하는 코드
 // 예를 들어 10의 거리가 주어졌을 때 DECELE_POINT_RATIO가 0.7이라면 7에서 부스트 종료 후 감속
 #define ACCELE_POINT_RATIO			0.3f
 #define DECELE_POINT_RATIO			0.8f
+
+
+
+
 
 
 
@@ -94,23 +110,26 @@ typedef struct	s_driveData {
 }				t_driveData;
 
 
+
+
+
+
 // 현재 1차주행, 2차주행의 여부를 저장하는 변수
 extern volatile int8_t		driveIdx;
 
 
 // 초기의 속도 값에 관한 변수
+extern volatile float		targetSpeed_init;
+
 extern volatile float		minSpeed_init;
 extern volatile float		maxSpeed_init;
 extern volatile float		accele_init;
 
-extern volatile float		straightSpeed_init;
-extern volatile float		curveSpeed_init;
 extern volatile float		boostSpeed_init;
 
 
 // 좌우 모터 포지션에 관한 변수
 extern volatile int32_t		positionVal;
-extern volatile float		positionCoef_init;
 extern volatile float		positionCoef;
 
 
@@ -122,9 +141,9 @@ extern volatile float		minSpeed;
 extern volatile float		maxSpeed;
 extern volatile float		accele;
 
-extern volatile float		straightSpeed;
-extern volatile float		curveSpeed;
 extern volatile float		boostSpeed;
+
+extern volatile uint32_t	curveDecelCoef;
 
 
 //end mark를 몇 번 봤는지 카운트하는 변수
@@ -146,6 +165,10 @@ extern volatile uint8_t		isBoost;
 // driveData를 저장하고 접근하게 해주는 변수들
 extern volatile t_driveData	*driveDataPtr;
 extern volatile t_driveData	driveData[MAX_MARKER_CNT];
+
+
+// state machone 의 상태
+extern volatile uint8_t		driveState;
 
 
 
