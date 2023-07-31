@@ -41,7 +41,7 @@ volatile uint32_t		curveDecelCoef = CURVE_DECEL_COEF;
 volatile uint8_t		endMarkCnt = 0;
 
 // 현재 직진인지 커브인지 등을 저장하는 변수
-volatile uint8_t		curDecisionState = DECISION_STRAIGHT;
+volatile uint8_t		markState = MARK_STRAIGHT;
 
 // 현재 모터에 몇번 상이 잡혔는 지를 카운트하는 변수
 volatile uint32_t		curTick = 0;
@@ -64,7 +64,7 @@ volatile uint8_t		driveState = DRIVE_STATE_IDLE;
 
 
 // 주행 전 초기값 대입
-__STATIC_INLINE void Drive_Preset_Var() {
+__STATIC_INLINE void Drive_Preset_Var(uint8_t driveIdx) {
 
 
 	// 좌우모터 포지션 값을 0으로 초기화
@@ -88,7 +88,7 @@ __STATIC_INLINE void Drive_Preset_Var() {
 	endMarkCnt = 0;
 
 	// 현재 마크 인식 상태를 직선 주행으로 초기화
-	curDecisionState = DECISION_STRAIGHT;
+	markState = MARK_STRAIGHT;
 
 
 	// 현재 모터가 상을 잡은 횟수 초기화
@@ -104,7 +104,7 @@ __STATIC_INLINE void Drive_Preset_Var() {
 	driveState = DRIVE_STATE_IDLE;
 
 	// 1차 주행에서만 초기화할 변수
-	if (driveIdx == DRIVE_FIRST) {
+	if (driveIdx == FIRST_DRIVE) {
 
 		// driveData 값 초기화
 		for (uint16_t i = 0; i < MAX_MARKER_CNT; i++) {
@@ -114,7 +114,7 @@ __STATIC_INLINE void Drive_Preset_Var() {
 		}
 
 		// driveData의 0번째 값 초기화 (0번 인덱스는 할당되지 않은 포인터에 접근하지 않도록 고정시켜둠)
-		driveData[0].decisionState = DECISION_STRAIGHT;
+		driveData[0].markState = MARK_STRAIGHT;
 		driveData[0].isExist = CUSTOM_TRUE;
 		driveData[0].tickCnt = 0;
 	}
@@ -135,7 +135,7 @@ __STATIC_INLINE void Drive_Preset_Var() {
 
 
 //주행 전 상수값 변경 절차
-void Drive_Preset() {
+void Drive_Preset(uint8_t driveIdx) {
 	uint8_t	sw = 0;
 
 
@@ -197,7 +197,7 @@ void Drive_Preset() {
 	Custom_OLED_Clear();
 
 
-	Drive_Preset_Var();
+	Drive_Preset_Var(driveIdx);
 
 }
 

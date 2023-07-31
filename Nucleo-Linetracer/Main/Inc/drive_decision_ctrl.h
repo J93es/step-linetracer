@@ -15,7 +15,7 @@
 
 __STATIC_INLINE void	Set_First_Drive_Data() {
 
-	// 현재 모터의 tick 값을 구조체에 저장
+	// 현재 모터의 tick 값을 구조체에 저장 (종료시점을 저장 함)
 	driveDataPtr->tickCnt = curTick;
 
 	// 현재 인덱스의 구조체의 값이 존재함을 저장
@@ -24,8 +24,8 @@ __STATIC_INLINE void	Set_First_Drive_Data() {
 	// drivePtr 값 인덱스 증가
 	driveDataPtr += 1;
 
-	// 증가된 구조체의 인덱스에 curDecisionState 저장
-	driveDataPtr->decisionState = curDecisionState;
+	// 증가된 구조체의 인덱스에 markState 저장
+	driveDataPtr->markState = markState;
 }
 
 
@@ -33,11 +33,16 @@ __STATIC_INLINE void	Set_First_Drive_Data() {
 
 __STATIC_INLINE void	First_Drive_Decision_Ctrl() {
 
-	// decisionState가 변경되었을 경우
-	if (curDecisionState != driveDataPtr->decisionState) {
+	// markState가 변경되었을 경우
+	if (markState != driveDataPtr->markState) {
 
 		// driveData 값 업데이트
 		Set_First_Drive_Data();
+
+		// 크로스는 한번만 기록하고 바로 직진 상태로 바꿈
+		if (markState == MARK_CROSS) {
+			markState = MARK_STRAIGHT;
+		}
 	}
 }
 
@@ -58,8 +63,8 @@ __STATIC_INLINE void	Set_Second_Drive_Data() {
 	// 이전의 주행에서 마크를 정상적으로 읽었는지 판단
 	if ((driveDataPtr - 1)->isReadAllMark == CUSTOM_TRUE) {
 
-		// 주행중 decisionState와 1차 주행에서 저장된 decisionState가 동일하다면 정상적으로 읽었다고 판단
-		if (curDecisionState == driveDataPtr->decisionState) {
+		// 주행중 markState와 1차 주행에서 저장된 markState가 동일하다면 정상적으로 읽었다고 판단
+		if (markState == driveDataPtr->markState) {
 
 			// 마크 인식 정상 여부를 업데이트
 			driveDataPtr->isReadAllMark = CUSTOM_TRUE;
@@ -108,8 +113,8 @@ __STATIC_INLINE void	Straight_Boost_Deceleing() {
 
 __STATIC_INLINE void	Second_Drive_Decision_Ctrl() {
 
-	// decisionState가 변경되었을 경우
-	if (curDecisionState != driveDataPtr->decisionState) {
+	// markState가 변경되었을 경우
+	if (markState != driveDataPtr->markState) {
 
 		// 가속도 부스트 여부 업데이트
 		accele = accele_init;

@@ -60,7 +60,7 @@ void Init() {
 	 */
 	t_menuData menus[] = {
 			{ "Calibration    ", Sensor_Calibration },
-			{ "Drive First    ", Drive_First },
+			{ "Drive First    ", First_Drive },
 			{ "Test Raw       ", Sensor_Test_Raw },
 			{ "Test Normalized", Sensor_Test_Normalized },
 			{ "Test State     ", Sensor_Test_State },

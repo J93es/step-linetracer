@@ -7,7 +7,6 @@
 C_SRCS += \
 ../Main/Src/drive_first.c \
 ../Main/Src/drive_preset.c \
-../Main/Src/drive_tools.c \
 ../Main/Src/init.c \
 ../Main/Src/linetracer_test.c \
 ../Main/Src/motor.c \
@@ -16,7 +15,6 @@ C_SRCS += \
 OBJS += \
 ./Main/Src/drive_first.o \
 ./Main/Src/drive_preset.o \
-./Main/Src/drive_tools.o \
 ./Main/Src/init.o \
 ./Main/Src/linetracer_test.o \
 ./Main/Src/motor.o \
@@ -25,7 +23,6 @@ OBJS += \
 C_DEPS += \
 ./Main/Src/drive_first.d \
 ./Main/Src/drive_preset.d \
-./Main/Src/drive_tools.d \
 ./Main/Src/init.d \
 ./Main/Src/linetracer_test.d \
 ./Main/Src/motor.d \
@@ -39,7 +36,7 @@ Main/Src/%.o Main/Src/%.su Main/Src/%.cyclo: ../Main/Src/%.c Main/Src/subdir.mk
 clean: clean-Main-2f-Src
 
 clean-Main-2f-Src:
-	-$(RM) ./Main/Src/drive_first.cyclo ./Main/Src/drive_first.d ./Main/Src/drive_first.o ./Main/Src/drive_first.su ./Main/Src/drive_preset.cyclo ./Main/Src/drive_preset.d ./Main/Src/drive_preset.o ./Main/Src/drive_preset.su ./Main/Src/drive_tools.cyclo ./Main/Src/drive_tools.d ./Main/Src/drive_tools.o ./Main/Src/drive_tools.su ./Main/Src/init.cyclo ./Main/Src/init.d ./Main/Src/init.o ./Main/Src/init.su ./Main/Src/linetracer_test.cyclo ./Main/Src/linetracer_test.d ./Main/Src/linetracer_test.o ./Main/Src/linetracer_test.su ./Main/Src/motor.cyclo ./Main/Src/motor.d ./Main/Src/motor.o ./Main/Src/motor.su ./Main/Src/sensor.cyclo ./Main/Src/sensor.d ./Main/Src/sensor.o ./Main/Src/sensor.su
+	-$(RM) ./Main/Src/drive_first.cyclo ./Main/Src/drive_first.d ./Main/Src/drive_first.o ./Main/Src/drive_first.su ./Main/Src/drive_preset.cyclo ./Main/Src/drive_preset.d ./Main/Src/drive_preset.o ./Main/Src/drive_preset.su ./Main/Src/init.cyclo ./Main/Src/init.d ./Main/Src/init.o ./Main/Src/init.su ./Main/Src/linetracer_test.cyclo ./Main/Src/linetracer_test.d ./Main/Src/linetracer_test.o ./Main/Src/linetracer_test.su ./Main/Src/motor.cyclo ./Main/Src/motor.d ./Main/Src/motor.o ./Main/Src/motor.su ./Main/Src/sensor.cyclo ./Main/Src/sensor.d ./Main/Src/sensor.o ./Main/Src/sensor.su
 
 .PHONY: clean-Main-2f-Src
 

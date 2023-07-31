@@ -1,43 +1,36 @@
 /*
- * drive_tools.c
+ * drive_speed_ctrl.h
  */
 
-#include "header_init.h"
-
-
-
-
-volatile int32_t		positionVal = 0;
-volatile float			positionCoef;
-
-
-volatile t_driveData	driveData[MAX_MARKER_CNT] = { T_DRIVE_DATA_INIT, };
-volatile t_driveData	*driveDataPtr = driveData + 0;
-volatile uint32_t		curTick = 0;
-volatile uint8_t		isBoost = CUSTOM_FALSE;
-volatile uint8_t		endMarkCnt = 0;
-volatile uint8_t		curDecisionState = DECISION_STRAIGHT;
+#ifndef INC_DRIVE_SPEED_CTRL_H_
+#define INC_DRIVE_SPEED_CTRL_H_
 
 
 
 
 
-void Accele_Control_Start(){
-	LL_TIM_EnableCounter(TIM9);
-	LL_TIM_EnableIT_UPDATE(TIM9);
+#include "drive_def_var.h"
+#include "init.h"
+#include "main.h"
+#include "sensor.h"
+
+
+
+
+
+__STATIC_INLINE void	Motor_L_Speed_Control(float speed) {
+	LL_TIM_SetAutoReload(TIM3, SPEED_COEF / speed - 1);
 }
 
-void Accele_Control_Stop(){
-	LL_TIM_DisableIT_UPDATE(TIM9);
-	LL_TIM_DisableCounter(TIM9);
-	positionVal = 0;
+
+__STATIC_INLINE void	Motor_R_Speed_Control(float speed) {
+	LL_TIM_SetAutoReload(TIM4, SPEED_COEF / speed - 1);
 }
 
 
 
 
-
-__STATIC_INLINE void Set_Position() {
+__STATIC_INLINE void	Set_Position() {
 	static uint8_t	i = 0;
 	static uint8_t	positionIdxMax = 5;
 	static uint8_t	positionIdxMin = 2;
@@ -75,8 +68,10 @@ __STATIC_INLINE void Set_Position() {
 
 
 
+
+
 // 500us마다 호출됨.
-void Drive_TIM9_IRQ() {
+__STATIC_INLINE void	Drive_TIM9_IRQ() {
 	// 가속도 조절
 	if (targetSpeed > currentSpeed) {
 		currentSpeed += accele / 2000;
@@ -93,3 +88,17 @@ void Drive_TIM9_IRQ() {
 
 	Set_Position();
 }
+
+
+
+// 피트인 함수
+__STATIC_INLINE void	Drive_Fit_In(float s, float pinSpeed) {
+	targetSpeed = pinSpeed;
+	accele = ABS( (pinSpeed - currentSpeed) * (pinSpeed + currentSpeed) / (2 * s) );
+}
+
+
+
+
+
+#endif /* INC_DRIVE_SPEED_CTRL_H_ */

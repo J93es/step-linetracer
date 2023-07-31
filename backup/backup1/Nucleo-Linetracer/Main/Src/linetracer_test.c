@@ -203,14 +203,16 @@ void Drive_Test_Position() {
 
 	Custom_OLED_Clear();
 	Sensor_Start();
+	Motor_Start();
 	Speed_Control_Start();
 
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 		Custom_OLED_Printf("/0pos: %10d", positionVal);
-		Custom_OLED_Printf("/2speedL: %5f", (1 + positionVal * positionCoef));
-		Custom_OLED_Printf("/3speedR: %5f", (1 - positionVal * positionCoef));
+		Custom_OLED_Printf("/2speedL: %5f", currentSpeed * (1 + positionVal * positionCoef));
+		Custom_OLED_Printf("/3speedR: %5f", currentSpeed * (1 - positionVal * positionCoef));
 	}
 
+	Motor_Stop();
 	Speed_Control_Stop();
 	Sensor_Stop();
 	Custom_OLED_Clear();
@@ -289,9 +291,9 @@ void Drive_Test_Data() {
 		// OLED에 변수명 변수값 출력
 		Custom_OLED_Printf("/0markCnt:");
 		Custom_OLED_Printf("/1%d", markCnt);
-		Custom_OLED_Printf("/2tickCnt:  %d");
+		Custom_OLED_Printf("/2tickCnt:");
 		Custom_OLED_Printf("/3%d", driveData[count].tickCnt);
-		Custom_OLED_Printf("/4decision: %d");
+		Custom_OLED_Printf("/4decision:");
 		Custom_OLED_Printf("/5%d", driveData[count].decisionState);
 	}
 	Custom_OLED_Clear();

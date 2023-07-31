@@ -15,7 +15,7 @@ volatile uint8_t	whiteMaxs[8] = { 255, };
 volatile uint8_t	blackMaxs[8] = { 0, };
 
 volatile uint8_t	state = 0x00;
-volatile uint8_t	threshold_init = THRESHOLD_INIT;
+volatile uint32_t	threshold_init = THRESHOLD_INIT;
 volatile uint8_t	threshold;
 
 
