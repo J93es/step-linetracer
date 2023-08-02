@@ -31,10 +31,11 @@
 
 // 속도와 관련된 매크로
 #define ACCELE_INIT					4.f
-#define TARGET_SPEED_INIT			1.5f
 #define MAX_SPEED_INIT				2.4f
-#define MIN_SPEED_INIT				0.1f
-#define CURVE_DECELE_INIT			-0.1f
+#define MIN_SPEED_INIT				0.01f
+#define STRAIGHT_SPEED_INIT			1.5f
+#define CURVE_SPEED_INIT			1.5f
+#define BOOST_SPEED_INIT			2.0f
 
 
 // POSITION_COEF(포지션 상수)를 도출하기 위한 매크
@@ -54,17 +55,26 @@
  */
 
 
+// 2차 주행에서 가속할지 말지를 판단하는 매크로
+#define INSTRUCT_NORMAL				0
+#define INSTRUCT_ACCELE				1
+
 
 // 1차주행, 2차 주행의 driveData 관련 매크로
 #define MAX_MARKER_CNT				100
 #define T_DRIVE_DATA_INIT			{ CUSTOM_FALSE, DECISION_STRAIGHT, INSTRUCT_NORMAL, CUSTOM_FALSE, 0 }
 
-// 2차 주행에서 가속할지 말지를 판단하는 매크로
-#define INSTRUCT_NORMAL				0
-#define INSTRUCT_ACCELE				1
 
-// 2차 주행에서 어느 정도 지나면 감속할 지 결정하는 코드; 10 부스트 하고  DECELE_POINT_RATIO가 0.7이라면 7에서 부스트 종료 후 감속
-#define DECELE_POINT_RATIO			0.7f
+// 1m 를 움직이기 위해 필요한 tick 수
+// 1(m) / (2 * TIRE_RADIUS(m) * 3.141592 * 0.9(1 tick당 회전 각도) / 360)
+#define TICK_PER_M					1 / ( 2 * TIRE_RADIUS * 3.141592 * 0.9 / 360 )
+
+
+// 2차 주행에서 어느 정도 지나면 감속할 지 결정하는 코드; 10의 거리를 부스트 할 때  DECELE_POINT_RATIO가 0.7이라면 7에서 부스트 종료 후 감속
+#define BOOST_DECELE_POINT_RATIO	0.7f
+
+
+
 
 
 
@@ -74,8 +84,11 @@ typedef struct	s_driveData {
 		volatile uint8_t	decisionState;
 		volatile uint8_t	instruct;
 		volatile uint8_t	isReadAllMark;
-		volatile uint32_t	tickCnt;
+		volatile uint32_t	tickCnt;			// 현재 decisionState가 끝났을 때의 tick 값
 }				t_driveData;
+
+
+
 
 
 // 현재 1차주행, 2차주행의 여부를 저장하는 변수
@@ -83,12 +96,12 @@ extern volatile int8_t		driveIdx;
 
 
 // 초기의 속도 값에 관한 변수
-extern volatile float		targetSpeed_init;
-extern volatile float		currentSpeed_init;
 extern volatile float		minSpeed_init;
 extern volatile float		maxSpeed_init;
 extern volatile float		accele_init;
-extern volatile float		curveDecele_init;
+extern volatile float		straightSpeed_init;
+extern volatile float		curveSpeed_init;
+extern volatile float		boostSpeed_init;
 
 
 // 좌우 모터 포지션에 관한 변수
@@ -102,7 +115,12 @@ extern volatile float		currentSpeed;
 extern volatile float		minSpeed;
 extern volatile float		maxSpeed;
 extern volatile float		accele;
-extern volatile float		curveDecele;
+
+
+// 상태에 따른 스피드 값
+extern volatile float		straightSpeed;
+extern volatile float		curveSpeed;
+extern volatile float		boostSpeed;
 
 
 //end mark를 몇 번 봤는지 카운트하는 변수

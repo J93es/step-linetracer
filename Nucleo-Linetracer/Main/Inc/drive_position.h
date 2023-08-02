@@ -92,11 +92,12 @@ __STATIC_INLINE int32_t	Stabilize_Position_Val(int32_t positionValBuffer) {
 	 */
 
 	// (정상) || (탈선 후 정상으로 돌아온 상태)
-	if ( ABS(positionVal) < 9000 || (4000 < ABS(positionValBuffer) && ABS(positionValBuffer) < 8000) ) {
+	if ( ABS(positionVal) < 9000 || (2000 < ABS(positionValBuffer) && ABS(positionValBuffer) < 9000) ) {
 		return positionValBuffer;
 	}
 	// (탈선 진행중) || (탈선 하기 직전의 상태)
-	else {
+	// if (ABS(positionVal) >= 9000 || ABS(positionValBuffer) >= 9000)
+	else if (ABS(positionVal) >= 9000 || ABS(positionValBuffer) >= 9000) {//( !( ABS(positionValBuffer) < 2000 ) ){
 
 		if (positionVal < 0) {
 			return -9800;
@@ -106,6 +107,7 @@ __STATIC_INLINE int32_t	Stabilize_Position_Val(int32_t positionValBuffer) {
 			return 9800;
 		}
 	}
+	return positionValBuffer;
 }
 
 
@@ -116,7 +118,7 @@ __STATIC_INLINE void	Update_Position_Val() {
 
 	positionValBuffer = Window_Position_Val();
 
-	positionVal = positionValBuffer; //Stabilize_Position_Val(positionValBuffer);
+	positionVal = Stabilize_Position_Val(positionValBuffer);
 
 }
 

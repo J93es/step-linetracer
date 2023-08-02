@@ -8,7 +8,7 @@
 
 
 volatile int32_t		positionVal = 0;
-volatile float			positionCoef = POSITION_COEF_INIT;
+volatile float			positionCoef;
 
 
 volatile t_driveData	driveData[MAX_MARKER_CNT] = { T_DRIVE_DATA_INIT, };

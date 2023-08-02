@@ -60,10 +60,11 @@ void Sensor_Test_State() {
 
 	// 센서의 State 값을 디스플레이에 출력해 확인하기
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
-		Custom_OLED_Printf("%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
+		Custom_OLED_Printf("/0threshold: %3d", threshold_init);
+
+		Custom_OLED_Printf("/1%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
 			(state >> 0) & 1, (state >> 1) & 1, (state >> 2) & 1, (state >> 3) & 1, \
 			(state >> 4) & 1, (state >> 5) & 1, (state >> 6) & 1, (state >> 7) & 1);
-		Custom_OLED_Printf("/1threshold: %3d", threshold);
 
 
 		if (sw == CUSTOM_SW_1) {
@@ -164,13 +165,13 @@ void Motor_Test_Phase() {
 
 void Motor_Test_Velocity() {
 	uint8_t		sw = 0;
-	float		speed = MIN_SPEED_INIT;
+	float		speed = MIN_SPEED;
+	float		maxSpeed = 2.5;
+	float		minSpeed = 1.5;
 	/*
 	 * 모터 속도를 부드럽게 올렸다가 내리기를 반복한다.
 	 */
 	accele = ACCELE_INIT;
-	maxSpeed = MAX_SPEED_INIT;
-	minSpeed = MIN_SPEED_INIT;
 
 	Motor_Start();
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
@@ -232,13 +233,13 @@ void Drive_Test_Info_Oled() {
 
 
 
-void Drive_Test_Data() {
+void Drive_Test_First_Data() {
 	uint16_t markCnt_L = 0;
 	uint16_t markCnt_R = 0;
-	uint16_t markCnt_End = 0;
+	uint16_t markCnt_End = 2;
 	uint16_t markCnt_Cross = 0;
 
-	for (volatile t_driveData *ptr = (driveData + 0); ptr->isExist != CUSTOM_FALSE; ptr += 1) {
+	for (volatile t_driveData *ptr = (driveData + 0); ptr->isExist == CUSTOM_TRUE; ptr += 1) {
 
 		// 현재상태가 좌측 곡선인 경우
 		if (ptr->markState == MARK_CURVE_L) {
@@ -266,11 +267,10 @@ void Drive_Test_Data() {
 		else if (ptr->markState == MARK_END) {
 			markCnt_End += 2;
 		}
-
-		else if (ptr->markState == MARK_CROSS) {
-			markCnt_Cross += 1;
-		}
 	}
+
+	// 크로스
+	markCnt_Cross = crossCnt;
 
 
 	// OLED에 변수명 변수값 출력

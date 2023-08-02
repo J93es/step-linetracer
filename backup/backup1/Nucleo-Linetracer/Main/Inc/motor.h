@@ -54,13 +54,13 @@ __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 	// decision에 해당하는 속도 조정 및 거리 기록
 
 	// 오른쪽 커브일 경우
-	if (curDecisionState == DECISION_CURVE_R) {
+	if (markState == MARK_CURVE_R) {
 		// tick 값 증가
 		curTick++;
 	}
 
 	// 직선일 경우
-	else if (curDecisionState == DECISION_STRAIGHT) {
+	else if (markState == MARK_STRAIGHT) {
 		// tick 값 증가
 		curTick++;
 	}
@@ -84,13 +84,13 @@ __STATIC_INLINE void	Motor_R_TIM4_IRQ() {
 
 
 	// 왼쪽 커브일 경우
-	if (curDecisionState == DECISION_CURVE_L) {
+	if (markState == MARK_CURVE_L) {
 		// tick 값 증가
 		curTick++;
 	}
 
 	// end mark일 경우
-	else if (curDecisionState == DECISION_END_MARK) {
+	else if (markState == MARK_END) {
 		// tick 값 증가
 		curTick++;
 	}

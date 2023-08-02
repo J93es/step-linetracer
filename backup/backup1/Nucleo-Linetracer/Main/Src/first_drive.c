@@ -5,8 +5,6 @@
 #include "header_init.h"
 
 
-volatile uint8_t	driveIdx;
-
 
 
 
@@ -17,7 +15,7 @@ void Set_Drive_Instruct() {
 	for (volatile t_driveData *ptr = driveData + 1; ptr->isExist == CUSTOM_TRUE; ptr += 1) {
 
 		// 직선일 경우
-		if (ptr->decisionState == DECISION_STRAIGHT) {
+		if (ptr->markState == MARK_STRAIGHT) {
 
 			// MIN_BOOST_METER  * TICK_PER_M 이상 이동한 경우에 INSTRUCT_BOOST로 업데이트
 			if (ptr->tickCnt - (ptr-1)->tickCnt > MIN_BOOST_METER * TICK_PER_M) {
@@ -36,7 +34,7 @@ void First_Drive() {
 	Sensor_Start();
 
 	//주행 전 변수값 초기화
-	Drive_Preset();
+	Drive_Preset(FIRST_DRIVE);
 
 	Motor_Start();
 	Speed_Control_Start();
@@ -48,9 +46,9 @@ void First_Drive() {
 		Drive_State_Machine();
 		First_Drive_Decision_Ctrl();
 		//Drive_Speed_Cntl();
-		if (curDecisionState == DECISION_END_MARK) {
+		if (markState == MARK_END) {
 			Drive_Fit_In(0.2f, 0.1f);
-			while (currentSpeed > 0.6f) {
+			while (currentSpeed > 0.5f) {
 				//Drive_Speed_Cntl();
 			}
 			exitEcho = 0;
@@ -74,7 +72,7 @@ void First_Drive() {
 	else {
 		Custom_OLED_Printf("/0end mark");
 	}
-	Custom_OLED_Printf("/1%d", curDecisionState);
+	Custom_OLED_Printf("/1%d", markState);
 	Custom_Delay_ms(5000);
 
 }

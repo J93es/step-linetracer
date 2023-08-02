@@ -58,43 +58,12 @@ __STATIC_INLINE uint16_t	Sensor_ADC_Read() {
 }
 
 
+// rawValue 계산
+__STATIC_INLINE void		Make_Sensor_Raw_Vals(uint8_t idx) {
 
-
-
-__STATIC_INLINE void		Make_Sensor_Norm_Vals(uint8_t idx) {
-	// normalized value 계산
-	/*
-		if (sensorRawVals[i] < blackMaxs[i])
-			sensorNormVals[i] = 0;
-		else if (sensorRawVals[i] > whiteMaxs[i])
-			sensorNormVals[i] = 255;
-		else
-			sensorNormVals[i] = (255 * (sensorRawVals[i] - blackMaxs[i]) / (whiteMaxs[i] - blackMax[i]));
-	 */
-	sensorNormVals[idx] = ( (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]) \
-		& ((sensorRawVals[idx] < blackMaxs[idx]) - 0x01) ) \
-		| ((sensorRawVals[idx] < whiteMaxs[idx]) - 0x01);
-}
-
-
-
-
-
-
-__STATIC_INLINE void		Make_Sensor_State(uint8_t idx) {
-	// sensor state 계산
-	state = ( state & ~(0x01 << idx) ) | ( (sensorNormVals[idx] > threshold) << idx );
-}
-
-
-
-
-
-__STATIC_INLINE void		Sensor_TIM5_IRQ() {
-	static uint8_t	sensorReadIdx = 0;
 	static uint8_t	midian[3] = { 0, };
 
-	GPIOC->ODR = (GPIOC->ODR & ~0x07) | (sensorReadIdx) | 0x08;
+	GPIOC->ODR = (GPIOC->ODR & ~0x07) | (idx) | 0x08;
 	// ADC 읽기
 	midian[0] = Sensor_ADC_Read() >> 4;
 	midian[1] = Sensor_ADC_Read() >> 4;
@@ -116,8 +85,55 @@ __STATIC_INLINE void		Sensor_TIM5_IRQ() {
 	if (midian[1] > midian[2]) {
 		SWAP(midian[1], midian[2]);
 	}
-	sensorRawVals[sensorReadIdx] =  midian[1];
+	if (midian[0] > midian[1]) {
+		SWAP(midian[0], midian[1]);
+	}
+	sensorRawVals[idx] =  midian[1];
+}
 
+
+
+// normalized value 계산
+__STATIC_INLINE void		Make_Sensor_Norm_Vals(uint8_t idx) {
+	/*
+		if (sensorRawVals[i] < blackMaxs[i])
+			sensorNormVals[i] = 0;
+		else if (sensorRawVals[i] > whiteMaxs[i])
+			sensorNormVals[i] = 255;
+		else
+			sensorNormVals[i] = (255 * (sensorRawVals[i] - blackMaxs[i]) / (whiteMaxs[i] - blackMax[i]));
+	 */
+	sensorNormVals[idx] = ( (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]) \
+		& ((sensorRawVals[idx] < blackMaxs[idx]) - 0x01) ) \
+		| ((sensorRawVals[idx] < whiteMaxs[idx]) - 0x01);
+}
+
+
+
+
+
+// sensor state 계산
+__STATIC_INLINE void		Make_Sensor_State(uint8_t idx) {
+
+	//state = ( state & ~(0x01 << idx) ) | ( (sensorNormVals[idx] > threshold) << idx );
+	if (sensorNormVals[idx] > threshold) {
+		state |= 0x01 << idx;
+	}
+	else {
+		state &= ~(0x01 << idx);
+	}
+}
+
+
+
+
+
+__STATIC_INLINE void		Sensor_TIM5_IRQ() {
+
+	static uint8_t	sensorReadIdx = 0;
+
+
+	Make_Sensor_Raw_Vals(sensorReadIdx);
 
 	Make_Sensor_Norm_Vals(sensorReadIdx);
 

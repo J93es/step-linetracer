@@ -14,12 +14,13 @@
 // 공용 매크로
 #define CUSTOM_FALSE				0
 #define CUSTOM_TRUE					1
-#define ABS(x) 						( ((x) > 0) ? (x) : (-1 * (x)))
+#define ABS(x) 						( ((x) < 0) ? (-1 * (x)) : (x))
 
 
 // 1차 주행인지 2차주행 판단 매크로
-#define DRIVE_FIRST					0
-#define DRIVE_SECOND				1
+#define FIRST_DRIVE					0
+#define SECOND_DRIVE				1
+
 
 // state machine에서 나온 상태
 #define DRIVE_STATE_IDLE			0
@@ -27,11 +28,13 @@
 #define DRIVE_STATE_MARKER			2
 #define DRIVE_STATE_DECISION		3
 
-// 현재 decision의 상태값 매크로
-#define DECISION_STRAIGHT			0
-#define DECISION_END_MARK			1
-#define DECISION_CURVE_R			2
-#define DECISION_CURVE_L			3
+
+// 현재 mark의 상태값 매크로
+#define MARK_STRAIGHT				0
+#define MARK_END					1
+#define MARK_CURVE_R				2
+#define MARK_CURVE_L				3
+#define MARK_CROSS					4
 
 
 // 속도와 관련된 매크로
@@ -45,16 +48,13 @@
 
 #define SPEED_INIT_CHANGE_VAL		0.1f
 
-// 커브에서 어느정도 감속할지 결정하는 코드
+
+// 커브에서 어느 정도 감속할지 결정하는 매크로
 #define CURVE_DECEL_COEF			22000
 #define CURVE_DECEL_COEF_CHANGE_VAL	1000
 
 
 // POSITION_COEF(포지션 상수)를 도출하기 위한 매크로
-#define TIRE_RADIUS					0.025f					// m
-#define	SPEED_COEF					15707.f * TIRE_RADIUS
-#define POSITION_COEF_INIT			0.0001f
-#define POSITION_COEF_CHANGE_VAL	0.00001f
 /*
  * (2 * l(m) * 3.14159) / (t(s) * 400) = v(m/s) * (arr+1)
  *
@@ -66,6 +66,10 @@
  *
  * v * (arr + 1) = SPEED_COEF
  */
+#define TIRE_RADIUS					0.025f					// m
+#define	SPEED_COEF					15707.f * TIRE_RADIUS
+#define POSITION_COEF_INIT			0.00008f
+#define POSITION_COEF_CHANGE_VAL	0.00001f
 
 
 // 1 m 당 tick 개수
@@ -78,12 +82,13 @@
 
 // 1차주행, 2차 주행의 driveData 관련 매크로
 #define MAX_MARKER_CNT				1000
-#define T_DRIVE_DATA_INIT			{ CUSTOM_FALSE, DECISION_STRAIGHT, INSTRUCT_NORMAL, CUSTOM_FALSE, 0 }
+#define T_DRIVE_DATA_INIT			{ CUSTOM_FALSE, MARK_STRAIGHT, INSTRUCT_NORMAL, CUSTOM_FALSE, 0 }
 
 
 // 2차 주행에서 가속할지 말지를 판단하는 매크로
 #define INSTRUCT_NORMAL				0
 #define INSTRUCT_BOOST				1
+
 
 // 최소 몇 미터 이상에서 부스트할지를 저장한 매크로
 #define MIN_BOOST_METER				3
@@ -103,7 +108,7 @@
 // 1차주행, 2차 주행의 driveData 구조체
 typedef struct	s_driveData {
 		volatile uint8_t	isExist;
-		volatile uint8_t	decisionState;
+		volatile uint8_t	markState;
 		volatile uint8_t	instruct;
 		volatile uint8_t	isReadAllMark;
 		volatile uint32_t	tickCnt;
@@ -113,9 +118,6 @@ typedef struct	s_driveData {
 
 
 
-
-// 현재 1차주행, 2차주행의 여부를 저장하는 변수
-extern volatile int8_t		driveIdx;
 
 
 // 초기의 속도 값에 관한 변수
@@ -151,7 +153,7 @@ extern volatile uint8_t		endMarkCnt;
 
 
 // 현재 직진인지 커브인지 등을 저장하는 변수
-extern volatile uint8_t		curDecisionState;
+extern volatile uint8_t		markState;
 
 
 // 현재 모터에 몇번 상이 잡혔는지를 카운트하는 변수

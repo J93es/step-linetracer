@@ -1,5 +1,5 @@
 /*
- * speed_def_var.h
+ * drive_def_var.h
  */
 
 
@@ -14,7 +14,7 @@
 // 공용 매크로
 #define CUSTOM_FALSE				0
 #define CUSTOM_TRUE					1
-#define ABS(x) 						( ((x) < 0) ? (-1 * (x)) : (x))
+#define ABS(x) 						( ((x) < 0) ? (-1 * (x)) : (x) )
 
 
 // 1차 주행인지 2차주행 판단 매크로
@@ -38,13 +38,13 @@
 
 
 // 속도와 관련된 매크로
-#define MAX_SPEED_INIT				2.4f
-#define MIN_SPEED_INIT				0.1f
-#define ACCELE_INIT					4.0f
+#define MIN_SPEED					0.01f
 
-#define TARGET_SPEED_INIT			1.5f
+#define ACCELE_INIT					6.0f
 
-#define BOOST_SPEED_INIT			2.0f
+#define TARGET_SPEED_INIT			1.7f
+
+#define BOOST_SPEED_INIT			3.0f
 
 #define SPEED_INIT_CHANGE_VAL		0.1f
 
@@ -66,39 +66,64 @@
  *
  * v * (arr + 1) = SPEED_COEF
  */
-#define TIRE_RADIUS					0.025f					// m
-#define	SPEED_COEF					15707.f * TIRE_RADIUS
-#define POSITION_COEF_INIT			0.00008f
+#define TIRE_RADIUS					0.029f					// m
+#define	SPEED_COEF					( 15707.f * TIRE_RADIUS )
+#define POSITION_COEF_INIT			0.00007f
 #define POSITION_COEF_CHANGE_VAL	0.00001f
 
 
 // 1 m 당 tick 개수
-#define TICK_PER_M	400 * 1 / (2 * TIRE_RADIUS * 3.14159)
 /*
  * 400(바퀴가 1바퀴 도는데 소요되는 tick 개수) * { 1(m) / (2 * TIRE_RADIUS * 3.14159)(1바퀴의 거리) }{ 1m 가는데 소요되는 바퀴 회전 횟수 }
  */
-
+#define TICK_PER_M					( 400.f * 1.f / (2.f * TIRE_RADIUS * 3.14159f) )
 
 
 // 1차주행, 2차 주행의 driveData 관련 매크로
 #define MAX_MARKER_CNT				1000
-#define T_DRIVE_DATA_INIT			{ CUSTOM_FALSE, MARK_STRAIGHT, INSTRUCT_NORMAL, CUSTOM_FALSE, 0 }
-
-
-// 2차 주행에서 가속할지 말지를 판단하는 매크로
-#define INSTRUCT_NORMAL				0
-#define INSTRUCT_BOOST				1
+#define T_DRIVE_DATA_INIT			{ 0, MARK_STRAIGHT, 0, CUSTOM_FALSE, 0, CUSTOM_FALSE }
 
 
 // 최소 몇 미터 이상에서 부스트할지를 저장한 매크로
-#define MIN_BOOST_METER				3
+#define MIN_BOOST_METER				1.f
 
 
-// 2차 주행에서 어느 정도 지나면 가감속할 지 결정하는 코드
-// 예를 들어 10의 거리가 주어졌을 때 DECELE_POINT_RATIO가 0.7이라면 7에서 부스트 종료 후 감속
-#define ACCELE_POINT_RATIO			0.3f
-#define DECELE_POINT_RATIO			0.8f
+// 2차 주행에서 어느 정도 지나면 가감속할 지 결정하는 매크로
 
+// 직선에 진입한 후 어느정도 이동한 후 가속할지
+#define ACCELE_START_TICK			( 0.1f * TICK_PER_M )
+
+// 가속을 언제 끝낼
+#define ACCELE_END_TICK				( 0.3f * TICK_PER_M )
+
+// 어느정도 직선이 남았으면 감속할 지
+#define DECELE_START_TICK			( 0.4f * TICK_PER_M )
+
+// 감속을 언제 끝낼 지
+#define DECELE_END_TICK				( 0.2f * TICK_PER_M )
+
+// 피트인 관련 매크로
+#define PIT_IN_LEN					0.22f
+#define PIT_IN_TARGET_SPEED			0.1f
+#define PIT_IN_DELAY_SPEED			0.3f
+#define DRIVE_END_DELAY				100
+
+
+// exitEcho 관련 매크로
+#define EXIT_ECHO_END_MARK			0
+#define EXIT_ECHO_LINE_OUT			1
+
+
+// 주행 컨트롤 매크로
+#define DRIVE_CNTL_IDLE				0
+#define DRIVE_CNTL_DATA_UPDATE		1
+
+
+// 부스트 컨트롤 매크로
+#define BOOST_CNTL_IDLE				0
+#define BOOST_CNTL_ACCELE			1
+#define BOOST_CNTL_DECELE			2
+#define BOOST_CNTL_END				3
 
 
 
@@ -107,11 +132,25 @@
 
 // 1차주행, 2차 주행의 driveData 구조체
 typedef struct	s_driveData {
-		volatile uint8_t	isExist;
-		volatile uint8_t	markState;
-		volatile uint8_t	instruct;
-		volatile uint8_t	isReadAllMark;
+
+		// 현재 인덱스의 마크가 종료된 시점에서의 curTick 값
 		volatile uint32_t	tickCnt;
+
+		// 현재 마크의 상태
+		volatile uint8_t	markState;
+
+		// 몇번째 크로스를 보았는지
+		// 에를 들어 한 직선에서 30, 31, 32 번째 크로스가 관찰 되었다면 32만 저장
+		volatile uint8_t	crossCnt;
+
+		// 현재 인덱스의 구조체가 존재하는지
+		volatile uint8_t	isExist;
+
+		// 부스트 할 거리
+		volatile uint32_t	boostTick;
+
+		// 마크를 정상적으로 읽고 있는지
+		volatile uint8_t	isReadAllMark;
 }				t_driveData;
 
 
@@ -123,8 +162,6 @@ typedef struct	s_driveData {
 // 초기의 속도 값에 관한 변수
 extern volatile float		targetSpeed_init;
 
-extern volatile float		minSpeed_init;
-extern volatile float		maxSpeed_init;
 extern volatile float		accele_init;
 
 extern volatile float		boostSpeed_init;
@@ -139,8 +176,6 @@ extern volatile float		positionCoef;
 extern volatile float		targetSpeed;
 extern volatile float		currentSpeed;
 
-extern volatile float		minSpeed;
-extern volatile float		maxSpeed;
 extern volatile float		accele;
 
 extern volatile float		boostSpeed;
@@ -160,10 +195,6 @@ extern volatile uint8_t		markState;
 extern volatile uint32_t	curTick;
 
 
-// 부스트 중인지 저징하는 변수
-extern volatile uint8_t		isBoost;
-
-
 // driveData를 저장하고 접근하게 해주는 변수들
 extern volatile t_driveData	*driveDataPtr;
 extern volatile t_driveData	driveData[MAX_MARKER_CNT];
@@ -171,6 +202,18 @@ extern volatile t_driveData	driveData[MAX_MARKER_CNT];
 
 // state machone 의 상태
 extern volatile uint8_t		driveState;
+
+
+// 주행 컨트롤 변수
+extern volatile uint8_t		driveCntl;
+
+
+// 부스트 컨트롤 변수
+extern volatile uint8_t		boostCntl;
+
+
+// 현재까지 읽은 크로스 개수
+extern volatile uint16_t	crossCnt;
 
 
 

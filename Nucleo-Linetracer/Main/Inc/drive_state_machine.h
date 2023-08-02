@@ -125,6 +125,7 @@ __STATIC_INLINE void	Drive_State_Machine() {
 			if (sensorStateSum == 0xff && Get_Marker_Sensor_Cnt() == 0) {
 				driveState = DRIVE_STATE_DECISION;
 			}
+
 			break;
 
 
@@ -137,6 +138,7 @@ __STATIC_INLINE void	Drive_State_Machine() {
 			if (Get_Marker_Sensor_Cnt() == 0) {
 				driveState = DRIVE_STATE_DECISION;
 			}
+
 			break;
 
 
@@ -144,6 +146,7 @@ __STATIC_INLINE void	Drive_State_Machine() {
 
 			Decision(sensorStateSum);
 			driveState = DRIVE_STATE_IDLE;
+
 			break;
 
 

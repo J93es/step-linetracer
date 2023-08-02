@@ -7,7 +7,7 @@
 
 
 
-void	Drive_Preset();
+void	Drive_Preset(uint8_t driveIdx);
 
 
 

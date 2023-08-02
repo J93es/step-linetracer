@@ -53,14 +53,12 @@ __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 
 	// decision에 해당하는 속도 조정 및 거리 기록
 
-	// 오른쪽 커브일 경우
-	if (markState == MARK_CURVE_R) {
-		// tick 값 증가
-		curTick++;
-	}
+	// 직선일 경우 || 왼쪽 커브일 경우 || 오른쪽 커브일 경우 || 크로스일 경우
+	if (markState == MARK_STRAIGHT || \
+		markState == MARK_CURVE_L || \
+		markState == MARK_CURVE_R || \
+		markState == MARK_CROSS) {
 
-	// 직선일 경우
-	else if (markState == MARK_STRAIGHT) {
 		// tick 값 증가
 		curTick++;
 	}
@@ -81,19 +79,6 @@ __STATIC_INLINE void	Motor_R_TIM4_IRQ() {
 	Custom_GPIO_Set_t(motorR + 3, (phases[phaseR] >> 3) & 0x01);
 
 	phaseR = (phaseR + 1) & 0x07;
-
-
-	// 왼쪽 커브일 경우
-	if (markState == MARK_CURVE_L) {
-		// tick 값 증가
-		curTick++;
-	}
-
-	// end mark일 경우
-	else if (markState == MARK_END) {
-		// tick 값 증가
-		curTick++;
-	}
 }
 
 

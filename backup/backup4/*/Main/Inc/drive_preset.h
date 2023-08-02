@@ -10,4 +10,12 @@
 void	Drive_Preset();
 
 
+
+
+typedef struct	s_driveMenu {
+		volatile char		valName[MAX_OLED_LEN];
+		volatile float		*val;
+		volatile float		changeVal;
+}				t_driveMenu;
+
 #endif

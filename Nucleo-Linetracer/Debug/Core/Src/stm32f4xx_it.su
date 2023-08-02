@@ -5,14 +5,16 @@
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1446:22:LL_TIM_SetAutoReload	16	static
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:3182:22:LL_TIM_ClearFlag_UPDATE	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:46:26:Sensor_ADC_Read	8	static,ignoring_inline_asm
-/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:64:23:Make_Sensor_Norm_Vals	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:84:23:Make_Sensor_State	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:93:23:Sensor_TIM5_IRQ	8	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:62:23:Make_Sensor_Raw_Vals	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:97:23:Make_Sensor_Norm_Vals	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:116:23:Make_Sensor_State	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/sensor.h:131:23:Sensor_TIM5_IRQ	8	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/External Library/Inc/custom_gpio.h:54:20:Custom_GPIO_Set_t	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h:40:22:Motor_L_TIM3_IRQ	8	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h:73:22:Motor_R_TIM4_IRQ	8	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/motor.h:71:22:Motor_R_TIM4_IRQ	8	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_position.h:20:25:Window_Position_Val	4	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_position.h:114:22:Update_Position_Val	8	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_position.h:75:25:Stabilize_Position_Val	16	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_position.h:116:22:Update_Position_Val	8	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:21:22:Motor_L_Speed_Control	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:26:22:Motor_R_Speed_Control	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:33:22:Drive_Speed_Cntl	8	static

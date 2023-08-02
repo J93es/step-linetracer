@@ -59,15 +59,16 @@ void Init() {
 	 * Custom_Switch_Read 함수 내부에는 1ms 딜레이가 존재하기 때문에, 이 함수를 주행 알고리즘 내부에 집어넣으면 성능이 크게 떨어지니 주의한.
 	 */
 	t_menuData menus[] = {
-			{ "Calibration    ", Sensor_Calibration },
-			{ "Drive First    ", First_Drive },
-			{ "Test Raw       ", Sensor_Test_Raw },
+			{ "Calibration", Sensor_Calibration },
+			{ "First Drive", First_Drive },
+			{ "First Data", Drive_Test_First_Data},
+			{ "Second Drive", Second_Drive },
+			{ "Test Raw", Sensor_Test_Raw },
 			{ "Test Normalized", Sensor_Test_Normalized },
-			{ "Test State     ", Sensor_Test_State },
-			{ "Test Phase     ", Motor_Test_Phase },
-			{ "Test Velocity  ", Motor_Test_Velocity },
-			{ "Test Position  ", Drive_Test_Position },
-			{ "Test Data      ", Drive_Test_Data },
+			{ "Test State", Sensor_Test_State },
+			{ "Test Phase", Motor_Test_Phase },
+			{ "Test Velocity", Motor_Test_Velocity },
+			{ "Test Position", Drive_Test_Position },
 	};
 
 	uint8_t sw = 0;
