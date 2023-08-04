@@ -26,14 +26,14 @@ void First_Drive() {
 	Motor_Start();
 	Speed_Control_Start();
 
-	while (state != 0) {
+	while (state != 0x00) {
 
 		//Drive_Test_Info_Oled();
 
 		Drive_State_Machine();
 		First_Drive_Ctrl();
 		//Drive_Speed_Cntl();
-		if (markState == MARK_END) {
+		if (endMarkCnt >= 2) {
 			Drive_Fit_In(PIT_IN_LEN, PIT_IN_TARGET_SPEED);
 			while (currentSpeed > PIT_IN_DELAY_SPEED) {
 				//Drive_Speed_Cntl();
@@ -71,6 +71,11 @@ __STATIC_INLINE void	First_Drive_Ctrl() {
 
 			// driveData 값 업데이트
 			Set_First_Drive_Data();
+
+			// end mark는 한번만 기록하고 바로 직진 상태로 바꿈
+			if (markState == MARK_END) {
+				markState = MARK_STRAIGHT;
+			}
 		}
 
 		// 크로스일 경우
@@ -83,8 +88,6 @@ __STATIC_INLINE void	First_Drive_Ctrl() {
 			markState = MARK_STRAIGHT;
 		}
 	}
-
-	break ;
 }
 
 
@@ -116,7 +119,7 @@ __STATIC_INLINE void	Set_First_Drive_Data() {
 static void First_Drive_Data(uint8_t exitEcho) {
 	uint16_t markCnt_L = 0;
 	uint16_t markCnt_R = 0;
-	uint16_t markCnt_End = 2;
+	uint16_t markCnt_End = 0;
 	uint16_t markCnt_Cross = 0;
 
 

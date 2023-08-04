@@ -60,7 +60,7 @@ void Sensor_Test_State() {
 
 	// 센서의 State 값을 디스플레이에 출력해 확인하기
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
-		Custom_OLED_Printf("/0threshold: %3d", threshold_init);
+		Custom_OLED_Printf("/0threshold: %3d", threshold);
 
 		Custom_OLED_Printf("/1%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
 			(state >> 0) & 1, (state >> 1) & 1, (state >> 2) & 1, (state >> 3) & 1, \

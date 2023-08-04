@@ -1,0 +1,3 @@
+../Main/Src/sensor.c:25:6:Sensor_Start	3
+../Main/Src/sensor.c:38:6:Sensor_Stop	1
+../Main/Src/sensor.c:48:6:Sensor_Calibration	19

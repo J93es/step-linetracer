@@ -9,7 +9,6 @@
 
 __STATIC_INLINE void	Second_Drive_Ctrl();
 __STATIC_INLINE void	Set_Second_Drive_Data();
-__STATIC_INLINE uint8_t	Straight_Boost_Acceleing(uint32_t markStartTick);
 __STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick);
 
 
@@ -17,7 +16,7 @@ __STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick);
 
 //1차 주행
 void Second_Drive() {
-	uint8_t	exitEcho = EXIT_ECHO_END_MARK;
+	uint8_t	exitEcho = EXIT_ECHO_LINE_OUT;
 
 	Custom_OLED_Clear();
 
@@ -28,19 +27,19 @@ void Second_Drive() {
 	Motor_Start();
 	Speed_Control_Start();
 
-	while (state != 0) {
+	while (state != 0x00) {
 
 		//Drive_Test_Info_Oled();
 
 		Drive_State_Machine();
 		Second_Drive_Ctrl();
 		//Drive_Speed_Cntl();
-		if (markState == MARK_END) {
+		if (endMarkCnt >= 2) {
 			Drive_Fit_In(PIT_IN_LEN, PIT_IN_TARGET_SPEED);
 			while (currentSpeed > PIT_IN_DELAY_SPEED) {
 				//Drive_Speed_Cntl();
 			}
-			exitEcho = EXIT_ECHO_LINE_OUT;
+			exitEcho = EXIT_ECHO_END_MARK;
 			break ;
 		}
 	}
@@ -77,117 +76,109 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 
 
 
-	switch (driveCntl) {
+	// markState가 변경되었을 경우
+	if (markState != driveDataPtr->markState) {
 
+		// 크로스가 아닐 경우
+		if (markState != MARK_CROSS) {
 
+			// 부스트에서 쓰이는 startTick 값 변경
+			markStartTick = curTick;
 
-		// 초기 상태
-		case DRIVE_CNTL_IDLE :
+			// driveData 값 업데이트
+			Set_Second_Drive_Data();
 
-				// markState가 변경되었을 경우
-				if (markState != driveDataPtr->markState) {
+			// end mark는 한번만 기록하고 바로 직진 상태로 바꿈
+			if (markState == MARK_END) {
+				markState = MARK_STRAIGHT;
+			}
+		}
 
-					driveCntl = DRIVE_CNTL_DATA_UPDATE;
-				}
+		// 크로스일 경우
+		else {
 
-				// 주행에서 마크를 정상적으로 읽었을 경우
-				// && markState가 변경되지 않았을 경우
-				else if (driveDataPtr->isReadAllMark == CUSTOM_TRUE) {
+			// crossCnt 증가
+			crossCnt += 1;
 
-					// 현재 인덱스의 boostTick이 0보다 클 경우
-					if (driveDataPtr->boostTick > 0) {
-						boostCntl = BOOST_CNTL_ACCELE;
-					}
-				}
-
-				// 커브일 때 (cross, endMark도 포함하지만 실질적인 값 업데이트는 이루어지지 않음)
-				// && 주행에서 마크를 정상적으로 읽지 못했을 경우
-				// && markState가 변경되지 않았을 경우
-				else if (markState != MARK_STRAIGHT) {
-
-					// isReadAllMark 보정
-
-				}
-
-				break ;
-
-
-
-
-		// drive data update
-		case DRIVE_CNTL_DATA_UPDATE :
-
-				// 크로스가 아닐 경우
-				if (markState != MARK_CROSS) {
-
-					// 부스트에서 쓰이는 startTick 값 변경
-					markStartTick = curTick;
-
-					// driveData 값 업데이트
-					Set_Second_Drive_Data();
-				}
-
-				// 크로스일 경우
-				else {
-
-					// crossCnt 증가
-					crossCnt += 1;
-
-					// 크로스는 한번만 기록하고 바로 직진 상태로 바꿈
-					markState = MARK_STRAIGHT;
-				}
-
-				driveCntl = DRIVE_CNTL_IDLE;
-
-				break ;
-
-
-
+			// 크로스는 한번만 기록하고 바로 직진 상태로 바꿈
+			markState = MARK_STRAIGHT;
+		}
 	}
 
+	// markState가 변경되지 않았을 경우
+	else {
 
-	switch (boostCntl) {
+		switch (boostCntl) {
 
-
-		// 부스트 가속 컨드롤
-		case BOOST_CNTL_ACCELE :
-
-				// 부스트가 시작되었다면
-				if (Straight_Boost_Acceleing(markStartTick) == CUSTOM_TRUE) {
-
-					boostCntl = BOOST_CNTL_DECELE;
-				}
-				break;
-
-		// 부스트 감속 컨트롤
-		case BOOST_CNTL_DECELE :
-
-				// 감속이 시작되었다면
-				if (Straight_Boost_Deceleing(markStartTick) == CUSTOM_TRUE) {
-
-					boostCntl = BOOST_CNTL_END;
-				}
-				break ;
-
-		// 부스트가 종료되었을 때
-		case BOOST_CNTL_END :
-
-				// 감속이 종료되었을 때
-				if (curTick - markStartTick > driveDataPtr->boostTick - DECELE_END_TICK) {
-
-					// 가속도 업데이트
-					accele = accele_init;
-
-					// cross 보정값 업데이트 (가속 중에는 크로스 값을 읽지 않기 1차 주행에서 읽었던 값으로 업데이트)
-					crossCnt = driveDataPtr->crossCnt;
+			// 초기 상태
+			case BOOST_CNTL_IDLE :
 
 
-					boostCntl = DRIVE_CNTL_IDLE;
-				}
-				break ;
+					// 주행에서 마크를 정상적으로 읽었을 경우
+					if (driveDataPtr->isReadAllMark == CUSTOM_TRUE) {
+
+						// 현재 인덱스의 boostTick이 0보다 클 경우
+						// boostTick이 0보다 클 경우는 straight 밖에 없음 (After_Drive_Setting 함수 참고)
+						if (driveDataPtr->boostTick > 0) {
+							boostCntl = BOOST_CNTL_ACCELE;
+						}
+					}
+
+					// 커브일 때 (cross, endMark도 포함하지만 실질적인 값 업데이트는 이루어지지 않음)
+					// && 주행에서 마크를 정상적으로 읽지 못했을 경우
+					else if (markState != MARK_STRAIGHT) {
+
+						// isReadAllMark 보정
+
+					}
+
+					break ;
 
 
 
+			// 부스트 가속 컨드롤
+			case BOOST_CNTL_ACCELE :
+
+					// 직선 구간 진입 후 ACCELE_START_TICK만큼 지났을 때 부스트
+					if (curTick > markStartTick + ACCELE_START_TICK) {
+
+						// boostSpeed로 가속
+						targetSpeed = boostSpeed;
+
+						boostCntl = BOOST_CNTL_DECELE;
+					}
+					break;
+
+
+
+			// 부스트 감속 컨트롤
+			case BOOST_CNTL_DECELE :
+
+					// 감속이 시작될 거리까지 왔을 때
+					if (curTick > markStartTick + driveDataPtr->boostTick - DECELE_START_TICK) {
+
+						// targetSpeed_init로 감속
+						Drive_Fit_In( DECELE_LEN_TICK / TICK_PER_M, targetSpeed_init );
+
+						boostCntl = BOOST_CNTL_END;
+					}
+					break ;
+
+
+
+			// 부스트가 종료되었을 때
+			case BOOST_CNTL_END :
+
+					// 감속이 종료되었을 때
+					if ( curTick > markStartTick + driveDataPtr->boostTick - (DECELE_START_TICK - DECELE_LEN_TICK) ) {
+
+						// 가속도 업데이트
+						accele = accele_init;
+
+						boostCntl = BOOST_CNTL_IDLE;
+					}
+					break ;
+		}
 	}
 }
 
@@ -214,31 +205,13 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
 
 
 
-
-__STATIC_INLINE uint8_t	Straight_Boost_Acceleing(uint32_t markStartTick) {
-
-	// 직선 구간 진입 후 ACCELE_START_TICK만큼 지났을 때 부스트
-	if (curTick - markStartTick > ACCELE_START_TICK) {
-
-		// boostSpeed로 가속
-		Drive_Fit_In( ( (ACCELE_END_TICK - ACCELE_START_TICK) / TICK_PER_M ), boostSpeed );
-
-		// 부스트 판단값 업데이트
-		return CUSTOM_TRUE;
-	}
-
-	// 부스트 판단값 업데이트
-	return CUSTOM_FALSE;
-}
-
-
 __STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick) {
 
 	// 감속이 시작될 거리까지 왔을 때
-	if (curTick - markStartTick > driveDataPtr->boostTick - DECELE_START_TICK) {
+	if (curTick > markStartTick + driveDataPtr->boostTick - DECELE_START_TICK) {
 
 		// targetSpeed_init로 감속
-		Drive_Fit_In( ( (DECELE_START_TICK - DECELE_END_TICK) / TICK_PER_M ), targetSpeed_init );
+		Drive_Fit_In( DECELE_LEN_TICK / TICK_PER_M, targetSpeed_init );
 
 		// 감속 판단값 업데이트
 		return CUSTOM_TRUE;

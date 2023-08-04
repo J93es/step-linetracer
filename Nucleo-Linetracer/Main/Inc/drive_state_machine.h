@@ -45,12 +45,8 @@ __STATIC_INLINE void	Decision(uint8_t sensorStateSum) {
 	// if ( ((sensorStateSum >> 0) & 0x01) && ((sensorStateSum >> 7) & 0x01) )
 	else if ( (sensorStateSum & 0x81) == 0x81 ) {
 
-		if (endMarkCnt == 0) {
-			endMarkCnt++;
-		}
-		else {
-			markState = MARK_END;
-		}
+		markState = MARK_END;
+		endMarkCnt++;
 	}
 
 

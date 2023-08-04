@@ -1,4 +1,4 @@
-../Main/Src/drive_setting.c:81:6:Pre_Drive_Setting	16	static
-../Main/Src/drive_setting.c:91:13:Pre_Drive_Var_Adjust	200	static
-../Main/Src/drive_setting.c:177:13:Pre_Drive_Var_Init	40	static
-../Main/Src/drive_setting.c:248:6:After_Drive_Setting	24	static
+../Main/Src/drive_setting.c:77:6:Pre_Drive_Setting	16	static
+../Main/Src/drive_setting.c:87:13:Pre_Drive_Var_Adjust	200	static
+../Main/Src/drive_setting.c:173:13:Pre_Drive_Var_Init	40	static
+../Main/Src/drive_setting.c:238:6:After_Drive_Setting	24	static

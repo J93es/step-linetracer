@@ -22,14 +22,14 @@ volatile float			positionCoef = POSITION_COEF_INIT;
 
 
 // 주행 중 변하는 속도 값에 관한 변수
-volatile float			targetSpeed;
-volatile float			currentSpeed;
+volatile float			targetSpeed = TARGET_SPEED_INIT;
+volatile float			currentSpeed = MIN_SPEED;
 
-volatile float			accele;
+volatile float			accele = ACCELE_INIT;
 
-volatile float			boostSpeed;
+volatile float			boostSpeed = BOOST_SPEED_INIT;;
 
-volatile uint32_t		curveDecelCoef = CURVE_DECEL_COEF;
+volatile uint32_t		curveDecelCoef = CURVE_DECEL_COEF_INIT;
 
 
 
@@ -51,11 +51,7 @@ volatile t_driveData	*driveDataPtr = driveData + 0;
 volatile uint8_t		driveState = DRIVE_STATE_IDLE;
 
 
-// 주행 컨트롤 변수
-volatile uint8_t		driveCntl = DRIVE_CNTL_IDLE;
-
-
-// 부스트 컨트롤 변수
+// boost 컨트롤 변수
 volatile uint8_t		boostCntl = BOOST_CNTL_IDLE;
 
 
@@ -94,7 +90,8 @@ static void Pre_Drive_Var_Adjust() {
 
 
 	t_driveMenu_Int		intValues[] = {
-			{ "threshold", &threshold_init, THRESHOLD_CHANGE_VAL },
+
+			{ "threshold", &threshold, THRESHOLD_CHANGE_VAL },
 			{ "curveDecelCoef", &curveDecelCoef, CURVE_DECEL_COEF_CHANGE_VAL },
 	};
 	uint8_t intValCnt = sizeof(intValues) / sizeof(t_driveMenu_Int);
@@ -106,7 +103,6 @@ static void Pre_Drive_Var_Adjust() {
 			{ "targetSpeed", &targetSpeed_init, SPEED_INIT_CHANGE_VAL },
 			{ "boostSpeed", &boostSpeed_init, SPEED_INIT_CHANGE_VAL },
 			{ "accele", &accele_init, SPEED_INIT_CHANGE_VAL },
-
 			{ "positionCoef", &positionCoef, POSITION_COEF_CHANGE_VAL },
 	};
 	uint8_t floatValCnt = sizeof(floatValues) / sizeof(t_driveMenu_Float);
@@ -117,7 +113,7 @@ static void Pre_Drive_Var_Adjust() {
 
 		Custom_OLED_Clear();
 
-		if (intValues[i].val == &threshold_init) {
+		if (intValues[i].val == &threshold) {
 			Sensor_Start();
 		}
 
@@ -127,7 +123,7 @@ static void Pre_Drive_Var_Adjust() {
 			Custom_OLED_Printf("/0%s", intValues[i].valName);
 			Custom_OLED_Printf("/1%5d", *(intValues[i].val));
 
-			if (intValues[i].val == &threshold_init) {
+			if (intValues[i].val == &threshold) {
 				Custom_OLED_Printf("/3%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
 					(state >> 0) & 1, (state >> 1) & 1, (state >> 2) & 1, (state >> 3) & 1, \
 					(state >> 4) & 1, (state >> 5) & 1, (state >> 6) & 1, (state >> 7) & 1);
@@ -143,7 +139,7 @@ static void Pre_Drive_Var_Adjust() {
 			}
 		}
 
-		if (intValues[i].val != &threshold_init) {
+		if (intValues[i].val == &threshold) {
 			Sensor_Stop();
 		}
 	}
@@ -186,9 +182,6 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 	currentSpeed = MIN_SPEED;
 	boostSpeed = boostSpeed_init;
 
-	// threshold 초기화
-	threshold = (uint8_t)threshold_init;
-
 	// 엔드마크 읽은 개수 초기화
 	endMarkCnt = 0;
 
@@ -203,9 +196,6 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 
 	// state machine 의 상태 업데이트
 	driveState = DRIVE_STATE_IDLE;
-
-	// 주행 컨트롤 상태 업데이트
-	driveCntl = DRIVE_CNTL_IDLE;
 
 	// 부스트 컨트롤 상태 업데이트
 	boostCntl = BOOST_CNTL_IDLE;

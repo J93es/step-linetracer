@@ -40,17 +40,17 @@
 // 속도와 관련된 매크로
 #define MIN_SPEED					0.01f
 
-#define ACCELE_INIT					6.0f
+#define ACCELE_INIT					4.0f
 
-#define TARGET_SPEED_INIT			1.7f
+#define TARGET_SPEED_INIT			1.9f
 
-#define BOOST_SPEED_INIT			3.0f
+#define BOOST_SPEED_INIT			4.0f
 
 #define SPEED_INIT_CHANGE_VAL		0.1f
 
 
 // 커브에서 어느 정도 감속할지 결정하는 매크로
-#define CURVE_DECEL_COEF			22000
+#define CURVE_DECEL_COEF_INIT		22000
 #define CURVE_DECEL_COEF_CHANGE_VAL	1000
 
 
@@ -85,27 +85,25 @@
 
 
 // 최소 몇 미터 이상에서 부스트할지를 저장한 매크로
-#define MIN_BOOST_METER				1.f
+#define MIN_BOOST_METER				0.8f
 
 
 // 2차 주행에서 어느 정도 지나면 가감속할 지 결정하는 매크로
 
 // 직선에 진입한 후 어느정도 이동한 후 가속할지
-#define ACCELE_START_TICK			( 0.1f * TICK_PER_M )
-
-// 가속을 언제 끝낼
-#define ACCELE_END_TICK				( 0.3f * TICK_PER_M )
+#define ACCELE_START_TICK			( 0.05f * TICK_PER_M )
 
 // 어느정도 직선이 남았으면 감속할 지
-#define DECELE_START_TICK			( 0.4f * TICK_PER_M )
+#define DECELE_START_TICK			( 0.7f * TICK_PER_M )
 
-// 감속을 언제 끝낼 지
-#define DECELE_END_TICK				( 0.2f * TICK_PER_M )
+// 감속 거리
+#define DECELE_LEN_TICK				( 0.5f * TICK_PER_M )
+
 
 // 피트인 관련 매크로
-#define PIT_IN_LEN					0.22f
-#define PIT_IN_TARGET_SPEED			0.1f
-#define PIT_IN_DELAY_SPEED			0.3f
+#define PIT_IN_LEN					0.25f
+#define PIT_IN_TARGET_SPEED			MIN_SPEED
+#define PIT_IN_DELAY_SPEED			0.5f
 #define DRIVE_END_DELAY				100
 
 
@@ -115,11 +113,6 @@
 
 
 // 주행 컨트롤 매크로
-#define DRIVE_CNTL_IDLE				0
-#define DRIVE_CNTL_DATA_UPDATE		1
-
-
-// 부스트 컨트롤 매크로
 #define BOOST_CNTL_IDLE				0
 #define BOOST_CNTL_ACCELE			1
 #define BOOST_CNTL_DECELE			2
@@ -205,10 +198,6 @@ extern volatile uint8_t		driveState;
 
 
 // 주행 컨트롤 변수
-extern volatile uint8_t		driveCntl;
-
-
-// 부스트 컨트롤 변수
 extern volatile uint8_t		boostCntl;
 
 

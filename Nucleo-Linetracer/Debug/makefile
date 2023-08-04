@@ -62,8 +62,8 @@ all: main-build
 main-build: Nucleo-Linetracer.elf secondary-outputs
 
 # Tool invocations
-Nucleo-Linetracer.elf Nucleo-Linetracer.map: $(OBJS) $(USER_OBJS) /Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/STM32F411RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Nucleo-Linetracer.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Nucleo-Linetracer.map" -Wl,--gc-sections -static -L"/Users/j93es/STM32CubeIDE/workspace_1.13.0/Nucleo-Linetracer/Main/Inc" -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Nucleo-Linetracer.elf Nucleo-Linetracer.map: $(OBJS) $(USER_OBJS) /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/STM32F411RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Nucleo-Linetracer.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Nucleo-Linetracer.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -75,50 +75,54 @@ __STATIC_INLINE int32_t	Window_Position_Val() {
 __STATIC_INLINE int32_t	Stabilize_Position_Val(int32_t positionValBuffer) {
 
 	/*
-	 * positionValBuffer == 현재 주기에서 계산한 값
-	 * 0  <=  (정상) || (탈선 진행중)  <=  2000  <  (탈선 후 정상으로 돌아옴)  <  9000  <=  (탈선 하기 직전) < 9800
-	 *
-	 *
 	 * positionVal == 이전 인터럽트에서 계산 한 값
-	 * 0  <=  (정상)  < 9000,  (탈선 진행중) == 9800
+	 * 0  <=  (정상)  <  9000  <=  (비정상)
 	 *
 	 *
-	 * positionVal로 (정상), (탈선 진행중)에 해당하는지를 판단
-	 * positionValBuffer로 (탈선 후 정상으로 돌아옴), (탈선 하기 직전)에 해당하는지를 판단
+	 * positionValBuffer == 현재 주기에서 계산한 값
+	 * 0  <=  (탈선 진행중)  <=  4000  <  (탈선 후 정상으로 돌아옴)  <  9000  <=  (탈선 하기 직전) < 9800
+	 *
+	 *
+	 * positionVal로 (정상),  (비정상)에 해당하는지를 판단
+	 * positionValBuffer로 (탈선 후 정상으로 돌아옴), (탈선 하기 직전), (탈선 진행중)에 해당하는지를 판단
 	 *
 	 *
 	 * (정상) || (탈선 후 정상으로 돌아옴)일 경우 positionVal = positionValBuffer
 	 * (탈선 진행중) || (탈선 하기 직전)일 경우 positionVal = 9800
 	 */
 
-	// (정상) || (탈선 후 정상으로 돌아온 상태)
-	if ( ABS(positionVal) < 9000 || (2000 < ABS(positionValBuffer) && ABS(positionValBuffer) < 9000) ) {
+	// 정상
+	if (ABS(positionVal) < 9000) {
 		return positionValBuffer;
 	}
-	// (탈선 진행중) || (탈선 하기 직전의 상태)
-	// if (ABS(positionVal) >= 9000 || ABS(positionValBuffer) >= 9000)
-	else if (ABS(positionVal) >= 9000 || ABS(positionValBuffer) >= 9000) {//( !( ABS(positionValBuffer) < 2000 ) ){
 
-		if (positionVal < 0) {
-			return -9800;
+	// 비정상
+	else {
+
+		// 탈선 후 정상으로 돌아온 상태
+		if ( (4000 < ABS(positionValBuffer) && ABS(positionValBuffer) < 9000) ) {
+			return positionValBuffer;
 		}
 
+		// 탈선 하기 직전의 상태 || 탈선 진행중
 		else {
-			return 9800;
+			if (positionValBuffer < 0) {
+				return -9800;
+			}
+
+			else {
+				return 9800;
+			}
 		}
 	}
-	return positionValBuffer;
 }
 
 
 
 
 __STATIC_INLINE void	Update_Position_Val() {
-	static int32_t	positionValBuffer = 0;
 
-	positionValBuffer = Window_Position_Val();
-
-	positionVal = Stabilize_Position_Val(positionValBuffer);
+	positionVal = Window_Position_Val();//Stabilize_Position_Val(positionValBuffer);
 
 }
 

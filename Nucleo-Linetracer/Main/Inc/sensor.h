@@ -15,7 +15,7 @@
 #define	THRESHOLD_MAX 			125
 #define	THRESHOLD_MIN			25
 #define	THRESHOLD_CHANGE_VAL	5
-#define	THRESHOLD_INIT			50
+#define	THRESHOLD_INIT			70
 
 
 
@@ -24,8 +24,7 @@ extern volatile uint8_t		sensorRawVals[8];
 extern volatile uint8_t		sensorNormVals[8];
 extern volatile uint8_t		state;
 
-extern volatile uint32_t	threshold_init;
-extern volatile uint8_t		threshold;
+extern volatile uint32_t		threshold;
 
 extern volatile uint8_t		normalizeCoef[8];
 extern volatile uint8_t		whiteMaxs[8];

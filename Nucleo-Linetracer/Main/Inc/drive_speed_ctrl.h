@@ -37,7 +37,7 @@ __STATIC_INLINE void	Drive_Speed_Cntl() {
 	Update_Position_Val();
 
 	// 포지션 값에 따른 감속
-	finalSpeed = currentSpeed * (1 - ABS(positionVal) / CURVE_DECEL_COEF);
+	finalSpeed = currentSpeed * (1 - ABS(positionVal) / curveDecelCoef);
 
 	//position 값에 따른 좌우 모터 속도 조정
 	Motor_L_Speed_Control( finalSpeed * (1 + positionCoef * positionVal) );
