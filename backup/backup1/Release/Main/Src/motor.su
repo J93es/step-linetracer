@@ -1,0 +1,5 @@
+../Main/Src/motor.c:33:6:Motor_Power_Off	4	static
+../Main/Src/motor.c:49:6:Motor_Start	0	static
+../Main/Src/motor.c:61:6:Motor_Stop	8	static
+../Main/Src/motor.c:76:6:Speed_Control_Start	0	static
+../Main/Src/motor.c:84:6:Speed_Control_Stop	0	static
