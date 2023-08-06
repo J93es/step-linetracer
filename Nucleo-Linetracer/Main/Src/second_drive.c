@@ -47,8 +47,6 @@ void Second_Drive() {
 
 	Custom_OLED_Clear();
 
-	After_Drive_Setting(SECOND_DRIVE);
-
 	if (exitEcho == EXIT_ECHO_END_MARK) {
 		Custom_OLED_Printf("/0end mark");
 	}
