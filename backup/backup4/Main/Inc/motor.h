@@ -50,18 +50,8 @@ __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 	phaseL = (phaseL + 1) & 0x07;
 
 
-
-	// decision에 해당하는 속도 조정 및 거리 기록
-
-	// 직선일 경우 || 왼쪽 커브일 경우 || 오른쪽 커브일 경우 || 크로스일 경우
-	if (markState == MARK_STRAIGHT || \
-		markState == MARK_CURVE_L || \
-		markState == MARK_CURVE_R || \
-		markState == MARK_CROSS) {
-
-		// tick 값 증가
-		curTick++;
-	}
+	// tick 값 증가
+	curTick++;
 }
 
 

@@ -6,12 +6,8 @@
 
 
 // 초기의 속도 값에 관한 변수
-volatile float			accele_init = ACCELE_INIT;
-
 volatile float			targetSpeed_init = TARGET_SPEED_INIT;
-
-volatile float			boostSpeed_init = BOOST_SPEED_INIT;
-
+volatile float			decele_init = DECELE_INIT;
 
 
 // 좌우 모터 포지션에 관한 변수
@@ -22,12 +18,12 @@ volatile float			positionCoef = POSITION_COEF_INIT;
 
 
 // 주행 중 변하는 속도 값에 관한 변수
+volatile float			accele = ACCELE_INIT;
+volatile float			decele = DECELE_INIT;
+
 volatile float			targetSpeed = TARGET_SPEED_INIT;
 volatile float			currentSpeed = MIN_SPEED;
-
-volatile float			accele = ACCELE_INIT;
-
-volatile float			boostSpeed = BOOST_SPEED_INIT;;
+volatile float			boostSpeed = BOOST_SPEED_INIT;
 
 volatile uint32_t		curveDecelCoef = CURVE_DECEL_COEF_INIT;
 
@@ -36,11 +32,18 @@ volatile uint32_t		curveDecelCoef = CURVE_DECEL_COEF_INIT;
 //end mark를 몇 번 봤는지 카운트하는 변수
 volatile uint8_t		endMarkCnt = 0;
 
+
 // 현재 직진인지 커브인지 등을 저장하는 변수
 volatile uint8_t		markState = MARK_STRAIGHT;
 
+
 // 현재 모터에 몇번 상이 잡혔는 지를 카운트하는 변수
 volatile uint32_t		curTick = 0;
+
+
+// 시간 측정 (500us)
+volatile uint32_t		curTime = 0;
+
 
 // driveData를 저장하고 접근하게 해주는 변수들
 volatile t_driveData	driveData[MAX_MARKER_CNT] = { T_DRIVE_DATA_INIT, };
@@ -58,6 +61,9 @@ volatile uint8_t		boostCntl = BOOST_CNTL_IDLE;
 // 현재까지 읽은 크로스 개수
 volatile uint16_t		crossCnt = 0;
 
+
+// 피트인 거리
+volatile float			pitInLen = PIT_IN_LEN_INIT;
 
 
 
@@ -91,8 +97,8 @@ static void Pre_Drive_Var_Adjust() {
 
 	t_driveMenu_Int		intValues[] = {
 
-			{ "threshold", &threshold, THRESHOLD_CHANGE_VAL },
-			{ "curveDecelCoef", &curveDecelCoef, CURVE_DECEL_COEF_CHANGE_VAL },
+			{ "threshold",		&threshold,			5 },
+			{ "curveDecelCoef",	&curveDecelCoef,	1000 },
 	};
 	uint8_t intValCnt = sizeof(intValues) / sizeof(t_driveMenu_Int);
 
@@ -100,10 +106,12 @@ static void Pre_Drive_Var_Adjust() {
 
 	t_driveMenu_Float	floatValues[] = {
 
-			{ "targetSpeed", &targetSpeed_init, SPEED_INIT_CHANGE_VAL },
-			{ "boostSpeed", &boostSpeed_init, SPEED_INIT_CHANGE_VAL },
-			{ "accele", &accele_init, SPEED_INIT_CHANGE_VAL },
-			{ "positionCoef", &positionCoef, POSITION_COEF_CHANGE_VAL },
+			{ "pit in",			&pitInLen,			0.01 },
+			{ "targetSpeed",	&targetSpeed_init,	0.05 },
+			{ "boostSpeed",		&boostSpeed,		0.1 },
+			{ "accele",			&accele,			0.1 },
+			{ "decele",			&decele_init,		0.1 },
+			{ "positionCoef",	&positionCoef,		0.00001 },
 	};
 	uint8_t floatValCnt = sizeof(floatValues) / sizeof(t_driveMenu_Float);
 
@@ -177,10 +185,10 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 	positionVal = 0;
 
 	// 속도 관련 변수 초기화
-	accele = accele_init;
+	decele = decele_init;
+
 	targetSpeed = targetSpeed_init;
 	currentSpeed = MIN_SPEED;
-	boostSpeed = boostSpeed_init;
 
 	// 엔드마크 읽은 개수 초기화
 	endMarkCnt = 0;
@@ -190,6 +198,9 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 
 	// 현재 모터가 상을 잡은 횟수 초기화
 	curTick = 0;
+
+	// 500us 단위의 타이머 업데이트
+	curTime = 0;
 
 	// driveData에 접근하는 포인터 0번 인덱스로 초기화
 	driveDataPtr = driveData + 0;
@@ -202,6 +213,7 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 
 	// 현재까지 읽은 크로스 개수 업데이트
 	crossCnt = 0;
+
 
 	// 1차 주행에서만 초기화할 변수
 	if (driveIdx == FIRST_DRIVE) {

@@ -5,7 +5,8 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Main/Src/drive_setting.c \
+../Main/Src/drive_data_tools.c \
+../Main/Src/drive_preset.c \
 ../Main/Src/first_drive.c \
 ../Main/Src/init.c \
 ../Main/Src/linetracer_test.c \
@@ -14,7 +15,8 @@ C_SRCS += \
 ../Main/Src/sensor.c 
 
 OBJS += \
-./Main/Src/drive_setting.o \
+./Main/Src/drive_data_tools.o \
+./Main/Src/drive_preset.o \
 ./Main/Src/first_drive.o \
 ./Main/Src/init.o \
 ./Main/Src/linetracer_test.o \
@@ -23,7 +25,8 @@ OBJS += \
 ./Main/Src/sensor.o 
 
 C_DEPS += \
-./Main/Src/drive_setting.d \
+./Main/Src/drive_data_tools.d \
+./Main/Src/drive_preset.d \
 ./Main/Src/first_drive.d \
 ./Main/Src/init.d \
 ./Main/Src/linetracer_test.d \
@@ -39,7 +42,7 @@ Main/Src/%.o Main/Src/%.su Main/Src/%.cyclo: ../Main/Src/%.c Main/Src/subdir.mk
 clean: clean-Main-2f-Src
 
 clean-Main-2f-Src:
-	-$(RM) ./Main/Src/drive_setting.cyclo ./Main/Src/drive_setting.d ./Main/Src/drive_setting.o ./Main/Src/drive_setting.su ./Main/Src/first_drive.cyclo ./Main/Src/first_drive.d ./Main/Src/first_drive.o ./Main/Src/first_drive.su ./Main/Src/init.cyclo ./Main/Src/init.d ./Main/Src/init.o ./Main/Src/init.su ./Main/Src/linetracer_test.cyclo ./Main/Src/linetracer_test.d ./Main/Src/linetracer_test.o ./Main/Src/linetracer_test.su ./Main/Src/motor.cyclo ./Main/Src/motor.d ./Main/Src/motor.o ./Main/Src/motor.su ./Main/Src/second_drive.cyclo ./Main/Src/second_drive.d ./Main/Src/second_drive.o ./Main/Src/second_drive.su ./Main/Src/sensor.cyclo ./Main/Src/sensor.d ./Main/Src/sensor.o ./Main/Src/sensor.su
+	-$(RM) ./Main/Src/drive_data_tools.cyclo ./Main/Src/drive_data_tools.d ./Main/Src/drive_data_tools.o ./Main/Src/drive_data_tools.su ./Main/Src/drive_preset.cyclo ./Main/Src/drive_preset.d ./Main/Src/drive_preset.o ./Main/Src/drive_preset.su ./Main/Src/first_drive.cyclo ./Main/Src/first_drive.d ./Main/Src/first_drive.o ./Main/Src/first_drive.su ./Main/Src/init.cyclo ./Main/Src/init.d ./Main/Src/init.o ./Main/Src/init.su ./Main/Src/linetracer_test.cyclo ./Main/Src/linetracer_test.d ./Main/Src/linetracer_test.o ./Main/Src/linetracer_test.su ./Main/Src/motor.cyclo ./Main/Src/motor.d ./Main/Src/motor.o ./Main/Src/motor.su ./Main/Src/second_drive.cyclo ./Main/Src/second_drive.d ./Main/Src/second_drive.o ./Main/Src/second_drive.su ./Main/Src/sensor.cyclo ./Main/Src/sensor.d ./Main/Src/sensor.o ./Main/Src/sensor.su
 
 .PHONY: clean-Main-2f-Src
 

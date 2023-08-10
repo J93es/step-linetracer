@@ -121,11 +121,8 @@ __STATIC_INLINE int32_t	Stabilize_Position_Val(int32_t positionValBuffer) {
 
 
 __STATIC_INLINE void	Update_Position_Val() {
-	static int32_t	positionValBuffer = 0;
 
-	positionValBuffer = Window_Position_Val();
-
-	positionVal = Stabilize_Position_Val(positionValBuffer);
+	positionVal = Window_Position_Val();//Stabilize_Position_Val(positionValBuffer);
 
 }
 

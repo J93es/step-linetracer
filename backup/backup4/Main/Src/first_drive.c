@@ -15,7 +15,7 @@ static void				First_Drive_Data(uint8_t exitEcho);
 
 //1차 주행
 void First_Drive() {
-	uint8_t	exitEcho = EXIT_ECHO_END_MARK;
+	uint8_t	exitEcho = EXIT_ECHO_IDLE;
 
 	Custom_OLED_Clear();
 
@@ -26,31 +26,22 @@ void First_Drive() {
 	Motor_Start();
 	Speed_Control_Start();
 
-	while (state != 0x00) {
+	while (1) {
 
 		//Drive_Test_Info_Oled();
 
 		Drive_State_Machine();
 		First_Drive_Ctrl();
 		//Drive_Speed_Cntl();
-		if (endMarkCnt >= 2) {
-			Drive_Fit_In(PIT_IN_LEN, PIT_IN_TARGET_SPEED);
-			while (currentSpeed > PIT_IN_DELAY_SPEED) {
-				//Drive_Speed_Cntl();
-			}
-			exitEcho = EXIT_ECHO_LINE_OUT;
-			break ;
+		if ( EXIT_ECHO_IDLE != (exitEcho = Is_Drive_End()) ) {
+			break;
 		}
 	}
-	Custom_Delay_ms(DRIVE_END_DELAY);
 
 	Motor_Stop();
 	Speed_Control_Stop();
 	Sensor_Stop();
 
-
-
-	Custom_OLED_Clear();
 
 	After_Drive_Setting(FIRST_DRIVE);
 	First_Drive_Data(exitEcho);
@@ -109,7 +100,6 @@ __STATIC_INLINE void	Set_First_Drive_Data() {
 	// 증가된 인덱스의 구조체의 값이 존재함을 저장
 	driveDataPtr->isExist = CUSTOM_TRUE;
 }
-
 
 
 

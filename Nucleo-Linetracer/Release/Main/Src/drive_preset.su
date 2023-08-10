@@ -1,1 +1,3 @@
-../Main/Src/drive_preset.c:83:6:Pre_Drive_Setting	264	static
+../Main/Src/drive_preset.c:98:6:Pre_Drive_Setting	16	static
+../Main/Src/drive_preset.c:108:13:Pre_Drive_Var_Adjust	256	static
+../Main/Src/drive_preset.c:207:13:Pre_Drive_Var_Init	24	static

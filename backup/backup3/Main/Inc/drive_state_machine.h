@@ -13,7 +13,6 @@
 
 
 
-
 // line sensor가 읽은 값을 개수를 리턴함
 __STATIC_INLINE uint8_t	Get_Line_Sensor_Cnt() {
 	return ((state >> 6) & 0x01) + ((state >> 5) & 0x01) + ((state >> 4) & 0x01) + \
@@ -85,28 +84,36 @@ __STATIC_INLINE void	Decision(uint8_t sensorStateSum) {
 
 
 
-
-
 __STATIC_INLINE void	Drive_State_Machine() {
 
 	//센서 값 누적
 	static uint8_t	sensorStateSum;
+	static uint32_t	lineOutStartTime;
 
 
 	switch (driveState) {
 
-		case DRIVE_STATE_IDLE:
+		case DRIVE_STATE_IDLE :
 
 			// 라인 센서 4개 이상 인식
 			if (Get_Line_Sensor_Cnt() >= 4) {
+
 				sensorStateSum = 0x00;
 				driveState = DRIVE_STATE_CROSS;
 			}
 
 			// 라인 센서 4개 이하 and 마크 센서 1개 이상
 			else if (Get_Marker_Sensor_Cnt() != 0) {
+
 				sensorStateSum = 0x00;
 				driveState = DRIVE_STATE_MARKER;
+			}
+
+			// 라인아웃되거나 잠깐 떳을 때
+			else if (state == 0x00) {
+
+				lineOutStartTime = curTime;
+				driveState = DRIVE_DECISION_LINE_OUT;
 			}
 
 			break;
@@ -125,7 +132,7 @@ __STATIC_INLINE void	Drive_State_Machine() {
 			break;
 
 
-		case DRIVE_STATE_MARKER:
+		case DRIVE_STATE_MARKER :
 
 			// accum
 			sensorStateSum |= state;
@@ -138,13 +145,29 @@ __STATIC_INLINE void	Drive_State_Machine() {
 			break;
 
 
-		case DRIVE_STATE_DECISION:
+		case DRIVE_STATE_DECISION :
 
 			Decision(sensorStateSum);
 			driveState = DRIVE_STATE_IDLE;
 
 			break;
 
+
+		case DRIVE_DECISION_LINE_OUT :
+
+			if (state != 0x00) {
+
+				driveState = DRIVE_STATE_IDLE;
+			}
+
+			// state == 0x00인 상태가 200ms 지속되었을 때
+			// 200(ms) * 1000(ms를 us로 변환) / 500(us) = 400
+			else if (curTime > lineOutStartTime + 400) {
+
+				markState = MARK_LINE_OUT;
+			}
+
+			break ;
 
 	}
 }

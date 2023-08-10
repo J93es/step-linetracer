@@ -7,6 +7,7 @@
 
 
 #include "main.h"
+#include "drive_def_var.h"
 
 
 #define SWAP(a, b)				({ a ^= b; b ^= a; a ^= b; })
@@ -21,14 +22,15 @@
 
 
 extern volatile uint8_t		sensorRawVals[8];
+
 extern volatile uint8_t		sensorNormVals[8];
-extern volatile uint8_t		state;
-
-extern volatile uint32_t	threshold;
-
 extern volatile uint8_t		normalizeCoef[8];
 extern volatile uint8_t		whiteMaxs[8];
 extern volatile uint8_t		blackMaxs[8];
+
+extern volatile uint8_t		state;
+extern volatile uint32_t	threshold;
+
 
 
 
@@ -84,9 +86,6 @@ __STATIC_INLINE void		Make_Sensor_Raw_Vals(uint8_t idx) {
 	if (midian[1] > midian[2]) {
 		SWAP(midian[1], midian[2]);
 	}
-	if (midian[0] > midian[1]) {
-		SWAP(midian[0], midian[1]);
-	}
 	sensorRawVals[idx] =  midian[1];
 }
 
@@ -94,17 +93,21 @@ __STATIC_INLINE void		Make_Sensor_Raw_Vals(uint8_t idx) {
 
 // normalized value 계산
 __STATIC_INLINE void		Make_Sensor_Norm_Vals(uint8_t idx) {
+
 	/*
-		if (sensorRawVals[i] < blackMaxs[i])
-			sensorNormVals[i] = 0;
-		else if (sensorRawVals[i] > whiteMaxs[i])
-			sensorNormVals[i] = 255;
-		else
-			sensorNormVals[i] = (255 * (sensorRawVals[i] - blackMaxs[i]) / (whiteMaxs[i] - blackMax[i]));
-	 */
+	if (sensorRawVals[idx] < blackMaxs[idx])
+		sensorNormVals[idx] = 0;
+	else if (sensorRawVals[idx] > whiteMaxs[idx])
+		sensorNormVals[idx] = 255;
+	else
+		sensorNormVals[idx] = (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]);
+	*/
+
 	sensorNormVals[idx] = ( (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]) \
-		& ((sensorRawVals[idx] < blackMaxs[idx]) - 0x01) ) \
+		& ( (sensorRawVals[idx] < blackMaxs[idx]) - 0x01) ) \
 		| ((sensorRawVals[idx] < whiteMaxs[idx]) - 0x01);
+
+
 }
 
 
@@ -116,12 +119,13 @@ __STATIC_INLINE void		Make_Sensor_State(uint8_t idx) {
 
 	//state = ( state & ~(0x01 << idx) ) | ( (sensorNormVals[idx] > threshold) << idx );
 	if (sensorNormVals[idx] > threshold) {
-		state |= 0x01 << idx;
+		state |= 0x01 << (7 - idx);
 	}
 	else {
-		state &= ~(0x01 << idx);
+		state &= ~(0x01 << (7 - idx));
 	}
 }
+
 
 
 
@@ -130,14 +134,13 @@ __STATIC_INLINE void		Make_Sensor_State(uint8_t idx) {
 __STATIC_INLINE void		Sensor_TIM5_IRQ() {
 
 	static uint8_t	sensorReadIdx = 0;
+	static uint8_t	sensorReadIdxTable[8] = { 3, 4, 2, 5, 1, 6, 0, 7 };
 
+	Make_Sensor_Raw_Vals(sensorReadIdxTable[sensorReadIdx]);
 
-	Make_Sensor_Raw_Vals(sensorReadIdx);
+	Make_Sensor_Norm_Vals(sensorReadIdxTable[sensorReadIdx]);
 
-	Make_Sensor_Norm_Vals(sensorReadIdx);
-
-	Make_Sensor_State(sensorReadIdx);
-
+	Make_Sensor_State(sensorReadIdxTable[sensorReadIdx]);
 
 	sensorReadIdx = (sensorReadIdx + 1) & 0x07;
 }

@@ -1,0 +1,5 @@
+../Main/Src/motor.c:33:6:Motor_Power_Off	1
+../Main/Src/motor.c:49:6:Motor_Start	1
+../Main/Src/motor.c:61:6:Motor_Stop	1
+../Main/Src/motor.c:76:6:Speed_Control_Start	1
+../Main/Src/motor.c:84:6:Speed_Control_Stop	1

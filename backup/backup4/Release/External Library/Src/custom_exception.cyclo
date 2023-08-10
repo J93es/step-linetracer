@@ -1,0 +1,5 @@
+../External Library/Src/custom_exception.c:24:6:Custom_Exception_Reset	1
+../External Library/Src/custom_exception.c:28:6:__Custom_Exception_Set_Message	1
+../External Library/Src/custom_exception.c:34:7:__Custom_Exception_Get_Message	1
+../External Library/Src/custom_exception.c:38:6:Custom_Exception_Halt	4
+../External Library/Src/custom_exception.c:61:6:Custom_Exception_Pause	6

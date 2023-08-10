@@ -20,7 +20,6 @@ void	Motor_Test_Phase();
 
 void	Drive_Test_Position();
 void	Drive_Test_Info_Oled();
-void	Drive_Test_First_Data();
 
 
 

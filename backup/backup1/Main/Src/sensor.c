@@ -10,8 +10,8 @@
 volatile uint8_t	sensorRawVals[8] = { 0, };
 
 volatile uint8_t	sensorNormVals[8] = { 0, };
-volatile uint8_t	normalizeCoef[8] = { 1, };
-volatile uint8_t	whiteMaxs[8] = { 255, };
+volatile uint8_t	normalizeCoef[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
+volatile uint8_t	whiteMaxs[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
 volatile uint8_t	blackMaxs[8] = { 0, };
 
 volatile uint8_t	state = 0x00;
@@ -48,7 +48,7 @@ void Sensor_Stop() {
 void Sensor_Calibration() {
 	uint8_t	tmp = 0;
 
-	for (int i = 0; i < 8; i++) {
+	for (uint8_t i = 0; i < 8; i++) {
 		whiteMaxs[i] = 0;
 		blackMaxs[i] = 0;
 	}

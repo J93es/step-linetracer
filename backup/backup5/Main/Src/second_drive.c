@@ -9,7 +9,6 @@
 
 __STATIC_INLINE void	Second_Drive_Ctrl();
 __STATIC_INLINE void	Set_Second_Drive_Data();
-__STATIC_INLINE uint8_t	Straight_Boost_Acceleing(uint32_t markStartTick);
 __STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick);
 
 
@@ -17,7 +16,7 @@ __STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick);
 
 //1차 주행
 void Second_Drive() {
-	uint8_t	exitEcho = EXIT_ECHO_END_MARK;
+	uint8_t	exitEcho = EXIT_ECHO_LINE_OUT;
 
 	Custom_OLED_Clear();
 
@@ -40,7 +39,7 @@ void Second_Drive() {
 			while (currentSpeed > PIT_IN_DELAY_SPEED) {
 				//Drive_Speed_Cntl();
 			}
-			exitEcho = EXIT_ECHO_LINE_OUT;
+			exitEcho = EXIT_ECHO_END_MARK;
 			break ;
 		}
 	}
@@ -140,8 +139,11 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 			// 부스트 가속 컨드롤
 			case BOOST_CNTL_ACCELE :
 
-					// 부스트가 시작되었다면
-					if (Straight_Boost_Acceleing(markStartTick) == CUSTOM_TRUE) {
+					// 직선 구간 진입 후 ACCELE_START_TICK만큼 지났을 때 부스트
+					if (curTick > markStartTick + ACCELE_START_TICK) {
+
+						// boostSpeed로 가속
+						targetSpeed = boostSpeed;
 
 						boostCntl = BOOST_CNTL_DECELE;
 					}
@@ -152,8 +154,11 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 			// 부스트 감속 컨트롤
 			case BOOST_CNTL_DECELE :
 
-					// 감속이 시작되었다면
-					if (Straight_Boost_Deceleing(markStartTick) == CUSTOM_TRUE) {
+					// 감속이 시작될 거리까지 왔을 때
+					if (curTick > markStartTick + driveDataPtr->boostTick - DECELE_START_TICK) {
+
+						// targetSpeed_init로 감속
+						Drive_Fit_In( DECELE_LEN_TICK / TICK_PER_M, targetSpeed_init );
 
 						boostCntl = BOOST_CNTL_END;
 					}
@@ -198,24 +203,6 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
 	}
 }
 
-
-
-
-__STATIC_INLINE uint8_t	Straight_Boost_Acceleing(uint32_t markStartTick) {
-
-	// 직선 구간 진입 후 ACCELE_START_TICK만큼 지났을 때 부스트
-	if (curTick > markStartTick + ACCELE_START_TICK) {
-
-		// boostSpeed로 가속
-		Drive_Fit_In( ACCELE_LEN_TICK / TICK_PER_M, boostSpeed );
-
-		// 부스트 판단값 업데이트
-		return CUSTOM_TRUE;
-	}
-
-	// 부스트 판단값 업데이트
-	return CUSTOM_FALSE;
-}
 
 
 __STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick) {

@@ -31,45 +31,38 @@ __STATIC_INLINE void	Motor_R_Speed_Control(float speed) {
 
 
 
-__STATIC_INLINE void	Drive_Speed_Cntl() {
-
-	static float	finalSpeed;
-
-	// 포지션 값에 따른 감속
-	finalSpeed = currentSpeed * (1 - ABS(positionVal) / curveDecelCoef);
-
-	//position 값에 따른 좌우 모터 속도 조정
-	Motor_L_Speed_Control( finalSpeed * (1 + positionCoef * positionVal) );
-	Motor_R_Speed_Control( finalSpeed * (1 - positionCoef * positionVal) );
-}
-
-
-
-
 // 500us마다 호출됨.
 __STATIC_INLINE void	Drive_TIM9_IRQ() {
 
+	static float	finalSpeed;
+
+
 	// 가속도 조절
-	if (targetSpeed > currentSpeed) {
+	if (currentSpeed < targetSpeed) {
 
 		currentSpeed += accele / 2000;
-		if (targetSpeed < currentSpeed) {
+		if (currentSpeed > targetSpeed) {
 			currentSpeed = targetSpeed;
 		}
 	}
 	else {
 
 		currentSpeed -= decele / 2000;
-		if (targetSpeed > currentSpeed) {
+		if (currentSpeed < targetSpeed) {
 			currentSpeed = targetSpeed;
 		}
 	}
 
+
 	// positionVal 값 업데이트
 	Update_Position_Val();
 
-	// 속도 컨트롤
-	Drive_Speed_Cntl();
+	// 포지션 값에 따른 감속
+	finalSpeed = currentSpeed * (1 - limitedPositionVal / curveDecelCoef);
+
+	//position 값에 따른 좌우 모터 속도 조정
+	Motor_L_Speed_Control( finalSpeed * (1 + positionVal * positionCoef) );
+	Motor_R_Speed_Control( finalSpeed * (1 - positionVal * positionCoef) );
 
 	// lineOut 판단 시간 업데이트
 	if (driveState == DRIVE_DECISION_LINE_OUT) {
@@ -108,7 +101,7 @@ __STATIC_INLINE uint8_t	Is_Drive_End() {
 			//Drive_Speed_Cntl();
 		}
 
-		Custom_Delay_ms(DRIVE_END_DELAY_TIME);
+		Custom_Delay_ms(DRIVE_END_DELAY_TIME_MS);
 
 		if (endMarkCnt >= 2) {
 

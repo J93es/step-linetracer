@@ -61,7 +61,6 @@ void Init() {
 	t_menuData menus[] = {
 			{ "Calibration    ", Sensor_Calibration },
 			{ "First Drive    ", First_Drive },
-			{ "First Data     ", Drive_Test_First_Data},
 			{ "Second Drive   ", Second_Drive },
 			{ "Test Raw       ", Sensor_Test_Raw },
 			{ "Test Normalized", Sensor_Test_Normalized },
@@ -69,6 +68,10 @@ void Init() {
 			{ "Test Phase     ", Motor_Test_Phase },
 			{ "Test Velocity  ", Motor_Test_Velocity },
 			{ "Test Position  ", Drive_Test_Position },
+			{ "Print DriveData", Print_Drive_Data},
+			{ "Del DriveData  ", Delete_Drive_Data_Flash},
+			{ "Save DriveData ", Save_Drive_Data_Flash},
+			{ "Read DriveData ", Read_Drive_Data_Flash},
 	};
 
 	uint8_t sw = 0;
@@ -77,6 +80,7 @@ void Init() {
 
 	Custom_OLED_Clear();
 	while(1) {
+		Custom_OLED_Clear();
 		while(CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 			Custom_OLED_Printf("%s", menus[count].menuName);
 
@@ -93,7 +97,6 @@ void Init() {
 					count++;
 			}
 		}
-		Custom_OLED_Clear();
 		menus[count].func();
 	}
 	Custom_OLED_Clear();
