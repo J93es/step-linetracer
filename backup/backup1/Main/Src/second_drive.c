@@ -14,10 +14,6 @@ __STATIC_INLINE void	Second_Drive_Restore_Mark();
 __STATIC_INLINE uint8_t	Is_Decele();
 
 
-// 현재 마크가 시작된 tick
-static uint32_t	markStartTick = 0;
-
-
 
 
 //1차 주행
@@ -80,6 +76,7 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 	// 주행에서 마크를 정상적으로 읽었을 경우
 	else if (isReadAllMark == CUSTOM_TRUE) {
 
+		// 직선가속
 		Second_Drive_Boost();
 	}
 
@@ -145,10 +142,11 @@ __STATIC_INLINE void Second_Drive_Boost() {
 			case BOOST_CNTL_IDLE :
 
 					// 직선일 경우
-					if (driveState == MARK_STRAIGHT) {
+					if (markState == MARK_STRAIGHT) {
 
 						// 최소 부스트 거리 이상일 때
 						if (driveDataPtr->tickCnt > ACCELE_START_TICK + MIN_BOOST_TICK + DECELE_END_TICK) {
+
 
 							// decele 이후 다시 가속하는 것을 방지
 							if (curTick < markStartTick + driveDataPtr->tickCnt - MIN_BOOST_TICK - DECELE_END_TICK) {

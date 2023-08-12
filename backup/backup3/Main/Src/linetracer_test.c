@@ -233,10 +233,10 @@ void Drive_Test_Info_Oled() {
 
 
 
-void Drive_Test_First_Data() {
+void Drive_Test_Data() {
 	uint16_t markCnt_L = 0;
 	uint16_t markCnt_R = 0;
-	uint16_t markCnt_End = 2;
+	uint16_t markCnt_End = 0;
 	uint16_t markCnt_Cross = 0;
 
 	for (volatile t_driveData *ptr = (driveData + 0); ptr->isExist == CUSTOM_TRUE; ptr += 1) {
@@ -255,6 +255,7 @@ void Drive_Test_First_Data() {
 
 		// 현재상태가 우측 곡선인 경우
 		else if (ptr->markState == MARK_CURVE_R) {
+
 			// 다음 상태가 좌측 곡선이었을 경우 == 연속 커브
 			if ((ptr + 1)->markState == MARK_CURVE_L) {
 				markCnt_R += 1;
@@ -266,11 +267,10 @@ void Drive_Test_First_Data() {
 
 		else if (ptr->markState == MARK_END) {
 			markCnt_End += 2;
+
+			markCnt_Cross = (ptr - 1)->crossCnt;
 		}
 	}
-
-	// 크로스
-	markCnt_Cross = crossCnt;
 
 
 	// OLED에 변수명 변수값 출력

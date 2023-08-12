@@ -62,7 +62,7 @@ __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 
 
 	// tick 값 증가
-	curTick_L += 1;
+	curTick += 1;
 }
 
 
@@ -82,10 +82,6 @@ __STATIC_INLINE void	Motor_R_TIM4_IRQ() {
 	//phaseR = (phaseR + 1) & 0x03;
 
 	phaseR = (phaseR + 1) & 0x07;
-
-
-	// tick 값 증가
-	curTick_R += 1;
 }
 
 

@@ -8,6 +8,6 @@
 ../Core/Src/stm32f4xx_it.c:172:6:PendSV_Handler	0	static
 ../Core/Src/stm32f4xx_it.c:184:6:SysTick_Handler	0	static
 ../Core/Src/stm32f4xx_it.c:204:6:TIM1_BRK_TIM9_IRQHandler	24	static
-../Core/Src/stm32f4xx_it.c:218:6:TIM3_IRQHandler	12	static
+../Core/Src/stm32f4xx_it.c:218:6:TIM3_IRQHandler	16	static
 ../Core/Src/stm32f4xx_it.c:231:6:TIM4_IRQHandler	12	static
 ../Core/Src/stm32f4xx_it.c:244:6:TIM5_IRQHandler	16	static,ignoring_inline_asm

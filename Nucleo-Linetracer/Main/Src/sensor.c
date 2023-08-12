@@ -17,6 +17,9 @@ volatile uint8_t	blackMaxs[8] = { 0, };
 volatile uint8_t	state = 0x00;
 volatile uint32_t	threshold = THRESHOLD_INIT;
 
+volatile uint8_t	sensorReadIdx = 0;
+volatile uint8_t	sensorReadIdxTable[8] = { 3, 4, 2, 5, 1, 6, 0, 7 };
+
 
 
 

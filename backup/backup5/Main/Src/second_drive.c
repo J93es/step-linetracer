@@ -9,14 +9,14 @@
 
 __STATIC_INLINE void	Second_Drive_Ctrl();
 __STATIC_INLINE void	Set_Second_Drive_Data();
-__STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick);
+__STATIC_INLINE uint8_t	Is_Decele(uint32_t markStartTick);
 
 
 
 
 //1차 주행
 void Second_Drive() {
-	uint8_t	exitEcho = EXIT_ECHO_LINE_OUT;
+	uint8_t	exitEcho = EXIT_ECHO_IDLE;
 
 	Custom_OLED_Clear();
 
@@ -27,23 +27,17 @@ void Second_Drive() {
 	Motor_Start();
 	Speed_Control_Start();
 
-	while (state != 0x00) {
+	while (1) {
 
 		//Drive_Test_Info_Oled();
 
 		Drive_State_Machine();
 		Second_Drive_Ctrl();
 		//Drive_Speed_Cntl();
-		if (endMarkCnt >= 2) {
-			Drive_Fit_In(PIT_IN_LEN, PIT_IN_TARGET_SPEED);
-			while (currentSpeed > PIT_IN_DELAY_SPEED) {
-				//Drive_Speed_Cntl();
-			}
-			exitEcho = EXIT_ECHO_END_MARK;
-			break ;
+		if ( EXIT_ECHO_IDLE != (exitEcho = Is_Drive_End()) ) {
+			break;
 		}
 	}
-	Custom_Delay_ms(DRIVE_END_DELAY);
 
 	Motor_Stop();
 	Speed_Control_Stop();
@@ -147,6 +141,7 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 
 						boostCntl = BOOST_CNTL_DECELE;
 					}
+
 					break;
 
 
@@ -154,14 +149,21 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 			// 부스트 감속 컨트롤
 			case BOOST_CNTL_DECELE :
 
+
 					// 감속이 시작될 거리까지 왔을 때
 					if (curTick > markStartTick + driveDataPtr->boostTick - DECELE_START_TICK) {
 
 						// targetSpeed_init로 감속
-						Drive_Fit_In( DECELE_LEN_TICK / TICK_PER_M, targetSpeed_init );
+						Drive_Fit_In( DECELE_LEN_M, targetSpeed_init );
 
 						boostCntl = BOOST_CNTL_END;
 					}
+					/*
+					if (Is_Decele(markStartTick) == CUSTOM_TRUE) {
+						boostCntl = BOOST_CNTL_END;
+					}
+					*/
+
 					break ;
 
 
@@ -169,14 +171,12 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 			// 부스트가 종료되었을 때
 			case BOOST_CNTL_END :
 
-					// 감속이 종료되었을 때
-					if ( curTick > markStartTick + driveDataPtr->boostTick - (DECELE_START_TICK - DECELE_LEN_TICK) ) {
-
-						// 가속도 업데이트
-						accele = accele_init;
+					// 감속이 종료되었을 때 || 새로운 곡선 마크를 읽었을 때
+					if ( curTick > markStartTick + driveDataPtr->boostTick || driveDataPtr->boostTick == 0) {
 
 						boostCntl = BOOST_CNTL_IDLE;
 					}
+
 					break ;
 		}
 	}
@@ -205,19 +205,51 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
 
 
 
-__STATIC_INLINE uint8_t	Straight_Boost_Deceleing(uint32_t markStartTick) {
 
-	// 감속이 시작될 거리까지 왔을 때
-	if (curTick > markStartTick + driveDataPtr->boostTick - DECELE_START_TICK) {
+/*
+ * fit_in 함수를 역산
+ * 현재 남은 감속 거리를 토대로 감속하는데에 필요한 감속속도을 계산
+ * 계산을통해 나온 감속 속도가 현재 감속 속도보다 크거나 같을 때 감속
+ */
+
+__STATIC_INLINE uint8_t	Is_Decele(uint32_t markStartTick) {
+
+	/*
+
+	// 남은 감속거리
+	static uint32_t leftedDeceleLen;
+
+	// 감속에 필요한 속도
+	static uint32_t calculatedDecele;
+
+
+	leftedDeceleLen = ( driveDataPtr->boostTick - DECELE_END_TICK - (curTick - markStartTick) ) / TICK_PER_M;
+
+	calculatedDecele = ABS((targetSpeed_init - currentSpeed) * (targetSpeed_init + currentSpeed)) / (2 * leftedDeceleLen);
+
+	if (decele <= calculatedDecele) {
 
 		// targetSpeed_init로 감속
-		Drive_Fit_In( DECELE_LEN_TICK / TICK_PER_M, targetSpeed_init );
+		targetSpeed = targetSpeed_init;
 
-		// 감속 판단값 업데이트
 		return CUSTOM_TRUE;
 	}
 
-	// 감속 판단값 업데이트
+	return CUSTOM_FALSE;
+
+	*/
+
+
+	if (    decele * 2 * ( driveDataPtr->boostTick - DECELE_END_TICK - (curTick - markStartTick) )    <= \
+			ABS( (targetSpeed_init - currentSpeed) * (targetSpeed_init + currentSpeed) ) * TICK_PER_M    ) {
+
+		// targetSpeed_init로 감속
+		targetSpeed = targetSpeed_init;
+
+		return CUSTOM_TRUE;
+	}
+
 	return CUSTOM_FALSE;
 }
+
 

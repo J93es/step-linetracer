@@ -85,10 +85,6 @@ __STATIC_INLINE void	Decision(uint8_t sensorStateSum) {
 
 __STATIC_INLINE void	Drive_State_Machine() {
 
-	//센서 값 누적
-	static uint8_t	sensorStateSum;
-	static uint32_t	lineOutStartTime;
-
 
 	switch (driveState) {
 
@@ -111,7 +107,7 @@ __STATIC_INLINE void	Drive_State_Machine() {
 			// 라인아웃되거나 잠깐 떳을 때
 			else if (state == 0x00) {
 
-				lineOutStartTime = curTime;
+				lineOutStartTime = lineOutTime;
 				driveState = DRIVE_DECISION_LINE_OUT;
 			}
 
@@ -160,8 +156,7 @@ __STATIC_INLINE void	Drive_State_Machine() {
 			}
 
 			// state == 0x00인 상태가 t(ms) 지속되었을 때
-			// t(ms) * 1000(ms를 us로 변환) / 500(us) = 2 * t
-			else if (curTime > lineOutStartTime + 2 * LINE_OUT_DELAY_MS) {
+			else if (lineOutTime > lineOutStartTime + 2 * LINE_OUT_DELAY_MS) {
 
 				markState = MARK_LINE_OUT;
 			}

@@ -34,8 +34,10 @@ void First_Drive() {
 
 		Drive_State_Machine();
 		First_Drive_Ctrl();
+
 		//Drive_Speed_Cntl();
-		if ( EXIT_ECHO_IDLE != (exitEcho = Is_Drive_End()) ) {
+		if ( EXIT_ECHO_IDLE != (exitEcho = Is_Drive_End(exitEcho)) ) {
+
 			break;
 		}
 	}
@@ -55,8 +57,12 @@ void First_Drive() {
 
 __STATIC_INLINE void First_Drive_Ctrl() {
 
+	if (markState == MARK_LINE_OUT) {
+		return ;
+	}
+
 	// markState가 변경되었을 경우
-	if (markState != driveDataBufferPtr->markState) {
+	else if (markState != driveDataBuffer[driveDataIdx].markState) {
 
 		// driveData 값 업데이트
 		Set_First_Drive_Data();
@@ -71,25 +77,33 @@ __STATIC_INLINE void Set_First_Drive_Data() {
 	if (markState != MARK_CROSS && markState != MARK_END) {
 
 		// 현재마크에서 이동한 tick 값을 현재 인덱스의 구조체에 저장
-		driveDataBufferPtr->tickCnt = curTick - markStartTick;
+		driveDataBuffer[driveDataIdx].tickCnt = curTick - markStartTick;
 
-		// 종료시점에서 크로스를 읽은 총 개수를 저장
-		driveDataBufferPtr->crossCnt = crossCnt;
+		// 종료 시점에서의 읽은 크로스의 개수
+		driveDataBuffer[driveDataIdx].crossCnt = crossCnt;
 
 		// drivePtr 값 인덱스 증가
-		driveDataBufferPtr += 1;
+		driveDataIdx += 1;
 
 		// markStartTick 업데이트
 		markStartTick = curTick;
 
 		// 증가된 구조체의 인덱스에 markState 저장
-		driveDataBufferPtr->markState = markState;
+		driveDataBuffer[driveDataIdx].markState = markState;
 	}
 
 	else {
 
 		// 크로스일 경우
 		if (markState == MARK_CROSS) {
+
+			/*
+			 *    n번째 크로스(crossCnt)		0		1		...		50
+			 *    m번째 마크(driveDataIdx)		4(3)	6(5)	...		98
+			 *
+			 *    (0번째 마크에서 크로스를 읽었을 때 1번째 마크로 저장되도록 함, 0은 값이 없는 상태를 나타냄)
+			 */
+			crossCntTableBuffer[crossCnt] = driveDataIdx + 1;
 
 			crossCnt += 1;
 		}
@@ -102,15 +116,15 @@ __STATIC_INLINE void Set_First_Drive_Data() {
 			if (endMarkCnt >= 2) {
 
 				// 현재마크에서 이동한 tick 값을 현재 인덱스의 구조체에 저장
-				driveDataBufferPtr->tickCnt = curTick - markStartTick;
+				driveDataBuffer[driveDataIdx].tickCnt = curTick - markStartTick;
 
-				// 종료시점에서 크로스를 읽은 총 개수를 저장
-				driveDataBufferPtr->crossCnt = crossCnt;
+				// 종료 시점에서의 읽은 크로스의 개수
+				driveDataBuffer[driveDataIdx].crossCnt = crossCnt;
 			}
 		}
 
 		// 크로스, 엔드마크는 읽은 후 이전 상태로 되돌림
-		markState = driveDataBufferPtr->markState;
+		markState = driveDataBuffer[driveDataIdx].markState;
 	}
 
 }
@@ -124,6 +138,7 @@ static void First_Drive_Data_Cntl(uint8_t exitEcho) {
 	uint32_t i = 1;
 	uint16_t markCnt_L = 0;
 	uint16_t markCnt_R = 0;
+	uint16_t crossCnt = 0;
 
 	if (exitEcho == EXIT_ECHO_END_MARK) {
 
@@ -157,13 +172,18 @@ static void First_Drive_Data_Cntl(uint8_t exitEcho) {
 			}
 		}
 
+		for (i = 0; crossCntTableBuffer[i] != 0 && i < MAX_CROSS_CNT; i++) {
+
+			crossCnt++;
+		}
+
 		Custom_OLED_Clear();
 
 		// OLED에 exitEcho 변수명 및 마크 개수 출력
 		Custom_OLED_Printf("/0end mark");
 		Custom_OLED_Printf("/1mark L:   %d", markCnt_L);
 		Custom_OLED_Printf("/2mark R:   %d", markCnt_R);
-		Custom_OLED_Printf("/3cross:    %d", driveDataBuffer[i-1].crossCnt);
+		Custom_OLED_Printf("/3cross:    %d", crossCnt);
 
 		while (CUSTOM_SW_BOTH != Custom_Switch_Read()) ;
 
@@ -207,10 +227,14 @@ static void First_Drive_Data_Update_Cntl(uint8_t exitEcho) {
 
 	if (driveData[0].markState == MARK_NONE || isUpdate == CUSTOM_TRUE) {
 
-		for (uint32_t i = 0; i < MAX_MARKER_CNT; i += 1) {
+		for (uint32_t i = 0; i < MAX_DRIVE_DATA_LEN; i++) {
 			driveData[i].tickCnt = driveDataBuffer[i].tickCnt;
 			driveData[i].markState = driveDataBuffer[i].markState;
-			driveData[i].crossCnt = driveDataBuffer[i].crossCnt;
+		}
+
+		for (uint32_t i = 0; i < MAX_CROSS_CNT; i++) {
+
+			crossCntTable[i] = crossCntTableBuffer[i];
 		}
 	}
 }

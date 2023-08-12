@@ -78,7 +78,7 @@
 
 
 // 1차주행, 2차 주행의 driveData 관련 매크로
-#define MAX_MARKER_CNT				1000
+#define MAX_MARKER_CNT				512
 #define T_DRIVE_DATA_INIT			{ 0, MARK_STRAIGHT, 0, CUSTOM_FALSE, 0, CUSTOM_FALSE }
 
 

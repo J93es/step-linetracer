@@ -66,12 +66,15 @@ void Init() {
 			{ "Test Normalized", Sensor_Test_Normalized },
 			{ "Test State     ", Sensor_Test_State },
 			{ "Test Phase     ", Motor_Test_Phase },
-			{ "Test Velocity  ", Motor_Test_Velocity },
+			//{ "Test Velocity  ", Motor_Test_Velocity },
 			{ "Test Position  ", Drive_Test_Position },
+			{ "Current setting", Current_Setting },
 			{ "Print DriveData", Print_Drive_Data},
-			{ "Del DriveData  ", Delete_Drive_Data_Flash},
-			{ "Save DriveData ", Save_Drive_Data_Flash},
-			{ "Read DriveData ", Read_Drive_Data_Flash},
+			//{ "Drive Read Mark", Drive_Read_Mark},
+			//{ "Last Spurt     ", Drive_Last_Spurt},
+			//{ "Del DriveData  ", Delete_Drive_Data_Flash},
+			//{ "Save DriveData ", Save_Drive_Data_Flash},
+			//{ "Read DriveData ", Read_Drive_Data_Flash},
 	};
 
 	uint8_t sw = 0;

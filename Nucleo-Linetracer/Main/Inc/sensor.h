@@ -31,7 +31,8 @@ extern volatile uint8_t		blackMaxs[8];
 extern volatile uint8_t		state;
 extern volatile uint32_t	threshold;
 
-
+extern volatile uint8_t		sensorReadIdx;
+extern volatile uint8_t		sensorReadIdxTable[8];
 
 
 
@@ -45,9 +46,7 @@ void	Sensor_Calibration();
 
 
 __STATIC_INLINE uint16_t	Sensor_ADC_Read() {
-	static uint16_t adcValue = 0;
-
-
+	uint16_t	adcValue = 0;
 	__disable_irq();
 	LL_ADC_ClearFlag_EOCS(ADC1);
 	LL_ADC_REG_StartConversionSWStart(ADC1);
@@ -60,9 +59,8 @@ __STATIC_INLINE uint16_t	Sensor_ADC_Read() {
 
 
 // rawValue 계산
-__STATIC_INLINE void		Make_Sensor_Raw_Vals(uint8_t idx) {
-
-	static uint8_t	midian[3] = { 0, };
+__STATIC_INLINE void	Make_Sensor_Raw_Vals(uint8_t idx) {
+	uint8_t	midian[3];
 
 	GPIOC->ODR = (GPIOC->ODR & ~0x07) | (idx) | 0x08;
 	// ADC 읽기
@@ -92,20 +90,22 @@ __STATIC_INLINE void		Make_Sensor_Raw_Vals(uint8_t idx) {
 
 
 // normalized value 계산
-__STATIC_INLINE void		Make_Sensor_Norm_Vals(uint8_t idx) {
+__STATIC_INLINE void	Make_Sensor_Norm_Vals(uint8_t idx) {
 
-	/*
+
 	if (sensorRawVals[idx] < blackMaxs[idx])
 		sensorNormVals[idx] = 0;
 	else if (sensorRawVals[idx] > whiteMaxs[idx])
 		sensorNormVals[idx] = 255;
 	else
 		sensorNormVals[idx] = (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]);
-	*/
 
+
+/*
 	sensorNormVals[idx] = ( (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]) \
-		& ( (sensorRawVals[idx] < blackMaxs[idx]) - 0x01) ) \
-		| ((sensorRawVals[idx] < whiteMaxs[idx]) - 0x01);
+		& ( (sensorRawVals[idx] < blackMaxs[idx]) - 0x01 )  ) \
+		| ( (sensorRawVals[idx] < whiteMaxs[idx]) - 0x01 );
+*/
 
 
 }
@@ -115,7 +115,7 @@ __STATIC_INLINE void		Make_Sensor_Norm_Vals(uint8_t idx) {
 
 
 // sensor state 계산
-__STATIC_INLINE void		Make_Sensor_State(uint8_t idx) {
+__STATIC_INLINE void	Make_Sensor_State(uint8_t idx) {
 
 	//state = ( state & ~(0x01 << idx) ) | ( (sensorNormVals[idx] > threshold) << idx );
 	if (sensorNormVals[idx] > threshold) {
@@ -131,10 +131,7 @@ __STATIC_INLINE void		Make_Sensor_State(uint8_t idx) {
 
 
 
-__STATIC_INLINE void		Sensor_TIM5_IRQ() {
-
-	static uint8_t	sensorReadIdx = 0;
-	static uint8_t	sensorReadIdxTable[8] = { 3, 4, 2, 5, 1, 6, 0, 7 };
+__STATIC_INLINE void	Sensor_TIM5_IRQ() {
 
 	Make_Sensor_Raw_Vals(sensorReadIdxTable[sensorReadIdx]);
 

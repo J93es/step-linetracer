@@ -27,6 +27,7 @@
 #define DRIVE_STATE_CROSS			1
 #define DRIVE_STATE_MARKER			2
 #define DRIVE_STATE_DECISION		3
+#define DRIVE_DECISION_LINE_OUT		4
 
 
 // 현재 mark의 상태값 매크로
@@ -35,23 +36,21 @@
 #define MARK_CURVE_R				2
 #define MARK_CURVE_L				3
 #define MARK_CROSS					4
+#define MARK_LINE_OUT				5
 
 
 // 속도와 관련된 매크로
 #define MIN_SPEED					0.01f
 
 #define ACCELE_INIT					4.0f
+#define DECELE_INIT					8.0f
 
 #define TARGET_SPEED_INIT			1.9f
-
 #define BOOST_SPEED_INIT			4.0f
-
-#define SPEED_INIT_CHANGE_VAL		0.1f
 
 
 // 커브에서 어느 정도 감속할지 결정하는 매크로
 #define CURVE_DECEL_COEF_INIT		22000
-#define CURVE_DECEL_COEF_CHANGE_VAL	1000
 
 
 // POSITION_COEF(포지션 상수)를 도출하기 위한 매크로
@@ -67,16 +66,15 @@
  * v * (arr + 1) = SPEED_COEF
  */
 #define TIRE_RADIUS					0.029f					// m
-#define	SPEED_COEF					( 15707.f * TIRE_RADIUS )
+#define SPEED_COEF					( 15707.f * TIRE_RADIUS )
 #define POSITION_COEF_INIT			0.00007f
-#define POSITION_COEF_CHANGE_VAL	0.00001f
 
 
 // 1 m 당 tick 개수
 /*
- * 400(바퀴가 1바퀴 도는데 소요되는 tick 개수) * { 1(m) / (2 * TIRE_RADIUS * 3.14159)(1바퀴의 거리) }{ 1m 가는데 소요되는 바퀴 회전 횟수 }
+ * 400(바퀴가 1바퀴 도는데 소요되는 tick 개수) * { 1(m) / (2 * TIRE_RADIUS * 3.14159) }(1바퀴의 거리) == { 1m 가는데 소요되는 바퀴 회전 횟수 }
  */
-#define TICK_PER_M					( 400.f * 1.f / (2.f * TIRE_RADIUS * 3.14159f) )
+#define TICK_PER_M					( 63.662f / TIRE_RADIUS )
 
 
 // 1차주행, 2차 주행의 driveData 관련 매크로
@@ -84,35 +82,43 @@
 #define T_DRIVE_DATA_INIT			{ 0, MARK_STRAIGHT, 0, CUSTOM_FALSE, 0, CUSTOM_FALSE }
 
 
-// 최소 몇 미터 이상에서 부스트할지를 저장한 매크로
-#define MIN_BOOST_METER				0.8f
-
 
 // 2차 주행에서 어느 정도 지나면 가감속할 지 결정하는 매크로
+
+// 최소 몇 미터 이상에서 부스트할지를 저장한 매크로
+#define MIN_BOOST_METER				0.8f
 
 // 직선에 진입한 후 어느정도 이동한 후 가속할지
 #define ACCELE_START_TICK			( 0.05f * TICK_PER_M )
 
 // 어느정도 직선이 남았으면 감속할 지
-#define DECELE_START_TICK			( 0.7f * TICK_PER_M )
+#define DECELE_START_TICK			( 0.9f * TICK_PER_M )
 
 // 감속 거리
-#define DECELE_LEN_TICK				( 0.5f * TICK_PER_M )
+#define DECELE_LEN_M				0.7f
+
+// 감속 안전거리
+#define DECELE_END_TICK				( 0.2f * TICK_PER_M )
+
 
 
 // 피트인 관련 매크로
-#define PIT_IN_LEN					0.25f
+#define PIT_IN_LEN_INIT				0.2f
 #define PIT_IN_TARGET_SPEED			MIN_SPEED
-#define PIT_IN_DELAY_SPEED			0.5f
-#define DRIVE_END_DELAY				100
+
+
+// 주행이 종료되었을 때 모터 종료 딜레이
+#define DRIVE_END_DELAY_SPEED		0.3f
+#define DRIVE_END_DELAY_TIME		150
 
 
 // exitEcho 관련 매크로
-#define EXIT_ECHO_END_MARK			0
-#define EXIT_ECHO_LINE_OUT			1
+#define EXIT_ECHO_IDLE				0
+#define EXIT_ECHO_END_MARK			1
+#define EXIT_ECHO_LINE_OUT			2
 
 
-// 주행 컨트롤 매크로
+// 부스트 컨트롤 매크로
 #define BOOST_CNTL_IDLE				0
 #define BOOST_CNTL_ACCELE			1
 #define BOOST_CNTL_DECELE			2
@@ -154,10 +160,7 @@ typedef struct	s_driveData {
 
 // 초기의 속도 값에 관한 변수
 extern volatile float		targetSpeed_init;
-
-extern volatile float		accele_init;
-
-extern volatile float		boostSpeed_init;
+extern volatile float		decele_init;
 
 
 // 좌우 모터 포지션에 관한 변수
@@ -170,6 +173,7 @@ extern volatile float		targetSpeed;
 extern volatile float		currentSpeed;
 
 extern volatile float		accele;
+extern volatile float		decele;
 
 extern volatile float		boostSpeed;
 
@@ -203,6 +207,14 @@ extern volatile uint8_t		boostCntl;
 
 // 현재까지 읽은 크로스 개수
 extern volatile uint16_t	crossCnt;
+
+
+// 시간 측정 (1us)
+extern volatile uint32_t	curTime;
+
+
+// 피트인 거리
+extern volatile float		pitInLen;
 
 
 

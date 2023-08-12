@@ -7,8 +7,8 @@
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:47:26:Sensor_ADC_Read	2
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:63:23:Make_Sensor_Raw_Vals	3
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:95:23:Make_Sensor_Norm_Vals	3
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:117:23:Make_Sensor_State	2
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:133:23:Sensor_TIM5_IRQ	2
+/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:118:23:Make_Sensor_State	2
+/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:134:23:Sensor_TIM5_IRQ	2
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:20:25:Window_Position_Val	4
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:123:22:Update_Limited_Position_Val	4
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:147:22:Update_Position_Val	2
