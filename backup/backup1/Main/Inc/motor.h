@@ -16,16 +16,6 @@
 
 
 
-extern volatile Custom_GPIO_t	motorL[4];
-extern volatile Custom_GPIO_t	motorR[4];
-
-//extern volatile uint8_t	phases[4];
-extern volatile uint8_t	phases[8];
-
-
-
-
-
 void	Motor_Power_Off();
 void	Motor_Start();
 void	Motor_Stop();
@@ -34,29 +24,25 @@ void	Speed_Control_Start();
 void	Speed_Control_Stop();
 
 
+extern volatile Custom_GPIO_t	motorL[4];
+extern volatile Custom_GPIO_t	motorR[4];
+
+extern volatile uint8_t			phaseL_table[8];
+extern volatile uint8_t			phaseR_table[8];
+
+extern volatile uint8_t			phaseL;
+extern volatile uint8_t			phaseR;
 
 
 
 
 __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
-	static uint8_t phaseL  = 0;
-
-	/*
-	// motorL phase 잡기
-	Custom_GPIO_Set_t(motorL + 0, (phases[3 - phaseL] >> 0) & 0x01);
-	Custom_GPIO_Set_t(motorL + 1, (phases[3 - phaseL] >> 1) & 0x01);
-	Custom_GPIO_Set_t(motorL + 2, (phases[3 - phaseL] >> 2) & 0x01);
-	Custom_GPIO_Set_t(motorL + 3, (phases[3 - phaseL] >> 3) & 0x01);
-
-	phaseL = (phaseL + 1) & 0x03;
-	*/
-
 
 	// motorL phase 잡기
-	Custom_GPIO_Set_t(motorL + 0, (phases[7 - phaseL] >> 0) & 0x01);
-	Custom_GPIO_Set_t(motorL + 1, (phases[7 - phaseL] >> 1) & 0x01);
-	Custom_GPIO_Set_t(motorL + 2, (phases[7 - phaseL] >> 2) & 0x01);
-	Custom_GPIO_Set_t(motorL + 3, (phases[7 - phaseL] >> 3) & 0x01);
+	Custom_GPIO_Set_t(motorL + 0, (phaseL_table[phaseL] >> 0) & 0x01);
+	Custom_GPIO_Set_t(motorL + 1, (phaseL_table[phaseL] >> 1) & 0x01);
+	Custom_GPIO_Set_t(motorL + 2, (phaseL_table[phaseL] >> 2) & 0x01);
+	Custom_GPIO_Set_t(motorL + 3, (phaseL_table[phaseL] >> 3) & 0x01);
 
 	phaseL = (phaseL + 1) & 0x07;
 
@@ -70,14 +56,12 @@ __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 
 
 __STATIC_INLINE void	Motor_R_TIM4_IRQ() {
-	static uint8_t phaseR  = 0;
-
 
 	// motorR phase 잡기
-	Custom_GPIO_Set_t(motorR + 0, (phases[phaseR] >> 0) & 0x01);
-	Custom_GPIO_Set_t(motorR + 1, (phases[phaseR] >> 1) & 0x01);
-	Custom_GPIO_Set_t(motorR + 2, (phases[phaseR] >> 2) & 0x01);
-	Custom_GPIO_Set_t(motorR + 3, (phases[phaseR] >> 3) & 0x01);
+	Custom_GPIO_Set_t(motorR + 0, (phaseR_table[phaseR] >> 0) & 0x01);
+	Custom_GPIO_Set_t(motorR + 1, (phaseR_table[phaseR] >> 1) & 0x01);
+	Custom_GPIO_Set_t(motorR + 2, (phaseR_table[phaseR] >> 2) & 0x01);
+	Custom_GPIO_Set_t(motorR + 3, (phaseR_table[phaseR] >> 3) & 0x01);
 
 	//phaseR = (phaseR + 1) & 0x03;
 

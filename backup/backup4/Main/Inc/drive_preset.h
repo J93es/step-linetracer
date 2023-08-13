@@ -2,8 +2,8 @@
  * drive_setting.h
  */
 
-#ifndef INC_DRIVE_SETTING_H_
-#define INC_DRIVE_SETTING_H_
+#ifndef INC_DRIVE_PRESET_H_
+#define INC_DRIVE_PRESET_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -12,7 +12,6 @@
 
 
 void	Pre_Drive_Setting(uint8_t driveIdx);
-void	After_Drive_Setting(uint8_t driveIdx);
 
 
 

@@ -10,7 +10,6 @@
 __STATIC_INLINE void	Second_Drive_Ctrl();
 __STATIC_INLINE void	Set_Second_Drive_Data();
 __STATIC_INLINE void	Second_Drive_Boost();
-__STATIC_INLINE void	Second_Drive_Restore_Mark();
 __STATIC_INLINE uint8_t	Is_Decele();
 
 
@@ -36,8 +35,9 @@ void Second_Drive() {
 
 		Drive_State_Machine();
 		Second_Drive_Ctrl();
+
 		//Drive_Speed_Cntl();
-		if ( EXIT_ECHO_IDLE != (exitEcho = Is_Drive_End()) ) {
+		if ( EXIT_ECHO_IDLE != (exitEcho = Is_Drive_End(exitEcho)) ) {
 			break;
 		}
 	}
@@ -66,8 +66,12 @@ void Second_Drive() {
 
 __STATIC_INLINE void Second_Drive_Ctrl() {
 
+	if (markState == MARK_LINE_OUT) {
+		return ;
+	}
+
 	// markState가 변경되었을 경우
-	if (markState != driveDataPtr->markState) {
+	else if (markState != driveData[driveDataIdx].markState) {
 
 		// driveData 값 업데이트
 		Set_Second_Drive_Data();
@@ -78,13 +82,6 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 
 		// 직선가속
 		Second_Drive_Boost();
-	}
-
-	// 주행에서 마크를 정상적으로 읽지 못했을 경우
-	else {
-
-		// isReadAllMark 보정
-		Second_Drive_Restore_Mark();
 	}
 }
 
@@ -101,11 +98,11 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
 		markStartTick = curTick;
 
 		// drivePtr 값 인덱스 증가
-		driveDataPtr += 1;
+		driveDataIdx += 1;
 
 
 		// 주행중 markState와 1차 주행에서 저장된 markState가 동일하지 않다면 비정상적으로 읽었다고 판단
-		if (markState != driveDataPtr->markState) {
+		if (markState != driveData[driveDataIdx].markState) {
 
 			// 마크 인식 정상 여부를 업데이트
 			isReadAllMark = CUSTOM_FALSE;
@@ -117,6 +114,12 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
 		// 크로스일 경우
 		if (markState == MARK_CROSS) {
 
+			// 마크 복구
+			if (isReadAllMark == CUSTOM_FALSE) {
+
+				driveDataIdx = crossCntTable[crossCnt] - 1;
+			}
+
 			crossCnt += 1;
 		}
 
@@ -127,7 +130,7 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
 		}
 
 		// 크로스, 엔드마크는 읽은 후 이전 상태로 되돌림
-		markState = driveDataPtr->markState;
+		markState = driveData[driveDataIdx].markState;
 	}
 }
 
@@ -145,11 +148,11 @@ __STATIC_INLINE void Second_Drive_Boost() {
 					if (markState == MARK_STRAIGHT) {
 
 						// 최소 부스트 거리 이상일 때
-						if (driveDataPtr->tickCnt > ACCELE_START_TICK + MIN_BOOST_TICK + DECELE_END_TICK) {
+						if (driveData[driveDataIdx].tickCnt > ACCELE_START_TICK + MIN_BOOST_TICK + DECELE_END_TICK) {
 
 
 							// decele 이후 다시 가속하는 것을 방지
-							if (curTick < markStartTick + driveDataPtr->tickCnt - MIN_BOOST_TICK - DECELE_END_TICK) {
+							if (curTick < markStartTick + driveData[driveDataIdx].tickCnt - MIN_BOOST_TICK - DECELE_END_TICK) {
 
 								boostCntl = BOOST_CNTL_ACCELE;
 							}
@@ -191,25 +194,16 @@ __STATIC_INLINE void Second_Drive_Boost() {
 			case BOOST_CNTL_END :
 
 					// 감속이 종료되었을 때
-					if ( curTick > markStartTick + driveDataPtr->tickCnt - DECELE_END_TICK ) {
+					if ( curTick > markStartTick + driveData[driveDataIdx].tickCnt - DECELE_END_TICK ) {
 
 						boostCntl = BOOST_CNTL_IDLE;
+
+						// 부스트중 차체가 떳을 때 크로스를 못읽는 경우를 방지함
+						crossCnt = driveData[driveDataIdx].crossCnt;
+
 					}
 
 					break ;
-	}
-}
-
-
-
-__STATIC_INLINE void Second_Drive_Restore_Mark() {
-
-	if (crossCnt > driveData->crossCnt) {
-
-	}
-
-	else {
-
 	}
 }
 
@@ -251,8 +245,8 @@ __STATIC_INLINE uint8_t	Is_Decele() {
 	*/
 
 
-	if (    decele * 2 * ( driveDataPtr->tickCnt - DECELE_END_TICK - (curTick - markStartTick) )    <= \
-			ABS( (targetSpeed_init - currentSpeed) * (targetSpeed_init + currentSpeed) ) * TICK_PER_M    ) {
+	if (    decele * 2 * ( driveData[driveDataIdx].tickCnt - DECELE_END_TICK - (curTick - markStartTick) )    <= \
+			ABS( (targetSpeed_init - curSpeed) * (targetSpeed_init + curSpeed) ) * TICK_PER_M    ) {
 
 		// targetSpeed_init로 감속
 		targetSpeed = targetSpeed_init;

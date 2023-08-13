@@ -23,14 +23,16 @@ volatile Custom_GPIO_t	motorR[4] = {
 
 
 
-//volatile uint8_t	phases[4] = { 0x03, 0x06, 0x0C, 0x09 };
-volatile uint8_t	phases[8] = { 0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09 };
+volatile uint8_t	phaseL_table[8] = { 0x09, 0x08, 0x0C, 0x04, 0x06, 0x02, 0x03, 0x01 };
+volatile uint8_t	phaseR_table[8] = { 0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09 };
 
-
+volatile uint8_t	phaseL  = 0;
+volatile uint8_t	phaseR  = 0;
 
 
 
 void Motor_Power_Off() {
+
 	Custom_GPIO_Set_t(motorL + 0, 0);
 	Custom_GPIO_Set_t(motorL + 1, 0);
 	Custom_GPIO_Set_t(motorL + 2, 0);

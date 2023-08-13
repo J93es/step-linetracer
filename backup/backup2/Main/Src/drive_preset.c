@@ -40,8 +40,6 @@ volatile uint8_t		markState = MARK_STRAIGHT;
 
 
 // 현재 모터에 몇번 상이 잡혔는 지를 카운트하는 변수
-volatile uint32_t		curTick_L = 0;
-volatile uint32_t		curTick_R = 0;
 volatile uint32_t		curTick = 0;
 
 
@@ -55,12 +53,12 @@ volatile uint8_t		isReadAllMark = CUSTOM_TRUE;
 
 // driveData를 저장하고 접근하게 해주는 변수들
 volatile t_driveData	driveData[MAX_MARKER_CNT] = { T_DRIVE_DATA_INIT, };
-volatile t_driveData	*driveDataPtr = driveData + 1;
+volatile t_driveData	*driveDataPtr = driveData + 0;
 
 
 // 1차 주행 데이터 임시저장
 volatile t_driveData	driveDataBuffer[MAX_MARKER_CNT] = { T_DRIVE_DATA_INIT, };
-volatile t_driveData	*driveDataBufferPtr = driveDataBuffer + 1;
+volatile t_driveData	*driveDataBufferPtr = driveDataBuffer + 0;
 
 
 // state machine 의 상태
@@ -69,6 +67,10 @@ volatile uint8_t		driveState = DRIVE_STATE_IDLE;
 
 // 2차주행 컨트롤 변수
 volatile uint8_t		boostCntl = BOOST_CNTL_IDLE;
+
+
+// 현재 마크가 시작된 tick
+volatile uint32_t		markStartTick = 0;
 
 
 // 현재까지 읽은 크로스 개수
@@ -143,7 +145,7 @@ static void Pre_Drive_Var_Adjust() {
 
 				// OLED에 변수명 변수값 출력
 				Custom_OLED_Printf("/2%s", intValues[i].valName);
-				Custom_OLED_Printf("/4%d", *(intValues[i].val));
+				Custom_OLED_Printf("/A/4%d", *(intValues[i].val));
 
 				if (i == 0) {
 					Custom_OLED_Printf("/0%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
@@ -175,9 +177,12 @@ static void Pre_Drive_Var_Adjust() {
 
 		while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 
+			uint32_t num1 = (uint32_t)(*(floatValues[i].val));
+			uint32_t num2 = (uint32_t)( ((*(floatValues[i].val)) - num1) * 10000);
+
 			// OLED에 변수명 변수값 출력
 			Custom_OLED_Printf("/2%s", floatValues[i].valName);
-			Custom_OLED_Printf("/4%f", *(floatValues[i].val));
+			Custom_OLED_Printf("/A/4%u.%u", num1, num2);
 
 			if (i == floatValCnt - 1) {
 				Custom_OLED_Printf("/g/0Ready to Drive");
@@ -220,9 +225,7 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 	markState = MARK_STRAIGHT;
 
 	// 현재 모터가 상을 잡은 횟수 초기화
-	curTick_L = 0;
-	curTick_R = 0;
-	curTick = (curTick_L + curTick_R) >> 2; // (curTick_L + curTick_R) / 2
+	curTick = 0;
 
 	// 500us 단위의 타이머 업데이트
 	curTime = 0;
@@ -232,6 +235,9 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 
 	// 현재까지 읽은 크로스 개수 업데이트
 	crossCnt = 0;
+
+	// 현재 마크가 시작된 tick
+	markStartTick = 0;
 
 
 	// 1차 주행에서만 초기화할 변수
@@ -247,10 +253,9 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 		// 0번 인덱스는 할당되지 않은 포인터에 접근하지 않도록 고정시켜둠
 		// 실질적으로 주행은 1번 인덱스부터 시작
 		driveDataBuffer[0].markState = MARK_STRAIGHT;
-		driveDataBuffer[1].markState = MARK_STRAIGHT;
 
 		// driveDataBuffer에 접근하는 포인터 1번 인덱스로 초기화
-		driveDataBufferPtr = driveDataBuffer + 1;
+		driveDataBufferPtr = driveDataBuffer + 0;
 
 	}
 
@@ -264,7 +269,7 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 		boostCntl = BOOST_CNTL_IDLE;
 
 		// driveData에 접근하는 포인터 1번 인덱스로 초기화
-		driveDataPtr = driveData + 1;
+		driveDataPtr = driveData + 0;
 	}
 }
 

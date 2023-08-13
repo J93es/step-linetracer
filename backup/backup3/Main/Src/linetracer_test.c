@@ -63,8 +63,8 @@ void Sensor_Test_State() {
 		Custom_OLED_Printf("/0threshold: %3d", threshold);
 
 		Custom_OLED_Printf("/1%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
-			(state >> 0) & 1, (state >> 1) & 1, (state >> 2) & 1, (state >> 3) & 1, \
-			(state >> 4) & 1, (state >> 5) & 1, (state >> 6) & 1, (state >> 7) & 1);
+			(state >> 7) & 1, (state >> 6) & 1, (state >> 5) & 1, (state >> 4) & 1, \
+			(state >> 3) & 1, (state >> 2) & 1, (state >> 1) & 1, (state >> 0) & 1);
 
 
 		if (sw == CUSTOM_SW_1) {
@@ -208,9 +208,10 @@ void Drive_Test_Position() {
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 		Update_Position_Val();
 
-		Custom_OLED_Printf("/0pos: %10d", positionVal);
-		Custom_OLED_Printf("/2speedL: %5f", (1 + positionVal * positionCoef));
-		Custom_OLED_Printf("/3speedR: %5f", (1 - positionVal * positionCoef));
+		Custom_OLED_Printf("/0pos:     %7d", positionVal);
+		Custom_OLED_Printf("/1limited: %7d", limitedPositionVal);
+		Custom_OLED_Printf("/2speedL:  %f", (1 + positionVal * positionCoef));
+		Custom_OLED_Printf("/3speedR:  %f", (1 - positionVal * positionCoef));
 	}
 
 	Sensor_Stop();
@@ -221,69 +222,6 @@ void Drive_Test_Position() {
 
 
 void Drive_Test_Info_Oled() {
-	Custom_OLED_Printf("/0target: %5f", targetSpeed);
-	Custom_OLED_Printf("/1current: %5f", currentSpeed);
-	Custom_OLED_Printf("/2accele: %5f", accele);
-	Custom_OLED_Printf("/3speedL: %5f", currentSpeed * (1 + positionVal * positionCoef));
-	Custom_OLED_Printf("/4speedR: %5f", currentSpeed * (1 - positionVal * positionCoef));
-	Custom_OLED_Printf("/decision: %5d", markState);
+	Custom_OLED_Printf("/decision: %0d", markState);
 }
-
-
-
-
-
-void Drive_Test_Data() {
-	uint16_t markCnt_L = 0;
-	uint16_t markCnt_R = 0;
-	uint16_t markCnt_End = 0;
-	uint16_t markCnt_Cross = 0;
-
-	for (volatile t_driveData *ptr = (driveData + 0); ptr->isExist == CUSTOM_TRUE; ptr += 1) {
-
-		// 현재상태가 좌측 곡선인 경우
-		if (ptr->markState == MARK_CURVE_L) {
-
-			// 다음 상태가 우측 곡선이었을 경우 == 연속 커브
-			if ((ptr + 1)->markState == MARK_CURVE_R) {
-				markCnt_L += 1;
-			}
-			else {
-				markCnt_L += 2;
-			}
-		}
-
-		// 현재상태가 우측 곡선인 경우
-		else if (ptr->markState == MARK_CURVE_R) {
-
-			// 다음 상태가 좌측 곡선이었을 경우 == 연속 커브
-			if ((ptr + 1)->markState == MARK_CURVE_L) {
-				markCnt_R += 1;
-			}
-			else {
-				markCnt_R += 2;
-			}
-		}
-
-		else if (ptr->markState == MARK_END) {
-			markCnt_End += 2;
-
-			markCnt_Cross = (ptr - 1)->crossCnt;
-		}
-	}
-
-
-	// OLED에 변수명 변수값 출력
-	Custom_OLED_Clear();
-	Custom_OLED_Printf("/0mark L:   %d", markCnt_L);
-	Custom_OLED_Printf("/1mark R:   %d", markCnt_R);
-	Custom_OLED_Printf("/2cross:    %d", markCnt_Cross);
-	Custom_OLED_Printf("/3end mark: %d", markCnt_End);
-
-	while (CUSTOM_SW_BOTH != Custom_Switch_Read());
-
-	Custom_OLED_Clear();
-}
-
-
 

@@ -94,7 +94,6 @@ static void Pre_Drive_Var_Adjust() {
 	uint8_t	sw = 0;
 
 
-
 	t_driveMenu_Int		intValues[] = {
 
 			{ "threshold",		&threshold,			5 },
@@ -103,10 +102,9 @@ static void Pre_Drive_Var_Adjust() {
 	uint8_t intValCnt = sizeof(intValues) / sizeof(t_driveMenu_Int);
 
 
-
 	t_driveMenu_Float	floatValues[] = {
 
-			{ "pit in",			&pitInLen,			0.01 },
+			{ "pitIn len",		&pitInLen,			0.01 },
 			{ "targetSpeed",	&targetSpeed_init,	0.05 },
 			{ "boostSpeed",		&boostSpeed,		0.1 },
 			{ "accele",			&accele,			0.1 },
@@ -121,41 +119,47 @@ static void Pre_Drive_Var_Adjust() {
 
 		Custom_OLED_Clear();
 
-		if (intValues[i].val == &threshold) {
-			Sensor_Start();
-		}
-
-		while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
-
-			// OLED에 변수명 변수값 출력
-			Custom_OLED_Printf("/0%s", intValues[i].valName);
-			Custom_OLED_Printf("/1%5d", *(intValues[i].val));
+		// 정수 변수 초기화
+		if (i < intValCnt) {
 
 			if (intValues[i].val == &threshold) {
-				Custom_OLED_Printf("/3%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
-					(state >> 0) & 1, (state >> 1) & 1, (state >> 2) & 1, (state >> 3) & 1, \
-					(state >> 4) & 1, (state >> 5) & 1, (state >> 6) & 1, (state >> 7) & 1);
+				Sensor_Start();
 			}
 
-			// 변수 값 빼기
-			if (sw == CUSTOM_SW_1) {
-				*(intValues[i].val) -= intValues[i].changeVal;
-			}
-			// 변수값 더하기
-			else if (sw == CUSTOM_SW_2) {
-				*(intValues[i].val) += intValues[i].changeVal;
-			}
-		}
+			while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 
-		if (intValues[i].val == &threshold) {
-			Sensor_Stop();
+				// OLED에 변수명 변수값 출력
+				Custom_OLED_Printf("/0%s", intValues[i].valName);
+				Custom_OLED_Printf("/1%5d", *(intValues[i].val));
+
+				if (intValues[i].val == &threshold) {
+					Custom_OLED_Printf("/3%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w%2x/r%2x/w", \
+						(state >> 0) & 1, (state >> 1) & 1, (state >> 2) & 1, (state >> 3) & 1, \
+						(state >> 4) & 1, (state >> 5) & 1, (state >> 6) & 1, (state >> 7) & 1);
+				}
+
+				// 변수 값 빼기
+				if (sw == CUSTOM_SW_1) {
+					*(intValues[i].val) -= intValues[i].changeVal;
+				}
+				// 변수값 더하기
+				else if (sw == CUSTOM_SW_2) {
+					*(intValues[i].val) += intValues[i].changeVal;
+				}
+			}
+
+			if (intValues[i].val == &threshold) {
+				Sensor_Stop();
+			}
 		}
 	}
 
 
-
+	// float 변수 초기화
 	for (uint8_t i = 0; i < floatValCnt; i++) {
+
 		Custom_OLED_Clear();
+
 		while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
 
 			// OLED에 변수명 변수값 출력
@@ -218,16 +222,6 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 	// 1차 주행에서만 초기화할 변수
 	if (driveIdx == FIRST_DRIVE) {
 
-		// driveData 값 초기화
-		for (uint16_t i = 0; i < MAX_MARKER_CNT; i++) {
-			t_driveData temp = T_DRIVE_DATA_INIT;
-
-			driveData[i] = temp;
-		}
-
-		// driveData의 0번째 값 초기화 (0번 인덱스는 할당되지 않은 포인터에 접근하지 않도록 고정시켜둠)
-		driveData[0].markState = MARK_STRAIGHT;
-		driveData[0].isExist = CUSTOM_TRUE;
 	}
 
 	// 2차 주행에서만 초기화할 변수
@@ -240,37 +234,6 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 
 		// driveData의 0번째 isReadAllMark 값 정상으로 변경
 		driveData[0].isReadAllMark = CUSTOM_TRUE;
-	}
-}
-
-
-
-
-
-void After_Drive_Setting(uint8_t driveIdx) {
-
-	// 1차 주행
-	if (driveIdx == FIRST_DRIVE) {
-
-		for (volatile t_driveData *p = driveData + 1; p->isExist == CUSTOM_TRUE; p += 1) {
-
-			// 직선일 경우
-			if (p->markState == MARK_STRAIGHT) {
-
-				// MIN_BOOST_METER  * TICK_PER_M 이상 이동한 경우에 INSTRUCT_BOOST로 업데이트
-				if ( p->tickCnt - (p-1)->tickCnt > MIN_BOOST_METER * TICK_PER_M ) {
-					p->boostTick = p->tickCnt - (p-1)->tickCnt;
-				}
-				else {
-					p->boostTick = 0;
-				}
-			}
-		}
-	}
-
-	// 2차 주행
-	else if (driveIdx == SECOND_DRIVE) {
-
 	}
 }
 

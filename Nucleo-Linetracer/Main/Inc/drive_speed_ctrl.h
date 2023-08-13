@@ -38,27 +38,38 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 
 
 	// 가속도 및 속도 제어
-	if (curSpeed < targetSpeed) {
+	if (curSpeed <= targetSpeed) {
 
-//		curAccele += 0.003;
-//		if (curAccele > targetAccele) {
-//			curAccele = targetAccele;
-//		}
-//
-//		curSpeed += curAccele / 2000;
-		curSpeed += targetAccele / 2000;
+		// 가속도 제어
+		curAccele += 0.003f;
+
+		if (curAccele > targetAccele) {
+
+			curAccele = targetAccele;
+		}
+
+		// 속도 제어
+		curSpeed += curAccele / 2000;
+
 		if (curSpeed >= targetSpeed) {
+
 			curSpeed = targetSpeed;
 
-			// 속도를 targetSpeed 까지 올린 후, curAccele을 초기상태로 변환
+			// 속도를 targetSpeed 까지 올린 후, curAccele을 0으로 변환
 			curAccele = 0;
 		}
 	}
-	else {
+	else if (curSpeed > targetSpeed) {
 
+		// 속도 제어
 		curSpeed -= decele / 2000;
-		if (curSpeed < targetSpeed) {
+
+		if (curSpeed <= targetSpeed) {
+
 			curSpeed = targetSpeed;
+
+			// 직선 가속 후 targetSpeed 까지 도달하지 못하고 감속한 후 감속이 종료되었으면 , curAccele을 0으로 변환
+			curAccele = 0;
 		}
 	}
 
@@ -67,7 +78,7 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 	Update_Position_Val();
 
 	// 포지션 값에 따른 감속
-	finalSpeed = curSpeed * curveDecelCoef / (absPositionVal + curveDecelCoef);
+	finalSpeed = curSpeed * curveDecelCoef / (limitedPositionVal + curveDecelCoef);
 
 	//position 값에 따른 좌우 모터 속도 조정
 	Motor_L_Speed_Control( finalSpeed * (1 + positionVal * positionCoef) );

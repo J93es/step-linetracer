@@ -45,12 +45,12 @@ __STATIC_INLINE void	Decision(uint8_t sensorStateSum) {
 	else if ( (sensorStateSum & 0x81) == 0x81 ) {
 
 		markState = MARK_END;
-		endMarkCnt++;
 	}
 
 
-	// right mark
-	else if ( (sensorStateSum & 0x01) == 0x01 ) {
+	// left mark
+	else if ( (sensorStateSum & 0x80) == 0x80 ) {
+
 
 		// 이전 마크가 왼쪽 곡선 마크였다면 곡선주행 종료
 		if (markState == MARK_CURVE_L) {
@@ -64,9 +64,8 @@ __STATIC_INLINE void	Decision(uint8_t sensorStateSum) {
 	}
 
 
-	// left mark
-	else if ( (sensorStateSum & 0x80) == 0x80 ) {
-
+	// right mark
+	else if ( (sensorStateSum & 0x01) == 0x01 ) {
 
 		// 이전 마크가 오른쪽 곡선 마크였다면 곡선주행 종료
 		if (markState == MARK_CURVE_R) {
@@ -160,9 +159,9 @@ __STATIC_INLINE void	Drive_State_Machine() {
 				driveState = DRIVE_STATE_IDLE;
 			}
 
-			// state == 0x00인 상태가 200ms 지속되었을 때
-			// 200(ms) * 1000(ms를 us로 변환) / 500(us) = 400
-			else if (curTime > lineOutStartTime + 400) {
+			// state == 0x00인 상태가 t(ms) 지속되었을 때
+			// t(ms) * 1000(ms를 us로 변환) / 500(us) = 2 * t
+			else if (curTime > lineOutStartTime + 2 * LINE_OUT_DELAY_MS) {
 
 				markState = MARK_LINE_OUT;
 			}

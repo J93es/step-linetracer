@@ -1,0 +1,118 @@
+/*
+ * drive_data_tools.c
+ */
+
+
+#include "header_init.h"
+
+
+void Print_Drive_Data() {
+	uint32_t i = 1;
+	uint16_t markCnt_L = 0;
+	uint16_t markCnt_R = 0;
+
+	// 마크 개수 세기
+	for (i = 1; driveData[i].markState != MARK_NONE; i += 1) {
+
+		// 현재상태가 좌측 곡선인 경우
+		if (driveData[i].markState == MARK_CURVE_L) {
+
+			markCnt_L += 1;
+		}
+
+		// 현재상태가 우측 곡선인 경우
+		else if (driveData[i].markState == MARK_CURVE_R) {
+
+			markCnt_R += 1;
+		}
+
+		// 직선 (인덱스가 1부터 시작하기에 지정되지 않은 메모리에 접근하는 행동을 방지함)
+		else if (driveData[i].markState == MARK_STRAIGHT) {
+
+			// 이전 상태가 좌측 곡선이었을 경우
+			if (driveData[i-1].markState == MARK_CURVE_L) {
+				markCnt_L += 1;
+			}
+			// 이전 상태가 우측 곡선이었을 경우
+			else if (driveData[i-1].markState == MARK_CURVE_R) {
+				markCnt_R += 1;
+			}
+		}
+	}
+
+
+	// OLED에 변수명 변수값 출력
+	Custom_OLED_Clear();
+	Custom_OLED_Printf("/0mark L:   %d", markCnt_L);
+	Custom_OLED_Printf("/1mark R:   %d", markCnt_R);
+	Custom_OLED_Printf("/2cross:    %d", driveData[i-1].crossCnt);
+
+	while (CUSTOM_SW_BOTH != Custom_Switch_Read());
+
+	Custom_OLED_Clear();
+}
+
+
+
+void Save_Drive_Data_Flash() {
+
+	Custom_OLED_Clear();
+
+	if (Custom_FileSystem_Write("drive data", (uint8_t *)driveData, sizeof(driveData)) == CUSTOM_TRUE) {
+		Custom_OLED_Printf("SUCCESS");
+	}
+	else {
+		Custom_OLED_Printf("SAVE FAIL");
+	}
+
+	while (CUSTOM_SW_BOTH != Custom_Switch_Read());
+
+	Custom_OLED_Clear();
+}
+
+
+
+void Read_Drive_Data_Flash() {
+
+	t_driveData driveDataBuffer[MAX_MARKER_CNT];
+
+	FileInfo_t *fileInfo = Custom_FileSystem_Find("drive data");
+
+	Custom_OLED_Clear();
+
+	if (fileInfo != FILEINFO_NULL && Custom_FileSystem_Read(fileInfo, (uint8_t *)driveDataBuffer, sizeof(driveDataBuffer)) == CUSTOM_TRUE) {
+
+		for (uint32_t i = 0; i < MAX_MARKER_CNT;  i++) {
+			driveData[i] = driveDataBuffer[i];
+		}
+		Custom_OLED_Printf("SUCCESS");
+	}
+	else {
+		Custom_OLED_Printf("READ FAIL");
+	}
+
+	while (CUSTOM_SW_BOTH != Custom_Switch_Read());
+
+	Custom_OLED_Clear();
+}
+
+void Delete_Drive_Data_Flash() {
+
+	FileInfo_t *fileInfo = Custom_FileSystem_Find("drive data");
+
+	Custom_OLED_Clear();
+
+	if (fileInfo != FILEINFO_NULL && Custom_FileSystem_Delete(fileInfo) == CUSTOM_TRUE) {
+		Custom_OLED_Printf("SUCCESS");
+	}
+	else {
+		Custom_OLED_Printf("DELETE FAIL");
+	}
+
+	while (CUSTOM_SW_BOTH != Custom_Switch_Read());
+
+	Custom_OLED_Clear();
+}
+
+
+

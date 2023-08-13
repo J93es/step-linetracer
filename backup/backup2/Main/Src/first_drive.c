@@ -71,13 +71,16 @@ __STATIC_INLINE void Set_First_Drive_Data() {
 	if (markState != MARK_CROSS && markState != MARK_END) {
 
 		// 현재마크에서 이동한 tick 값을 현재 인덱스의 구조체에 저장
-		driveDataBufferPtr->tickCnt = curTick - (driveDataBufferPtr-1)->tickCnt;
+		driveDataBufferPtr->tickCnt = curTick - markStartTick;
 
 		// 종료시점에서 크로스를 읽은 총 개수를 저장
 		driveDataBufferPtr->crossCnt = crossCnt;
 
 		// drivePtr 값 인덱스 증가
 		driveDataBufferPtr += 1;
+
+		// markStartTick 업데이트
+		markStartTick = curTick;
 
 		// 증가된 구조체의 인덱스에 markState 저장
 		driveDataBufferPtr->markState = markState;
@@ -99,7 +102,7 @@ __STATIC_INLINE void Set_First_Drive_Data() {
 			if (endMarkCnt >= 2) {
 
 				// 현재마크에서 이동한 tick 값을 현재 인덱스의 구조체에 저장
-				driveDataBufferPtr->tickCnt = curTick - (driveDataBufferPtr-1)->tickCnt;
+				driveDataBufferPtr->tickCnt = curTick - markStartTick;
 
 				// 종료시점에서 크로스를 읽은 총 개수를 저장
 				driveDataBufferPtr->crossCnt = crossCnt;

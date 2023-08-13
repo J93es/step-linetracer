@@ -1,4 +1,0 @@
-../Main/Src/drive_setting.c:87:6:Pre_Drive_Setting	1
-../Main/Src/drive_setting.c:97:13:Pre_Drive_Var_Adjust	12
-../Main/Src/drive_setting.c:185:13:Pre_Drive_Var_Init	5
-../Main/Src/drive_setting.c:256:6:After_Drive_Setting	5
