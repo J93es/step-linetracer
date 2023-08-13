@@ -70,6 +70,9 @@ void Motor_Stop() {
 	LL_TIM_DisableCounter(TIM4);
 
 	Motor_Power_Off();
+
+	curTick_L = 0;
+	curTick_R = 0;
 }
 
 

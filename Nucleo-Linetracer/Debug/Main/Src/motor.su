@@ -6,5 +6,5 @@
 ../Main/Src/motor.c:34:6:Motor_Power_Off	8	static
 ../Main/Src/motor.c:51:6:Motor_Start	8	static
 ../Main/Src/motor.c:63:6:Motor_Stop	8	static
-../Main/Src/motor.c:78:6:Speed_Control_Start	8	static
-../Main/Src/motor.c:86:6:Speed_Control_Stop	8	static
+../Main/Src/motor.c:81:6:Speed_Control_Start	8	static
+../Main/Src/motor.c:89:6:Speed_Control_Stop	8	static

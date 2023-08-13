@@ -5,20 +5,23 @@
 #include "header_init.h"
 
 
+volatile uint16_t	adcValue;
 
-
-volatile uint8_t	sensorRawVals[8] = { 0, };
+volatile uint8_t	sensorRawVals[8];
+volatile uint8_t	midian[3];
 
 volatile uint8_t	sensorNormVals[8] = { 0, };
-volatile uint8_t	normalizeCoef[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
-volatile uint8_t	whiteMaxs[8] = { 255, 255, 255, 255, 255, 255, 255, 255 };
-volatile uint8_t	blackMaxs[8] = { 0, };
+volatile uint8_t	normalizeCoef[8];
+volatile uint8_t	whiteMaxs[8];
+volatile uint8_t	blackMaxs[8];
 
 volatile uint8_t	state = 0x00;
 volatile uint32_t	threshold = THRESHOLD_INIT;
 
 volatile uint8_t	sensorReadIdx = 0;
 volatile uint8_t	sensorReadIdxTable[8] = { 3, 4, 2, 5, 1, 6, 0, 7 };
+
+volatile int32_t	positionTable[8] = { -1400, -1000, -600, -200, 200, 600, 1000, 1400 };
 
 
 

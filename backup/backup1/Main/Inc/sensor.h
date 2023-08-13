@@ -10,7 +10,7 @@
 #include "drive_def_var.h"
 
 
-#define SWAP(a, b)				({ a ^= b; b ^= a; a ^= b; })
+#define SWAP(a, b)				{ a ^= b; b ^= a; a ^= b; }
 
 
 #define	THRESHOLD_MAX 			125

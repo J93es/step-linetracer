@@ -51,7 +51,7 @@
 
 
 // 커브에서 어느 정도 감속할지 결정하는 매크로
-#define CURVE_DECEL_COEF_INIT		5000.f
+#define CURVE_DECEL_COEF_INIT		4000.f
 
 
 // POSITION_COEF(포지션 상수)를 도출하기 위한 매크로
@@ -109,14 +109,14 @@
 #define ACCELE_START_TICK			( 0.1f * TICK_PER_M )
 
 // 최소 몇 tick 동안 부스트할지를 저장한 매크로
-#define MIN_BOOST_TICK				( 0.5f * TICK_PER_M )
+#define MIN_BOOST_TICK				( 0.4f * TICK_PER_M )
 
 // 감속 안전거리
 #define DECELE_END_TICK				( 0.2f * TICK_PER_M )
 
 
 // 라인 아웃 일 때 몇 초 딜레이 할지
-#define LINE_OUT_DELAY_MS			0//200
+#define LINE_OUT_DELAY_MS			100//200
 
 
 
@@ -127,7 +127,7 @@
 
 // 주행이 종료되었을 때 모터 종료 딜레이
 #define DRIVE_END_DELAY_SPEED		0.3f
-#define DRIVE_END_DELAY_TIME_MS		150
+#define DRIVE_END_DELAY_TIME_MS		100//200
 
 
 // exitEcho 관련 매크로
@@ -200,8 +200,6 @@ extern volatile uint8_t		markState;
 
 
 // 현재 모터에 몇번 상이 잡혔는지를 카운트하는 변수
-extern volatile uint32_t	curTick_L;
-extern volatile uint32_t	curTick_R;
 extern volatile uint32_t	curTick;
 
 
@@ -229,6 +227,10 @@ extern volatile uint8_t		driveState;
 
 // 주행 컨트롤 변수
 extern volatile uint8_t		boostCntl;
+
+
+// 현재 마크가 시작된 tick
+extern volatile uint32_t	markStartTick;
 
 
 // 현재까지 읽은 크로스 개수

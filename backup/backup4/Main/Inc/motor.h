@@ -19,6 +19,7 @@
 extern volatile Custom_GPIO_t	motorL[4];
 extern volatile Custom_GPIO_t	motorR[4];
 
+//extern volatile uint8_t	phases[4];
 extern volatile uint8_t	phases[8];
 
 
@@ -40,6 +41,16 @@ void	Speed_Control_Stop();
 __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 	static uint8_t phaseL  = 0;
 
+	/*
+	// motorL phase 잡기
+	Custom_GPIO_Set_t(motorL + 0, (phases[3 - phaseL] >> 0) & 0x01);
+	Custom_GPIO_Set_t(motorL + 1, (phases[3 - phaseL] >> 1) & 0x01);
+	Custom_GPIO_Set_t(motorL + 2, (phases[3 - phaseL] >> 2) & 0x01);
+	Custom_GPIO_Set_t(motorL + 3, (phases[3 - phaseL] >> 3) & 0x01);
+
+	phaseL = (phaseL + 1) & 0x03;
+	*/
+
 
 	// motorL phase 잡기
 	Custom_GPIO_Set_t(motorL + 0, (phases[7 - phaseL] >> 0) & 0x01);
@@ -51,7 +62,7 @@ __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 
 
 	// tick 값 증가
-	curTick++;
+	curTick_L += 1;
 }
 
 
@@ -68,7 +79,13 @@ __STATIC_INLINE void	Motor_R_TIM4_IRQ() {
 	Custom_GPIO_Set_t(motorR + 2, (phases[phaseR] >> 2) & 0x01);
 	Custom_GPIO_Set_t(motorR + 3, (phases[phaseR] >> 3) & 0x01);
 
+	//phaseR = (phaseR + 1) & 0x03;
+
 	phaseR = (phaseR + 1) & 0x07;
+
+
+	// tick 값 증가
+	curTick_R += 1;
 }
 
 

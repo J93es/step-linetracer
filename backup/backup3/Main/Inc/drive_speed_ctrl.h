@@ -63,6 +63,12 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 	//position 값에 따른 좌우 모터 속도 조정
 	Motor_L_Speed_Control( finalSpeed * (1 + positionVal * positionCoef) );
 	Motor_R_Speed_Control( finalSpeed * (1 - positionVal * positionCoef) );
+
+	// lineOut 판단 시간 업데이트
+	if (driveState == DRIVE_DECISION_LINE_OUT) {
+
+		curTime++;
+	}
 }
 
 

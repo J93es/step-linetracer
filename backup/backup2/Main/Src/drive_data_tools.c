@@ -10,6 +10,7 @@ void Print_Drive_Data() {
 	uint32_t i = 1;
 	uint16_t markCnt_L = 0;
 	uint16_t markCnt_R = 0;
+	uint16_t crossCnt = 0;
 
 	// 마크 개수 세기
 	for (i = 1; driveData[i].markState != MARK_NONE; i += 1) {
@@ -40,12 +41,16 @@ void Print_Drive_Data() {
 		}
 	}
 
+	for (i = 0; crossCntTable[i] != 0 && i < MAX_CROSS_CNT; i++) {
+		crossCnt++;
+	}
+
 
 	// OLED에 변수명 변수값 출력
 	Custom_OLED_Clear();
 	Custom_OLED_Printf("/0mark L:   %d", markCnt_L);
 	Custom_OLED_Printf("/1mark R:   %d", markCnt_R);
-	Custom_OLED_Printf("/2cross:    %d", driveData[i-1].crossCnt);
+	Custom_OLED_Printf("/2cross:    %d", crossCnt);
 
 	while (CUSTOM_SW_BOTH != Custom_Switch_Read());
 
@@ -53,7 +58,7 @@ void Print_Drive_Data() {
 }
 
 
-
+/*
 void Save_Drive_Data_Flash() {
 
 	Custom_OLED_Clear();
@@ -74,7 +79,7 @@ void Save_Drive_Data_Flash() {
 
 void Read_Drive_Data_Flash() {
 
-	t_driveData driveDataBuffer[MAX_MARKER_CNT];
+	t_driveData driveDataBuffer[MAX_DRIVE_DATA_LEN];
 
 	FileInfo_t *fileInfo = Custom_FileSystem_Find("drive data");
 
@@ -82,7 +87,7 @@ void Read_Drive_Data_Flash() {
 
 	if (fileInfo != FILEINFO_NULL && Custom_FileSystem_Read(fileInfo, (uint8_t *)driveDataBuffer, sizeof(driveDataBuffer)) == CUSTOM_TRUE) {
 
-		for (uint32_t i = 0; i < MAX_MARKER_CNT;  i++) {
+		for (uint32_t i = 0; i < MAX_DRIVE_DATA_LEN;  i++) {
 			driveData[i] = driveDataBuffer[i];
 		}
 		Custom_OLED_Printf("SUCCESS");
@@ -113,6 +118,7 @@ void Delete_Drive_Data_Flash() {
 
 	Custom_OLED_Clear();
 }
+*/
 
 
 

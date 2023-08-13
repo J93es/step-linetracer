@@ -156,7 +156,7 @@ __STATIC_INLINE void	Drive_State_Machine() {
 			}
 
 			// state == 0x00인 상태가 t(ms) 지속되었을 때
-			else if (lineOutTime > lineOutStartTime + 2 * LINE_OUT_DELAY_MS) {
+			else if (lineOutTime > lineOutStartTime + 2 * LINE_OUT_DELAY_500US) {
 
 				markState = MARK_LINE_OUT;
 			}

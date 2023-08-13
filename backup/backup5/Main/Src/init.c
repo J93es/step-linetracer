@@ -61,7 +61,6 @@ void Init() {
 	t_menuData menus[] = {
 			{ "Calibration    ", Sensor_Calibration },
 			{ "First Drive    ", First_Drive },
-			{ "First Data     ", Drive_Test_First_Data},
 			{ "Second Drive   ", Second_Drive },
 			{ "Test Raw       ", Sensor_Test_Raw },
 			{ "Test Normalized", Sensor_Test_Normalized },
@@ -69,6 +68,7 @@ void Init() {
 			{ "Test Phase     ", Motor_Test_Phase },
 			{ "Test Velocity  ", Motor_Test_Velocity },
 			{ "Test Position  ", Drive_Test_Position },
+			{ "Drive Data     ", Drive_Test_Data},
 	};
 
 	uint8_t sw = 0;

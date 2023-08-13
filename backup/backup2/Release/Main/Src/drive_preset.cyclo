@@ -1,3 +1,5 @@
-../Main/Src/drive_preset.c:98:6:Pre_Drive_Setting	1
-../Main/Src/drive_preset.c:108:13:Pre_Drive_Var_Adjust	14
-../Main/Src/drive_preset.c:207:13:Pre_Drive_Var_Init	4
+../Main/Src/drive_preset.c:138:6:Pre_Drive_Setting	1
+../Main/Src/drive_preset.c:148:13:Pre_Drive_Var_Adjust	11
+../Main/Src/drive_preset.c:247:13:Pre_Drive_Var_Init	5
+../Main/Src/drive_preset.c:328:6:Drive_Read_Mark	1
+../Main/Src/drive_preset.c:395:6:Drive_Last_Spurt	1

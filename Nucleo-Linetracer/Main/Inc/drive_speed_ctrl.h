@@ -12,7 +12,6 @@
 #include "drive_def_var.h"
 #include "init.h"
 #include "main.h"
-#include "drive_position.h"
 #include "custom_delay.h"
 
 
@@ -37,11 +36,13 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 	float	finalSpeed;
 
 
+
+
 	// 가속도 및 속도 제어
 	if (curSpeed <= targetSpeed) {
 
 		// 가속도 제어
-		curAccele += 0.003f;
+		curAccele += 0.03f;
 
 		if (curAccele > targetAccele) {
 
@@ -59,7 +60,9 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 			curAccele = 0;
 		}
 	}
-	else if (curSpeed > targetSpeed) {
+
+	// curSpeed > targetSpeed 일 경우
+	else {
 
 		// 속도 제어
 		curSpeed -= decele / 2000;
@@ -74,11 +77,36 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 	}
 
 
-	// positionVal 값 업데이트
-	Update_Position_Val();
+
+
+	/*
+	 * limitedPositionVal 값 업데이트
+	 */
+
+	// 곡선에 진입을 시작했을 때 빠르게 curve decel을 해줌
+	if (limitedPositionVal < absPositionVal) {
+
+		limitedPositionVal += 2;
+		if (limitedPositionVal > absPositionVal) {
+			limitedPositionVal = absPositionVal;
+		}
+	}
+	// 곡선에서 벗어날 때 천천히 속도를 올려줌
+	else {
+
+		limitedPositionVal -= 1;
+		if (limitedPositionVal < absPositionVal) {
+			limitedPositionVal = absPositionVal;
+		}
+	}
+
+
+
 
 	// 포지션 값에 따른 감속
 	finalSpeed = curSpeed * curveDecelCoef / (limitedPositionVal + curveDecelCoef);
+
+
 
 	//position 값에 따른 좌우 모터 속도 조정
 	Motor_L_Speed_Control( finalSpeed * (1 + positionVal * positionCoef) );
@@ -121,6 +149,8 @@ __STATIC_INLINE uint8_t	Is_Drive_End(uint8_t exitEcho) {
 		if (endMarkCnt >= 2) {
 
 			exitEcho = EXIT_ECHO_END_MARK;
+
+			optimizeLevel += 1;
 		}
 		else {
 

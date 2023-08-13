@@ -1,11 +1,8 @@
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1446:22:LL_TIM_SetAutoReload	1
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:19:25:Window_Position_Val	4
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:116:22:Update_Limited_Position_Val	4
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:140:22:Update_Position_Val	2
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:20:22:Custom_Delay_us	2
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:28:22:Custom_Delay_ms	1
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:22:22:Motor_L_Speed_Control	1
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:27:22:Motor_R_Speed_Control	1
+/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:21:22:Motor_L_Speed_Control	1
+/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:26:22:Motor_R_Speed_Control	1
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/External Library/Inc/custom_gpio.h:54:20:Custom_GPIO_Set_t	2
 ../Main/Src/linetracer_test.c:13:6:Sensor_Test_Raw	2
 ../Main/Src/linetracer_test.c:35:6:Sensor_Test_Normalized	2
@@ -13,5 +10,5 @@
 ../Main/Src/linetracer_test.c:99:6:Motor_Test_Phase	4
 ../Main/Src/linetracer_test.c:166:6:Motor_Test_Velocity	4
 ../Main/Src/linetracer_test.c:205:6:Drive_Test_Position	2
-../Main/Src/linetracer_test.c:227:6:Drive_Test_Info_Oled	1
-../Main/Src/linetracer_test.c:232:6:Current_Setting	3
+../Main/Src/linetracer_test.c:226:6:Drive_Test_Info_Oled	1
+../Main/Src/linetracer_test.c:231:6:Current_Setting	3
