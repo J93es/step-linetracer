@@ -8,6 +8,7 @@
 
 void Print_Drive_Data() {
 	uint32_t i = 1;
+	uint8_t sw = 0;
 	uint16_t markCnt_L = 0;
 	uint16_t markCnt_R = 0;
 	uint16_t crossCnt = 0;
@@ -53,6 +54,52 @@ void Print_Drive_Data() {
 	Custom_OLED_Printf("/2cross:    %d", crossCnt);
 
 	while (CUSTOM_SW_BOTH != Custom_Switch_Read());
+
+
+
+	Custom_OLED_Clear();
+
+	i = 1;
+
+	while(CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
+
+		if (driveData[i].markState == MARK_CURVE_L) {
+
+			Custom_OLED_Printf("/0mark L");
+		}
+		else if (driveData[i].markState == MARK_CURVE_R) {
+
+			Custom_OLED_Printf("/0mark R");
+		}
+		else if (driveData[i].markState == MARK_STRAIGHT) {
+
+			// 이전 상태가 좌측 곡선이었을 경우
+			if (driveData[i-1].markState == MARK_CURVE_L) {
+				Custom_OLED_Printf("/0mark L");
+			}
+			// 이전 상태가 우측 곡선이었을 경우
+			else if (driveData[i-1].markState == MARK_CURVE_R) {
+				Custom_OLED_Printf("/0mark R");
+			}
+		}
+
+		Custom_OLED_Printf("/1L: %9u", driveData[i].tickCnt_L);
+		Custom_OLED_Printf("/2R: %9u", driveData[i].tickCnt_R);
+		Custom_OLED_Printf("/3C: %5u", driveData[i].crossCnt);
+
+		if (sw == CUSTOM_SW_1) {
+
+			i -= 1;
+		}
+		else if (sw == CUSTOM_SW_2) {
+
+			i += 1;
+		}
+
+		if (driveData[i].markState == MARK_NONE) {
+			break ;
+		}
+	}
 
 	Custom_OLED_Clear();
 }

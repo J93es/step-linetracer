@@ -11,9 +11,12 @@
 
 
 
-void	Pre_Drive_Setting(uint8_t driveIdx);
+void	Pre_Drive_Setting();
 void	Drive_Last_Spurt();
 void	Drive_Read_Mark();
+
+
+void	Time_Attack_Setting();
 
 
 typedef struct	s_driveMenu_Float {
@@ -25,8 +28,8 @@ typedef struct	s_driveMenu_Float {
 
 typedef struct	s_driveMenu_Int {
 		volatile char		valName[MAX_OLED_LEN];
-		volatile uint32_t	*val;
-		volatile uint32_t	changeVal;
+		volatile uint8_t	*val;
+		volatile uint8_t	changeVal;
 }				t_driveMenu_Int;
 
 #endif

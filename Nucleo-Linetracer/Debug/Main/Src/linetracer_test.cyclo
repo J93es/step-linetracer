@@ -10,5 +10,5 @@
 ../Main/Src/linetracer_test.c:99:6:Motor_Test_Phase	4
 ../Main/Src/linetracer_test.c:166:6:Motor_Test_Velocity	4
 ../Main/Src/linetracer_test.c:205:6:Drive_Test_Position	2
-../Main/Src/linetracer_test.c:239:6:Drive_Test_Info_Oled	1
-../Main/Src/linetracer_test.c:245:6:Current_Setting	3
+../Main/Src/linetracer_test.c:238:6:Drive_Test_Info_Oled	1
+../Main/Src/linetracer_test.c:244:6:Current_Setting	3

@@ -117,7 +117,20 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
 			// 마크 복구
 			if (isReadAllMark == CUSTOM_FALSE) {
 
-				driveDataIdx = crossCntTable[crossCnt] - 1;
+				// crossCntTable의 crossCnt 번째의 인덱스가 비어있지 않음 경우
+				if (crossCntTable[crossCnt] != 0) {
+
+					/*
+					 *    n번째 크로스(crossCnt)		0		1		...		50
+					 *    m번째 마크(driveDataIdx)		4(3)	6(5)	...		98
+					 *
+					 *    (0번째 마크에서 크로스를 읽었을 때 1번째 마크로 저장되도록 함, 0은 값이 없는 상태를 나타냄)
+					 */
+					driveDataIdx = crossCntTable[crossCnt] - 1;
+
+					// isReadAllMark update
+					isReadAllMark = CUSTOM_TRUE;
+				}
 			}
 
 			crossCnt += 1;
@@ -198,7 +211,7 @@ __STATIC_INLINE void Second_Drive_Boost() {
 
 						boostCntl = BOOST_CNTL_IDLE;
 
-						// 부스트중 차체가 떳을 때 크로스를 못읽는 경우를 방지함
+						// 부스트 중 차체가 떳을 때 크로스를 못읽는 경우를 방지함
 						crossCnt = driveData[driveDataIdx].crossCnt;
 
 					}

@@ -10,6 +10,7 @@
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:118:22:Make_Sensor_State	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/sensor.h:134:22:Sensor_TIM5_IRQ	8	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:19:25:Window_Position_Val	24	static
+/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:116:22:Update_Limited_Position_Val	4	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_position.h:140:22:Update_Position_Val	8	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:22:22:Motor_L_Speed_Control	16	static
 /Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:27:22:Motor_R_Speed_Control	16	static

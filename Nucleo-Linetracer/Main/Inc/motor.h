@@ -29,6 +29,8 @@ extern volatile Custom_GPIO_t	motorR[4];
 
 extern volatile uint8_t			phaseL_table[8];
 extern volatile uint8_t			phaseR_table[8];
+//extern volatile uint8_t			phaseL_table[4];
+//extern volatile uint8_t			phaseR_table[4];
 
 extern volatile uint8_t			phaseL;
 extern volatile uint8_t			phaseR;

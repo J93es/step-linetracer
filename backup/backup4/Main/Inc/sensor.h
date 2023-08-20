@@ -94,18 +94,19 @@ __STATIC_INLINE void		Make_Sensor_Raw_Vals(uint8_t idx) {
 // normalized value 계산
 __STATIC_INLINE void		Make_Sensor_Norm_Vals(uint8_t idx) {
 
+	/*
 	if (sensorRawVals[idx] < blackMaxs[idx])
 		sensorNormVals[idx] = 0;
 	else if (sensorRawVals[idx] > whiteMaxs[idx])
 		sensorNormVals[idx] = 255;
 	else
 		sensorNormVals[idx] = (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]);
+	*/
 
-		/*
 	sensorNormVals[idx] = ( (255 * (sensorRawVals[idx] - blackMaxs[idx]) / normalizeCoef[idx]) \
 		& ( (sensorRawVals[idx] < blackMaxs[idx]) - 0x01) ) \
 		| ((sensorRawVals[idx] < whiteMaxs[idx]) - 0x01);
-		*/
+
 
 }
 
@@ -142,15 +143,6 @@ __STATIC_INLINE void		Sensor_TIM5_IRQ() {
 	Make_Sensor_State(sensorReadIdxTable[sensorReadIdx]);
 
 	sensorReadIdx = (sensorReadIdx + 1) & 0x07;
-
-	// curTick 업데이트
-	curTick = (curTick_L + curTick_R) >> 2;
-
-	// lineOut 판단 시간 업데이트
-	if (driveState == DRIVE_DECISION_LINE_OUT) {
-
-		curTime++;
-	}
 }
 
 

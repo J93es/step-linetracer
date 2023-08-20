@@ -57,13 +57,11 @@
 #include "custom_gpio.h"
 
 #include "starfont.h"
-
 #define FONT		STARFONT_ASCII
 #define FONT_WIDTH	STARFONT_ASCII_WIDTH
 #define FONT_HEIGHT	STARFONT_ASCII_HEIGHT
 
 #include "custom_oled.h"
-
 #define OLED_BUFFER_SIZE 	512
 #define OLED_SPI			SPI2
 #define OLED_WIDTH			96
@@ -109,9 +107,9 @@ enum OLED_Commands {
  * @param length 보낼 명령어들의 총 길이
  */
 static inline void Custom_OLED_SPI_Tramsnit_Blocking(const uint8_t data) {
-	while (!LL_SPI_IsActiveFlag_TXE(OLED_SPI)) ;
+	while (!LL_SPI_IsActiveFlag_TXE(OLED_SPI));
 	LL_SPI_TransmitData8(OLED_SPI, data);
-	while (LL_SPI_IsActiveFlag_TXE(OLED_SPI)) ;
+	while (LL_SPI_IsActiveFlag_BSY(OLED_SPI));
 }
 
 /**

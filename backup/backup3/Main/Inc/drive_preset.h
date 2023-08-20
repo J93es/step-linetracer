@@ -12,8 +12,8 @@
 
 
 void	Pre_Drive_Setting(uint8_t driveIdx);
-
-
+void	Drive_Last_Spurt();
+void	Drive_Read_Mark();
 
 
 typedef struct	s_driveMenu_Float {

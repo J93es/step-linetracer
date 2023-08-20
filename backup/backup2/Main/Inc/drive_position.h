@@ -113,25 +113,25 @@ __STATIC_INLINE int32_t	Window_Position_Val() {
 
 
 
-//__STATIC_INLINE void	Update_Limited_Position_Val() {
-//
-//	// 곡선에 진입을 시작했을 때 빠르게 curve decel을 해줌
-//	if (limitedPositionVal < absPositionVal) {
-//
-//		limitedPositionVal += 2;
-//		if (limitedPositionVal > absPositionVal) {
-//			limitedPositionVal = absPositionVal;
-//		}
-//	}
-//	// 곡선에서 벗어날 때 천천히 속도를 올려줌
-//	else {
-//
-//		limitedPositionVal -= 1;
-//		if (limitedPositionVal < absPositionVal) {
-//			limitedPositionVal = absPositionVal;
-//		}
-//	}
-//}
+__STATIC_INLINE void	Update_Limited_Position_Val() {
+
+	// 곡선에 진입을 시작했을 때 빠르게 curve decel을 해줌
+	if (limitedPositionVal < absPositionVal) {
+
+		limitedPositionVal += 2;
+		if (limitedPositionVal > absPositionVal) {
+			limitedPositionVal = absPositionVal;
+		}
+	}
+	// 곡선에서 벗어날 때 천천히 속도를 올려줌
+	else {
+
+		limitedPositionVal -= 1;
+		if (limitedPositionVal < absPositionVal) {
+			limitedPositionVal = absPositionVal;
+		}
+	}
+}
 
 
 
@@ -144,7 +144,7 @@ __STATIC_INLINE void	Update_Position_Val() {
 
 	absPositionVal = ABS(positionVal);
 
-	//Update_Limited_Position_Val();
+	Update_Limited_Position_Val();
 }
 
 #endif

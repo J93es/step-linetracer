@@ -19,9 +19,10 @@
 #define	THRESHOLD_INIT			70
 
 
-
+extern volatile uint16_t	adcValue;
 
 extern volatile uint8_t		sensorRawVals[8];
+extern volatile uint8_t		midian[3];
 
 extern volatile uint8_t		sensorNormVals[8];
 extern volatile uint8_t		normalizeCoef[8];
@@ -33,6 +34,9 @@ extern volatile uint32_t	threshold;
 
 extern volatile uint8_t		sensorReadIdx;
 extern volatile uint8_t		sensorReadIdxTable[8];
+
+extern volatile int32_t	positionTable[8];
+
 
 
 
@@ -46,7 +50,6 @@ void	Sensor_Calibration();
 
 
 __STATIC_INLINE uint16_t	Sensor_ADC_Read() {
-	uint16_t	adcValue = 0;
 	__disable_irq();
 	LL_ADC_ClearFlag_EOCS(ADC1);
 	LL_ADC_REG_StartConversionSWStart(ADC1);
@@ -60,7 +63,6 @@ __STATIC_INLINE uint16_t	Sensor_ADC_Read() {
 
 // rawValue 계산
 __STATIC_INLINE void	Make_Sensor_Raw_Vals(uint8_t idx) {
-	uint8_t	midian[3];
 
 	GPIOC->ODR = (GPIOC->ODR & ~0x07) | (idx) | 0x08;
 	// ADC 읽기
@@ -91,7 +93,6 @@ __STATIC_INLINE void	Make_Sensor_Raw_Vals(uint8_t idx) {
 
 // normalized value 계산
 __STATIC_INLINE void	Make_Sensor_Norm_Vals(uint8_t idx) {
-
 
 	if (sensorRawVals[idx] < blackMaxs[idx])
 		sensorNormVals[idx] = 0;
@@ -127,6 +128,49 @@ __STATIC_INLINE void	Make_Sensor_State(uint8_t idx) {
 }
 
 
+__STATIC_INLINE void	Make_Position_Val(uint8_t idx) {
+
+	if (idx < 7) {
+
+		if (positionIdxMin <= idx && idx <= positionIdxMax) {
+
+			positionSum += positionTable[idx] * sensorNormVals[idx];
+			sensorNormValsSum += sensorNormVals[idx];
+		}
+	}
+
+	// sensorReadIdx == 7
+	else {
+
+		positionVal = positionSum / (sensorNormValsSum + 1);
+
+		absPositionVal = ABS(positionVal);
+
+		positionSum = 0;
+		sensorNormValsSum = 0;
+
+
+		positionIdxMax = 5;
+		positionIdxMin = 2;
+
+		// positionVal이 -2000보다 작거나 2000 보다 클 때
+		if (absPositionVal > positionTable[4]) {
+
+			// positionVal이 -2000보다 작을 때
+			if (positionVal < 0) {
+				positionIdxMax = 4;
+				positionIdxMin = 1;
+			}
+			// positionVal이 2000보다 클 때
+			else {
+				positionIdxMax = 6;
+				positionIdxMin = 3;
+			}
+		}
+	}
+}
+
+
 
 
 
@@ -139,11 +183,56 @@ __STATIC_INLINE void	Sensor_TIM5_IRQ() {
 
 	Make_Sensor_State(sensorReadIdxTable[sensorReadIdx]);
 
+	Make_Position_Val(sensorReadIdx);
+
 	sensorReadIdx = (sensorReadIdx + 1) & 0x07;
 }
 
-
-
+//// 이전 주기에서 읽은 센서 위치에서 4개만 선별
+//__STATIC_INLINE int32_t	Window_Position_Val() {
+//	uint8_t	positionIdxMax = 5;
+//	uint8_t	positionIdxMin = 2;
+//
+//	int32_t	sensorNormVal = 0;
+//	int32_t	positionSum = 0;
+//	int32_t	sensorNormValsSum = 1;
+//
+//
+//	positionIdxMax = 5;
+//	positionIdxMin = 2;
+//
+//	// positionVal이 -2000보다 작거나 2000 보다 클 때
+//	if (absPositionVal > positionTable[4]) {
+//
+//		// positionVal이 -2000보다 작을 때
+//		if (positionVal < 0) {
+//			positionIdxMax = 4;
+//			positionIdxMin = 1;
+//		}
+//		// positionVal이 2000보다 클 때
+//		else {
+//			positionIdxMax = 6;
+//			positionIdxMin = 3;
+//		}
+//	}
+//
+//	do {
+//
+//		// 중간에 센서 인터럽트가 있다면 값이 바뀔 수 있음으로 별도의 변수에 저장
+//		sensorNormVal = sensorNormVals[positionIdxMin];
+//
+//		positionSum += positionTable[positionIdxMin] * sensorNormVal;
+//		sensorNormValsSum += sensorNormVal;
+//
+//		positionIdxMin++;
+//
+//	} while (positionIdxMin < positionIdxMax + 1);
+//
+//
+//	// positionValBuffer 값 return
+//	//divide by zero 방지하기 위해 sensorNormValsSum + 1로 나눔
+//	return positionSum / sensorNormValsSum;
+//}
 
 
 

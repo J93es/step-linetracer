@@ -19,14 +19,19 @@ void First_Drive() {
 
 	uint8_t exitEcho = EXIT_ECHO_IDLE;
 
+	uint32_t startTime = 0;
+	uint32_t endTime = 0;
+
 	Custom_OLED_Clear();
 
 	//주행 전 변수값 초기화
-	Pre_Drive_Setting(FIRST_DRIVE);
+	Pre_Drive_Setting();
 
 	Sensor_Start();
 	Motor_Start();
 	Speed_Control_Start();
+
+	startTime = uwTick;
 
 	while (1) {
 
@@ -38,6 +43,7 @@ void First_Drive() {
 		//Drive_Speed_Cntl();
 		if ( EXIT_ECHO_IDLE != (exitEcho = Is_Drive_End(exitEcho)) ) {
 
+			endTime = uwTick;
 			break;
 		}
 	}
@@ -48,6 +54,8 @@ void First_Drive() {
 
 
 	First_Drive_Data_Cntl(exitEcho);
+
+	Custom_OLED_Printf("%u", endTime - startTime);
 }
 
 
@@ -58,6 +66,7 @@ void First_Drive() {
 __STATIC_INLINE void First_Drive_Ctrl() {
 
 	if (markState == MARK_LINE_OUT) {
+
 		return ;
 	}
 
@@ -147,7 +156,7 @@ static void First_Drive_Data_Cntl(uint8_t exitEcho) {
 	if (exitEcho == EXIT_ECHO_END_MARK) {
 
 		// 마크 개수 세기
-		for (i = 1; driveDataBuffer[i].markState != MARK_NONE; i += 1) {
+		for (i = 1; driveDataBuffer[i].markState != MARK_NONE && i < MAX_DRIVE_DATA_LEN; i++) {
 
 			// 현재상태가 좌측 곡선인 경우
 			if (driveDataBuffer[i].markState == MARK_CURVE_L) {
@@ -235,12 +244,247 @@ static void First_Drive_Data_Update_Cntl(uint8_t exitEcho) {
 			driveData[i].tickCnt_L = driveDataBuffer[i].tickCnt_L;
 			driveData[i].tickCnt_R = driveDataBuffer[i].tickCnt_R;
 			driveData[i].markState = driveDataBuffer[i].markState;
+			driveData[i].crossCnt = driveDataBuffer[i].crossCnt;
 		}
 
 		for (uint32_t i = 0; i < MAX_CROSS_CNT; i++) {
 
 			crossCntTable[i] = crossCntTableBuffer[i];
 		}
+	}
+}
+
+
+
+
+
+
+void Drive_Time_Attack_Get_Data() {
+
+	Custom_OLED_Clear();
+
+	//주행 전 변수값 초기화
+	Time_Attack_Setting();
+
+	Sensor_Start();
+	Motor_Start();
+	Speed_Control_Start();
+
+	while (1) {
+
+		//Drive_Test_Info_Oled();
+
+		Drive_State_Machine();
+		First_Drive_Ctrl();
+
+		//Drive_Speed_Cntl();
+		if (endMarkCnt >= 2 || markState == MARK_LINE_OUT) {
+
+			Custom_OLED_Printf("/0%u", curTick_L);
+
+			Drive_Fit_In(pitInLen, PIT_IN_TARGET_SPEED);
+
+			while (curSpeed > DRIVE_END_DELAY_SPEED) {
+				//Drive_Speed_Cntl();
+			}
+
+			break;
+		}
+	}
+
+	Motor_Stop();
+	Speed_Control_Stop();
+	Sensor_Stop();
+
+	while (CUSTOM_SW_BOTH != Custom_Switch_Read()) ;
+
+	Custom_OLED_Clear();
+}
+
+
+
+
+
+void Drive_Time_Attack() {
+	uint8_t	sw = 0;
+	uint8_t exitEcho = EXIT_ECHO_IDLE;
+	int32_t targetTick = 0;
+	int32_t targetMs = 0;
+	int32_t pitInMs = 0;
+
+
+	//주행 전 변수값 초기화
+	Time_Attack_Setting();
+
+
+
+	for (int i = 9;  i > 0; i--) {
+
+
+		while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
+
+			Custom_OLED_Printf("/0target tick");
+
+			// n 번째 자리수인지 출력
+			Custom_OLED_Printf("/1%d", i);
+
+			// OLED에 변수값 출력
+			Custom_OLED_Printf("/2%d", targetTick);
+
+
+			// 변수 값 빼기
+			if (sw == CUSTOM_SW_1) {
+				targetTick -= 1;
+			}
+			// 변수값 더하기
+			else if (sw == CUSTOM_SW_2) {
+				targetTick += 1;
+			}
+		}
+
+		targetTick = 10 * targetTick;
+	}
+
+	Custom_OLED_Clear();
+
+
+
+
+	for (int i = 5;  i > 0; i--) {
+
+		while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
+
+			Custom_OLED_Printf("/0target ms");
+
+			// n 번째 자리수인지 출력
+			Custom_OLED_Printf("/1%d", i);
+
+			// OLED에 변수값 출력
+			Custom_OLED_Printf("/2%d", targetMs);
+
+
+			// 변수 값 빼기
+			if (sw == CUSTOM_SW_1) {
+				targetMs -= 1;
+			}
+			// 변수값 더하기
+			else if (sw == CUSTOM_SW_2) {
+				targetMs += 1;
+			}
+		}
+
+		targetMs = 10 * targetMs;
+	}
+
+
+	Custom_OLED_Clear();
+
+
+
+
+	for (int i = 5;  i > 0; i--) {
+
+		while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
+
+			Custom_OLED_Printf("/0pit in ms");
+
+			// n 번째 자리수인지 출력
+			Custom_OLED_Printf("/1%d", i);
+
+			// OLED에 변수값 출력
+			Custom_OLED_Printf("/2%d", pitInMs);
+
+
+			// 변수 값 빼기
+			if (sw == CUSTOM_SW_1) {
+				pitInMs -= 1;
+			}
+			// 변수값 더하기
+			else if (sw == CUSTOM_SW_2) {
+				pitInMs += 1;
+			}
+		}
+		pitInMs = 10 * pitInMs;
+	}
+
+
+
+
+
+
+
+	Custom_OLED_Clear();
+
+	Sensor_Start();
+	Motor_Start();
+	Speed_Control_Start();
+
+	while (1) {
+
+		//Drive_Test_Info_Oled();
+
+		Drive_State_Machine();
+		First_Drive_Ctrl();
+
+		//Drive_Speed_Cntl();
+		if ( curTick_L > targetTick - 0.5 * TICK_PER_M || endMarkCnt >= 2 || markState == MARK_LINE_OUT ) {
+
+			if (endMarkCnt >= 2 || markState == MARK_LINE_OUT) {
+
+				exitEcho = ~EXIT_ECHO_IDLE;
+			}
+
+			Drive_Fit_In(pitInLen, PIT_IN_TARGET_SPEED);
+
+			while (curSpeed > DRIVE_END_DELAY_SPEED) {
+				//Drive_Speed_Cntl();
+			}
+
+			break;
+		}
+	}
+
+	Motor_Stop();
+	Speed_Control_Stop();
+
+
+
+
+	if (exitEcho == EXIT_ECHO_IDLE) {
+
+		while (uwTick < targetMs - pitInMs) ;
+
+		targetSpeed = 1.5f;
+
+
+		Motor_Start();
+		Speed_Control_Start();
+
+		while (1) {
+
+			//Drive_Test_Info_Oled();
+
+			Drive_State_Machine();
+			First_Drive_Ctrl();
+
+			//Drive_Speed_Cntl();
+			if ( endMarkCnt >= 2 || markState == MARK_LINE_OUT ) {
+
+				Drive_Fit_In(pitInLen, PIT_IN_TARGET_SPEED);
+
+				while (curSpeed > DRIVE_END_DELAY_SPEED) {
+					//Drive_Speed_Cntl();
+				}
+
+				break;
+			}
+		}
+
+		Motor_Stop();
+		Speed_Control_Stop();
+		Sensor_Stop();
+
+		Custom_OLED_Clear();
 	}
 }
 

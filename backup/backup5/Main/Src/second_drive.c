@@ -9,13 +9,20 @@
 
 __STATIC_INLINE void	Second_Drive_Ctrl();
 __STATIC_INLINE void	Set_Second_Drive_Data();
-__STATIC_INLINE uint8_t	Is_Decele(uint32_t markStartTick);
+__STATIC_INLINE void	Second_Drive_Boost();
+__STATIC_INLINE void	Second_Drive_Restore_Mark();
+__STATIC_INLINE uint8_t	Is_Decele();
+
+
+// 현재 마크가 시작된 tick
+static uint32_t	markStartTick = 0;
 
 
 
 
 //1차 주행
 void Second_Drive() {
+
 	uint8_t	exitEcho = EXIT_ECHO_IDLE;
 
 	Custom_OLED_Clear();
@@ -63,69 +70,95 @@ void Second_Drive() {
 
 __STATIC_INLINE void Second_Drive_Ctrl() {
 
-	// 현재 마크가 시작된 tick
-	static uint32_t	markStartTick = 0;
-
-
-
 	// markState가 변경되었을 경우
 	if (markState != driveDataPtr->markState) {
 
-		// 크로스가 아닐 경우
-		if (markState != MARK_CROSS) {
+		// driveData 값 업데이트
+		Set_Second_Drive_Data();
+	}
 
-			// 부스트에서 쓰이는 startTick 값 변경
-			markStartTick = curTick;
+	// 주행에서 마크를 정상적으로 읽었을 경우
+	else if (isReadAllMark == CUSTOM_TRUE) {
 
-			// driveData 값 업데이트
-			Set_Second_Drive_Data();
+		Second_Drive_Boost();
+	}
 
-			// end mark는 한번만 기록하고 바로 직진 상태로 바꿈
-			if (markState == MARK_END) {
-				markState = MARK_STRAIGHT;
-			}
-		}
+	// 주행에서 마크를 정상적으로 읽지 못했을 경우
+	else {
 
-		// 크로스일 경우
-		else {
+		// isReadAllMark 보정
+		Second_Drive_Restore_Mark();
+	}
+}
 
-			// crossCnt 증가
-			crossCnt += 1;
 
-			// 크로스는 한번만 기록하고 바로 직진 상태로 바꿈
-			markState = MARK_STRAIGHT;
+
+
+
+__STATIC_INLINE void Set_Second_Drive_Data() {
+
+	// 크로스, 엔드마크가 아닐 경우
+	if (markState != MARK_CROSS && markState != MARK_END) {
+
+		// 현재 마크가 시작된 틱값 변경
+		markStartTick = curTick;
+
+		// drivePtr 값 인덱스 증가
+		driveDataPtr += 1;
+
+
+		// 주행중 markState와 1차 주행에서 저장된 markState가 동일하지 않다면 비정상적으로 읽었다고 판단
+		if (markState != driveDataPtr->markState) {
+
+			// 마크 인식 정상 여부를 업데이트
+			isReadAllMark = CUSTOM_FALSE;
 		}
 	}
 
-	// markState가 변경되지 않았을 경우
 	else {
 
-		switch (boostCntl) {
+		// 크로스일 경우
+		if (markState == MARK_CROSS) {
+
+			crossCnt += 1;
+		}
+
+		// 엔드마크일 경우
+		else if (markState == MARK_END){
+
+			endMarkCnt += 1;
+		}
+
+		// 크로스, 엔드마크는 읽은 후 이전 상태로 되돌림
+		markState = driveDataPtr->markState;
+	}
+}
+
+
+
+__STATIC_INLINE void Second_Drive_Boost() {
+
+	// 직선 가속
+	switch (boostCntl) {
 
 			// 초기 상태
 			case BOOST_CNTL_IDLE :
 
+					// 직선일 경우
+					if (driveState == MARK_STRAIGHT) {
 
-					// 주행에서 마크를 정상적으로 읽었을 경우
-					if (driveDataPtr->isReadAllMark == CUSTOM_TRUE) {
+						// 최소 부스트 거리 이상일 때
+						if (driveDataPtr->tickCnt > ACCELE_START_TICK + MIN_BOOST_TICK + DECELE_END_TICK) {
 
-						// 현재 인덱스의 boostTick이 0보다 클 경우
-						// boostTick이 0보다 클 경우는 straight 밖에 없음 (After_Drive_Setting 함수 참고)
-						if (driveDataPtr->boostTick > 0) {
-							boostCntl = BOOST_CNTL_ACCELE;
+							// decele 이후 다시 가속하는 것을 방지
+							if (curTick < markStartTick + driveDataPtr->tickCnt - MIN_BOOST_TICK - DECELE_END_TICK) {
+
+								boostCntl = BOOST_CNTL_ACCELE;
+							}
 						}
 					}
 
-					// 커브일 때 (cross, endMark도 포함하지만 실질적인 값 업데이트는 이루어지지 않음)
-					// && 주행에서 마크를 정상적으로 읽지 못했을 경우
-					else if (markState != MARK_STRAIGHT) {
-
-						// isReadAllMark 보정
-
-					}
-
 					break ;
-
 
 
 			// 부스트 가속 컨드롤
@@ -143,24 +176,14 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 					break;
 
 
-
 			// 부스트 감속 컨트롤
 			case BOOST_CNTL_DECELE :
 
-
-					// 감속이 시작될 거리까지 왔을 때
-					if (curTick > markStartTick + driveDataPtr->boostTick - DECELE_START_TICK) {
-
-						// targetSpeed_init로 감속
-						Drive_Fit_In( DECELE_LEN_M, targetSpeed_init );
+					// decel이 시작되었을 경우
+					if (Is_Decele() == CUSTOM_TRUE) {
 
 						boostCntl = BOOST_CNTL_END;
 					}
-					/*
-					if (Is_Decele(markStartTick) == CUSTOM_TRUE) {
-						boostCntl = BOOST_CNTL_END;
-					}
-					*/
 
 					break ;
 
@@ -169,37 +192,29 @@ __STATIC_INLINE void Second_Drive_Ctrl() {
 			// 부스트가 종료되었을 때
 			case BOOST_CNTL_END :
 
-					// 감속이 종료되었을 때 || 새로운 곡선 마크를 읽었을 때
-					if ( curTick > markStartTick + driveDataPtr->boostTick || driveDataPtr->boostTick == 0) {
+					// 감속이 종료되었을 때
+					if ( curTick > markStartTick + driveDataPtr->tickCnt - DECELE_END_TICK ) {
 
 						boostCntl = BOOST_CNTL_IDLE;
 					}
 
 					break ;
-		}
 	}
 }
 
 
 
+__STATIC_INLINE void Second_Drive_Restore_Mark() {
 
+	if (crossCnt > driveData->crossCnt) {
 
-__STATIC_INLINE void Set_Second_Drive_Data() {
+	}
 
-	// drivePtr 값 인덱스 증가
-	driveDataPtr += 1;
+	else {
 
-	// 이전의 주행에서 마크를 정상적으로 읽었는지 판단
-	if ((driveDataPtr - 1)->isReadAllMark == CUSTOM_TRUE) {
-
-		// 주행중 markState와 1차 주행에서 저장된 markState가 동일하다면 정상적으로 읽었다고 판단
-		if (markState == driveDataPtr->markState) {
-
-			// 마크 인식 정상 여부를 업데이트
-			driveDataPtr->isReadAllMark = CUSTOM_TRUE;
-		}
 	}
 }
+
 
 
 
@@ -210,7 +225,7 @@ __STATIC_INLINE void Set_Second_Drive_Data() {
  * 계산을통해 나온 감속 속도가 현재 감속 속도보다 크거나 같을 때 감속
  */
 
-__STATIC_INLINE uint8_t	Is_Decele(uint32_t markStartTick) {
+__STATIC_INLINE uint8_t	Is_Decele() {
 
 	/*
 
@@ -238,7 +253,7 @@ __STATIC_INLINE uint8_t	Is_Decele(uint32_t markStartTick) {
 	*/
 
 
-	if (    decele * 2 * ( driveDataPtr->boostTick - DECELE_END_TICK - (curTick - markStartTick) )    <= \
+	if (    decele * 2 * ( driveDataPtr->tickCnt - DECELE_END_TICK - (curTick - markStartTick) )    <= \
 			ABS( (targetSpeed_init - currentSpeed) * (targetSpeed_init + currentSpeed) ) * TICK_PER_M    ) {
 
 		// targetSpeed_init로 감속

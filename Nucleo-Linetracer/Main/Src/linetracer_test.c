@@ -211,7 +211,6 @@ void Drive_Test_Position() {
 
 	// 좌우 모터 포지션에 관한 변수
 	positionVal = 0;
-	absPositionVal = 0;
 	positionCoef = POSITION_COEF_INIT;
 	limitedPositionVal = 0;
 

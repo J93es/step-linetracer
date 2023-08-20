@@ -19,17 +19,15 @@ volatile float			decele_init = DECELE_INIT;
 
 // 좌우 모터 포지션에 관한 변수
 volatile int32_t		positionVal = 0;
-volatile int32_t		absPositionVal = 0;
 volatile float			positionCoef = POSITION_COEF_INIT;
 volatile int32_t		limitedPositionVal = 0;
+
 
 // positionVal을 windowing하여 구하는 것에 사용되는 변수 초기화
 volatile uint8_t		positionIdxMax = 5;
 volatile uint8_t		positionIdxMin = 2;
 volatile int32_t		positionSum = 0;
 volatile int32_t		sensorNormValsSum = 0;
-
-
 
 
 // 속도 값에 관한 변수
@@ -41,17 +39,18 @@ volatile float			targetSpeed = TARGET_SPEED_INIT;
 volatile float			curSpeed = MIN_SPEED;
 volatile float			boostSpeed = BOOST_SPEED_INIT;
 
-volatile float			curveDecelCoef = CURVE_DECEL_COEF_INIT;
+volatile float			curveDeceleCoef = CURVE_DECELE_COEF_INIT;
 
 
 // 현재 모터에 몇번 상이 잡혔는 지를 카운트하는 변수
 volatile uint32_t		curTick_L = 0;
 volatile uint32_t		curTick_R = 0;
 
-// 라인 아웃 시간
-volatile uint32_t		lineOutTime = 0;
 
 
+// 2차 주행 inline
+volatile int32_t		targetInlineVal = 0;
+volatile int32_t		curInlineVal = 0;
 
 
 
@@ -63,31 +62,32 @@ volatile uint32_t		lineOutTime = 0;
 
 
 // 현재 직진인지 커브인지 등을 저장하는 변수
-volatile uint8_t		markState = MARK_STRAIGHT;
+uint8_t					markState = MARK_STRAIGHT;
 
 
 // state machine 의 상태
-volatile uint8_t		driveState = DRIVE_STATE_IDLE;
+uint8_t					driveState = DRIVE_STATE_IDLE;
 
 
 // 2차주행 컨트롤 변수
-volatile uint8_t		starightBoostCntl = BOOST_CNTL_IDLE;
+uint8_t					starightBoostCntl = BOOST_CNTL_IDLE;
+uint8_t					curveInlineCntl = INLINE_CNTL_IDLE;
 
 
 // 2차주행에서 마크를 정확히 읽었는지 판단
-volatile uint8_t		isReadAllMark = CUSTOM_TRUE;
+uint8_t					isReadAllMark = CUSTOM_TRUE;
 
 
 // driveData를 저장하고 접근하게 해주는 변수들
-volatile t_driveData	driveData[MAX_DRIVE_DATA_LEN] = { T_DRIVE_DATA_INIT, };
+t_driveData				driveData[MAX_DRIVE_DATA_LEN] = { T_DRIVE_DATA_INIT, };
 
 
 // 1차 주행 데이터 임시저장
-volatile t_driveData	driveDataBuffer[MAX_DRIVE_DATA_LEN] = { T_DRIVE_DATA_INIT, };
+t_driveData				driveDataBuffer[MAX_DRIVE_DATA_LEN] = { T_DRIVE_DATA_INIT, };
 
 
 // driveData 인덱스
-volatile uint32_t		driveDataIdx = 0;
+uint16_t				driveDataIdx = 0;
 
 
 // 2차 주행에서 사용하는 cross 테이블
@@ -97,45 +97,47 @@ volatile uint32_t		driveDataIdx = 0;
  *
  *    (0번째 마크에서 크로스를 읽었을 때 1번째 마크로 저장되도록 함, 0은 값이 없는 상태를 나타냄)
  */
-volatile uint16_t		crossCntTable[MAX_CROSS_CNT] = { 0, };
+uint16_t				crossCntTable[MAX_CROSS_CNT] = { 0, };
 
 
 // 1차 주행에서 cross 테이블 임시 저장
-volatile uint16_t		crossCntTableBuffer[MAX_CROSS_CNT] = { 0, };
+uint16_t				crossCntTableBuffer[MAX_CROSS_CNT] = { 0, };
 
 
 // 현재까지 읽은 크로스 개수
-volatile uint16_t		crossCnt = 0;
+uint16_t				crossCnt = 0;
 
 
 // 직선 주행, 곡선 인라인 최적화 레벨
-volatile uint32_t		optimizeLevel = OPTIMIZE_LEVEL_NONE;
+uint8_t					optimizeLevel = OPTIMIZE_LEVEL_NONE;
 
 
 // 현재 마크가 시작된 tick
-volatile uint32_t		markStartTick_L = 0;
-volatile uint32_t		markStartTick_R = 0;
+uint32_t				markStartTick_L = 0;
+uint32_t				markStartTick_R = 0;
 
 
 //end mark를 몇 번 봤는지 카운트하는 변수
-volatile uint8_t		endMarkCnt = 0;
+uint8_t					endMarkCnt = 0;
 
 
 // 피트인 거리
-volatile float			pitInLen = PIT_IN_LEN_INIT;
+float					pitInLen = PIT_IN_LEN_INIT;
 
 
 // state machine 에서 사용
 //센서 값 누적
-volatile uint8_t		sensorStateSum = 0x00;
-
-// 라인아웃 시간 누적
-volatile uint32_t		lineOutStartTime = 0x00;
+uint8_t					sensorStateSum = 0x00;
 
 
 // 2차 주행 직선가속에서 사용
-volatile float			acceleStartTick = ACCELE_START_TICK_INIT;
-volatile float			deceleEndTick = DECELE_END_TICK_INIT;
+float					acceleStartTick = ACCELE_START_TICK_INIT;
+
+// 안전 거리
+float					deceleEndTick = DECELE_END_TICK_INIT;
+
+// 안전 비율
+float					deceleEndRatio = DECELE_END_RATIO_INIT;
 
 
 
@@ -145,27 +147,27 @@ volatile float			deceleEndTick = DECELE_END_TICK_INIT;
 static void Pre_Drive_Var_Adjust_First_Drive();
 static void Pre_Drive_Var_Adjust_Second_Drive();
 static void Pre_Drive_Var_Adjust_Switch_Cntl(t_driveMenu_Int *intValues, t_driveMenu_Float *floatValues, \
-											uint8_t intValCnt, uint8_t floatValCnt);
+											uint8_t intValCnt, uint8_t floatValCnt, uint8_t isEnd);
 
 // 주행 전 초기값 대입
-static void Pre_Drive_Var_Init(uint8_t driveIdx);
+static void Pre_Drive_Var_Init();
 
 
 
 
 
 //주행 전 상수값 변경 절차
-void Pre_Drive_Setting(uint8_t driveIdx) {
+void Pre_Drive_Setting() {
 
-	if (driveIdx == FIRST_DRIVE) {
-		Pre_Drive_Var_Adjust_First_Drive();
-	}
-
-	else if (driveIdx == SECOND_DRIVE) {
+	if (optimizeLevel >= OPTIMIZE_LEVEL_STRAIGHT) {
 		Pre_Drive_Var_Adjust_Second_Drive();
 	}
 
-	Pre_Drive_Var_Init(driveIdx);
+	if (optimizeLevel >= OPTIMIZE_LEVEL_NONE) {
+		Pre_Drive_Var_Adjust_First_Drive();
+	}
+
+	Pre_Drive_Var_Init();
 
 }
 
@@ -176,7 +178,7 @@ static void Pre_Drive_Var_Adjust_First_Drive() {
 
 	t_driveMenu_Int		intValues[] = {
 
-			{ "Threshold",			&threshold,			5 },
+			{ "Threshold",			&threshold,			10 },
 	};
 	uint8_t intValCnt = sizeof(intValues) / sizeof(t_driveMenu_Int);
 
@@ -185,14 +187,14 @@ static void Pre_Drive_Var_Adjust_First_Drive() {
 
 			{ "Pit In Len",			&pitInLen,			0.01f },
 			{ "Target Speed",		&targetSpeed_init,	0.05f },
-			{ "CurveDecel Coef",	&curveDecelCoef,	500 },
-			{ "Position Coef",		&positionCoef,		0.00001f },
+			{ "CurveDecel Coef",	&curveDeceleCoef,	500 },
+			//{ "Position Coef",		&positionCoef,		0.000001f },
 	};
 	uint8_t floatValCnt = sizeof(floatValues) / sizeof(t_driveMenu_Float);
 
 
 
-	Pre_Drive_Var_Adjust_Switch_Cntl(intValues, floatValues, intValCnt, floatValCnt);
+	Pre_Drive_Var_Adjust_Switch_Cntl(intValues, floatValues, intValCnt, floatValCnt, CUSTOM_TRUE);
 }
 
 
@@ -204,7 +206,6 @@ static void Pre_Drive_Var_Adjust_Second_Drive() {
 
 	t_driveMenu_Int		intValues[] = {
 
-			{ "Threshold",			&threshold,			5 },
 			{ "optimize level",		&optimizeLevel,		1 },
 	};
 	uint8_t intValCnt = sizeof(intValues) / sizeof(t_driveMenu_Int);
@@ -212,19 +213,18 @@ static void Pre_Drive_Var_Adjust_Second_Drive() {
 
 	t_driveMenu_Float	floatValues[] = {
 
-			{ "Pit In Len",			&pitInLen,			0.01f },
-			{ "Target Speed",		&targetSpeed_init,	0.05f },
-			{ "Boost Speed",		&boostSpeed,		0.5f },
-			{ "Accele",				&targetAccele_init,	0.5f },
-			{ "Decele",				&decele_init,		0.5f },
-			{ "acceleStart len",	&acceleStartLen,	0.05f },
+			{ "Boost Speed",		&boostSpeed,		0.25f },
+			{ "Accele",				&targetAccele_init,	0.25f },
+			//{ "Decele",				&decele_init,		0.25f },
+			{ "acceleStart len",	&acceleStartLen,	0.025f },
 			{ "decelEnd len",		&deceleEndLen,		0.05f },
-			{ "CurveDecel Coef",	&curveDecelCoef,	500 },
-			{ "Position Coef",		&positionCoef,		0.00001f },
+			{ "decelEnd ratio",		&deceleEndRatio,	0.05f },
 	};
 	uint8_t floatValCnt = sizeof(floatValues) / sizeof(t_driveMenu_Float);
 
-	Pre_Drive_Var_Adjust_Switch_Cntl(intValues, floatValues, intValCnt, floatValCnt);
+
+
+	Pre_Drive_Var_Adjust_Switch_Cntl(intValues, floatValues, intValCnt, floatValCnt, CUSTOM_FALSE);
 
 	acceleStartTick = acceleStartLen * TICK_PER_M;
 	deceleEndTick = deceleEndLen * TICK_PER_M;
@@ -233,7 +233,7 @@ static void Pre_Drive_Var_Adjust_Second_Drive() {
 
 
 static void Pre_Drive_Var_Adjust_Switch_Cntl(t_driveMenu_Int *intValues, t_driveMenu_Float *floatValues, \
-											uint8_t intValCnt, uint8_t floatValCnt) {
+											uint8_t intValCnt, uint8_t floatValCnt, uint8_t isEnd) {
 
 	uint8_t	sw = 0;
 
@@ -249,7 +249,7 @@ static void Pre_Drive_Var_Adjust_Switch_Cntl(t_driveMenu_Int *intValues, t_drive
 
 				// OLED에 변수명 변수값 출력
 				Custom_OLED_Printf("/2%s", intValues[i].valName);
-				Custom_OLED_Printf("/A/4%d", *(intValues[i].val));
+				Custom_OLED_Printf("/A/4%5d", *(intValues[i].val));
 
 				// 변수 값 빼기
 				if (sw == CUSTOM_SW_1) {
@@ -277,7 +277,7 @@ static void Pre_Drive_Var_Adjust_Switch_Cntl(t_driveMenu_Int *intValues, t_drive
 			Custom_OLED_Printf("/2%s", floatValues[i].valName);
 			Custom_OLED_Printf("/A/4%u.%05u", num1, num2);
 
-			if (i == floatValCnt - 1) {
+			if (isEnd == CUSTOM_TRUE && i == floatValCnt - 1) {
 				Custom_OLED_Printf("/g/0Ready to Drive");
 			}
 
@@ -298,7 +298,7 @@ static void Pre_Drive_Var_Adjust_Switch_Cntl(t_driveMenu_Int *intValues, t_drive
 
 
 // 주행 전 초기값 대입
-static void Pre_Drive_Var_Init(uint8_t driveIdx) {
+static void Pre_Drive_Var_Init() {
 
 
 	/*
@@ -316,7 +316,6 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 
 	// 좌우모터 포지션 값을 0으로 초기화
 	positionVal = 0;
-	absPositionVal = 0;
 	limitedPositionVal = 0;
 
 	// positionVal을 windowing하여 구하는 것에 사용되는 변수 초기화
@@ -329,8 +328,9 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 	curTick_L = 0;
 	curTick_R = 0;
 
-	// 라인 아웃 시간 계산
-	lineOutTime = 0;
+	// 2차 주행 inline 관현 값 초기화
+	targetInlineVal = 0;
+	curInlineVal = 0;
 
 
 
@@ -359,7 +359,7 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 
 
 	// 1차 주행에서만 초기화할 변수
-	if (driveIdx == FIRST_DRIVE) {
+	if (optimizeLevel == OPTIMIZE_LEVEL_NONE) {
 
 		optimizeLevel = OPTIMIZE_LEVEL_NONE;
 
@@ -381,8 +381,8 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 		}
 	}
 
-	// 2차 주행에서만 초기화할 변수
-	else if (driveIdx == SECOND_DRIVE) {
+	// 2, 3차 주행에서만 초기화할 변수
+	if (optimizeLevel >= OPTIMIZE_LEVEL_STRAIGHT) {
 
 		// isReadAllMark 값 정상으로 변경
 		isReadAllMark = CUSTOM_TRUE;
@@ -390,6 +390,42 @@ static void Pre_Drive_Var_Init(uint8_t driveIdx) {
 		// 부스트 컨트롤 상태 업데이트
 		starightBoostCntl = BOOST_CNTL_IDLE;
 	}
+
+	// 3차 주행에서만 초기화할 변수
+	if (optimizeLevel >= OPTIMIZE_LEVEL_CURVE){
+
+		// 커브 인라인 상태 업데이트
+		curveInlineCntl = INLINE_CNTL_IDLE;
+	}
+}
+
+
+
+
+void	Time_Attack_Setting() {
+
+
+	t_driveMenu_Int		intValues[] = {
+
+			{ "Threshold",			&threshold,			5 },
+	};
+	uint8_t intValCnt = sizeof(intValues) / sizeof(t_driveMenu_Int);
+
+
+	t_driveMenu_Float	floatValues[] = {
+
+			{ "Pit In Len",			&pitInLen,			0.01f },
+	};
+	uint8_t floatValCnt = sizeof(floatValues) / sizeof(t_driveMenu_Float);
+
+	targetAccele_init = 2.f;
+	positionCoef = POSITION_COEF_INIT;
+	curveDeceleCoef = CURVE_DECELE_COEF_INIT;
+
+
+	Pre_Drive_Var_Adjust_Switch_Cntl(intValues, floatValues, intValCnt, floatValCnt, CUSTOM_TRUE);
+
+	Pre_Drive_Var_Init();
 }
 
 

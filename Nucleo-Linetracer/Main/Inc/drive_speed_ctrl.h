@@ -28,21 +28,20 @@ __STATIC_INLINE void	Motor_R_Speed_Control(float speed) {
 }
 
 
+// 가속도 및 속도 제어
+__STATIC_INLINE void	Drive_Speed_Accele_Cntl() {
 
+	if (curSpeed == targetSpeed) {
 
-// 500us마다 호출됨.
-__STATIC_INLINE void	Drive_TIM9_IRQ() {
+		// 속도를 targetSpeed 까지 올린 후, curAccele을 0으로 변환
+		// 혹은 직선 가속 후 targetSpeed 까지 도달하지 못하고 감속한 후 감속이 종료되었으면 , curAccele을 0으로 변환
+		curAccele = 0;
+	}
 
-	float	finalSpeed;
-
-
-
-
-	// 가속도 및 속도 제어
-	if (curSpeed <= targetSpeed) {
+	else if (curSpeed < targetSpeed) {
 
 		// 가속도 제어
-		curAccele += 0.03f;
+		curAccele += 0.01f;
 
 		if (curAccele > targetAccele) {
 
@@ -55,9 +54,6 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 		if (curSpeed >= targetSpeed) {
 
 			curSpeed = targetSpeed;
-
-			// 속도를 targetSpeed 까지 올린 후, curAccele을 0으로 변환
-			curAccele = 0;
 		}
 	}
 
@@ -70,52 +66,98 @@ __STATIC_INLINE void	Drive_TIM9_IRQ() {
 		if (curSpeed <= targetSpeed) {
 
 			curSpeed = targetSpeed;
-
-			// 직선 가속 후 targetSpeed 까지 도달하지 못하고 감속한 후 감속이 종료되었으면 , curAccele을 0으로 변환
-			curAccele = 0;
 		}
 	}
+}
 
 
 
 
-	/*
-	 * limitedPositionVal 값 업데이트
-	 */
+//limitedPositionVal 값 업데이트
+__STATIC_INLINE void	Make_Limited_Position() {
+
+	int32_t absPositionVal = ABS(positionVal - curInlineVal);
+
+	if (limitedPositionVal == absPositionVal) {
+
+		return ;
+	}
 
 	// 곡선에 진입을 시작했을 때 빠르게 curve decel을 해줌
-	if (limitedPositionVal < absPositionVal) {
+	else if (limitedPositionVal < absPositionVal) {
 
-		limitedPositionVal += 2;
+		limitedPositionVal += 20;
 		if (limitedPositionVal > absPositionVal) {
 			limitedPositionVal = absPositionVal;
 		}
 	}
+
 	// 곡선에서 벗어날 때 천천히 속도를 올려줌
 	else {
 
-		limitedPositionVal -= 1;
+		limitedPositionVal -= 10;
 		if (limitedPositionVal < absPositionVal) {
 			limitedPositionVal = absPositionVal;
 		}
 	}
+}
+
+
+__STATIC_INLINE void	Make_Inline_Val(float finalSpeed) {
+
+	/*
+	 * l(m) 이동하는데 걸리는 시간(l(m) / 500(us)) = l(m) / curSpeed(m/s) * 2000(s/500us)
+	 *
+	 * l(m) 이동햇을 때 (curInlineVal == targetInlineVal)이 되도록 하는 curInlineVal의 변회량
+	 * 		= targetInlineVal / { l(m) 이동하는데 걸리는 시간(l(m) / 500(us)) }
+	 * 		= targetInlineVal * curSpeed / l(m) / 2000
+	 */
+
+	if (curInlineVal == targetInlineVal) {
+
+		return ;
+	}
+
+	else if (curInlineVal < targetInlineVal) {
+
+		curInlineVal += 20;//targetInlineVal * finalSpeed / INLINE_POSITIONING_LEN / 2000;
+		if (curInlineVal > targetInlineVal) {
+			curInlineVal = targetInlineVal;
+		}
+	}
+
+	else {
+
+		curInlineVal -= 20;//targetInlineVal * finalSpeed / INLINE_POSITIONING_LEN / 2000;;
+		if (curInlineVal < targetInlineVal) {
+			curInlineVal = targetInlineVal;
+		}
+	}
+}
 
 
 
+// 500us마다 호출됨.
+__STATIC_INLINE void	Drive_TIM9_IRQ() {
+
+	float	finalSpeed;
+
+
+	// 가속도 및 속도 제어
+	Drive_Speed_Accele_Cntl();
+
+	// limitedPositionVal 값 업데이트
+	Make_Limited_Position();
 
 	// 포지션 값에 따른 감속
-	finalSpeed = curSpeed * curveDecelCoef / (limitedPositionVal + curveDecelCoef);
+	finalSpeed = curSpeed * curveDeceleCoef / (limitedPositionVal + curveDeceleCoef);
 
-
+	// inLine 값 생성
+	Make_Inline_Val(finalSpeed);
 
 	//position 값에 따른 좌우 모터 속도 조정
-	Motor_L_Speed_Control( finalSpeed * (1 + positionVal * positionCoef) );
-	Motor_R_Speed_Control( finalSpeed * (1 - positionVal * positionCoef) );
-
-	if (driveState == DRIVE_DECISION_LINE_OUT) {
-
-		lineOutTime += 1;
-	}
+	Motor_L_Speed_Control( finalSpeed * (1 + (positionVal - curInlineVal) * positionCoef) );
+	Motor_R_Speed_Control( finalSpeed * (1 - (positionVal - curInlineVal) * positionCoef) );
 }
 
 

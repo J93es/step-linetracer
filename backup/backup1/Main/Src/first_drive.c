@@ -77,7 +77,8 @@ __STATIC_INLINE void Set_First_Drive_Data() {
 	if (markState != MARK_CROSS && markState != MARK_END) {
 
 		// 현재마크에서 이동한 tick 값을 현재 인덱스의 구조체에 저장
-		driveDataBuffer[driveDataIdx].tickCnt = curTick - markStartTick;
+		driveDataBuffer[driveDataIdx].tickCnt_L = curTick_L - markStartTick_L;
+		driveDataBuffer[driveDataIdx].tickCnt_R = curTick_R - markStartTick_R;
 
 		// 종료 시점에서의 읽은 크로스의 개수
 		driveDataBuffer[driveDataIdx].crossCnt = crossCnt;
@@ -86,7 +87,9 @@ __STATIC_INLINE void Set_First_Drive_Data() {
 		driveDataIdx += 1;
 
 		// markStartTick 업데이트
-		markStartTick = curTick;
+		markStartTick_L = curTick_L;
+		markStartTick_R = curTick_R;
+
 
 		// 증가된 구조체의 인덱스에 markState 저장
 		driveDataBuffer[driveDataIdx].markState = markState;
@@ -116,7 +119,8 @@ __STATIC_INLINE void Set_First_Drive_Data() {
 			if (endMarkCnt >= 2) {
 
 				// 현재마크에서 이동한 tick 값을 현재 인덱스의 구조체에 저장
-				driveDataBuffer[driveDataIdx].tickCnt = curTick - markStartTick;
+				driveDataBuffer[driveDataIdx].tickCnt_L = curTick_L - markStartTick_L;
+				driveDataBuffer[driveDataIdx].tickCnt_R = curTick_R - markStartTick_R;
 
 				// 종료 시점에서의 읽은 크로스의 개수
 				driveDataBuffer[driveDataIdx].crossCnt = crossCnt;
@@ -228,7 +232,8 @@ static void First_Drive_Data_Update_Cntl(uint8_t exitEcho) {
 	if (driveData[0].markState == MARK_NONE || isUpdate == CUSTOM_TRUE) {
 
 		for (uint32_t i = 0; i < MAX_DRIVE_DATA_LEN; i++) {
-			driveData[i].tickCnt = driveDataBuffer[i].tickCnt;
+			driveData[i].tickCnt_L = driveDataBuffer[i].tickCnt_L;
+			driveData[i].tickCnt_R = driveDataBuffer[i].tickCnt_R;
 			driveData[i].markState = driveDataBuffer[i].markState;
 		}
 

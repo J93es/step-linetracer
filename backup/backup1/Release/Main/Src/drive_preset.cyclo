@@ -1,3 +1,5 @@
-../Main/Src/drive_preset.c:140:6:Pre_Drive_Setting	1
-../Main/Src/drive_preset.c:150:13:Pre_Drive_Var_Adjust	11
-../Main/Src/drive_preset.c:249:13:Pre_Drive_Var_Init	5
+../Main/Src/drive_preset.c:158:6:Pre_Drive_Setting	3
+../Main/Src/drive_preset.c:175:13:Pre_Drive_Var_Adjust_First_Drive	1
+../Main/Src/drive_preset.c:200:13:Pre_Drive_Var_Adjust_Second_Drive	1
+../Main/Src/drive_preset.c:235:13:Pre_Drive_Var_Adjust_Switch_Cntl	11
+../Main/Src/drive_preset.c:301:13:Pre_Drive_Var_Init	5

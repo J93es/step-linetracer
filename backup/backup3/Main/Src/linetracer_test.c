@@ -168,20 +168,23 @@ void Motor_Test_Velocity() {
 	float		speed = MIN_SPEED;
 	float		maxSpeed = 2.5;
 	float		minSpeed = 1.5;
+	float		accele = ACCELE_INIT;
 	/*
 	 * 모터 속도를 부드럽게 올렸다가 내리기를 반복한다.
 	 */
-	accele = ACCELE_INIT;
 
 	Motor_Start();
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
-		Motor_L_Speed_Control(speed);
-		Motor_R_Speed_Control(speed);
-		if ( (speed + accele / 2000 > maxSpeed) || (speed + accele / 2000 < minSpeed) ) {
+
+		if ( (speed + accele / 1000 > maxSpeed) || (speed + accele / 1000 < minSpeed) ) {
 			accele *= -1;
 		}
+		speed += accele / 1000;
+
+		Motor_L_Speed_Control(speed);
+		Motor_R_Speed_Control(speed);
+
 		Custom_Delay_ms(1);
-		speed += accele / 2000;
 	}
 	Motor_Stop();
 }
@@ -209,7 +212,7 @@ void Drive_Test_Position() {
 		Update_Position_Val();
 
 		Custom_OLED_Printf("/0pos:     %7d", positionVal);
-		Custom_OLED_Printf("/1limited: %7d", limitedPositionVal);
+		//Custom_OLED_Printf("/1limited: %7d", limitedPositionVal);
 		Custom_OLED_Printf("/2speedL:  %f", (1 + positionVal * positionCoef));
 		Custom_OLED_Printf("/3speedR:  %f", (1 - positionVal * positionCoef));
 	}
@@ -223,5 +226,34 @@ void Drive_Test_Position() {
 
 void Drive_Test_Info_Oled() {
 	Custom_OLED_Printf("/decision: %0d", markState);
+}
+
+
+void Current_Setting() {
+	uint8_t		sw = 0;
+	float		acc = ACCELE_INIT;
+	float		speed = MIN_SPEED;
+	float		target = 2.0f;
+
+	curTick = 0;
+
+	Motor_Start();
+
+	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
+
+		Motor_L_Speed_Control(speed);
+		Motor_R_Speed_Control(speed);
+
+		speed += acc / 1000;
+		if (speed > target) {
+			speed = target;
+		}
+
+		Custom_Delay_ms(1);
+	}
+
+	Motor_Stop();
+
+	curTick = 0;
 }
 

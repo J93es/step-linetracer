@@ -20,15 +20,15 @@
 // 속도와 관련된 매크로
 #define MIN_SPEED					0.01f
 
-#define ACCELE_INIT					7.0f
-#define DECELE_INIT					7.0f
+#define ACCELE_INIT					6.0f
+#define DECELE_INIT					6.0f
 
-#define TARGET_SPEED_INIT			2.1f
+#define TARGET_SPEED_INIT			2.f
 #define BOOST_SPEED_INIT			4.5f
 
 
 // 커브에서 어느 정도 감속할지 결정하는 매크로
-#define CURVE_DECEL_COEF_INIT		4000.f
+#define CURVE_DECEL_COEF_INIT		3000.f
 
 
 // POSITION_COEF(포지션 상수)를 도출하기 위한 매크로
@@ -74,15 +74,6 @@
 #define TICK_PER_M					( 63.662f / TIRE_RADIUS )
 
 
-// 1차주행, 2차 주행의 driveData 관련 매크로
-#define MAX_DRIVE_DATA_LEN			512
-#define T_DRIVE_DATA_INIT			{ 0, MARK_NONE, 0 }
-
-
-// 최대 크로스 개수
-#define MAX_CROSS_CNT				128
-
-
 // 1차 주행인지 2차주행 판단 매크로
 #define FIRST_DRIVE					0
 #define SECOND_DRIVE				1
@@ -113,6 +104,12 @@
 #define BOOST_CNTL_END				3
 
 
+// 주행 최적화 레벨 조정
+#define OPTIMIZE_LEVEL_NONE			0
+#define OPTIMIZE_LEVEL_STRAIGHT		1
+#define OPTIMIZE_LEVEL_CURVE		2
+
+
 // exitEcho 관련 매크로
 #define EXIT_ECHO_IDLE				0
 #define EXIT_ECHO_END_MARK			1
@@ -120,7 +117,7 @@
 
 
 // 라인 아웃 일 때 몇 초 딜레이 할지
-#define LINE_OUT_DELAY_MS			200
+#define LINE_OUT_DELAY_500US		10//200
 
 
 
@@ -131,19 +128,25 @@
 
 // 주행이 종료되었을 때 모터 종료 딜레이
 #define DRIVE_END_DELAY_SPEED		0.3f
-#define DRIVE_END_DELAY_TIME_MS		150
+#define DRIVE_END_DELAY_TIME_MS		100
 
 
 // 2차 주행에서 어느 정도 지나면 가감속할 지 결정하는 매크로
 
 // 직선에 진입한 후 어느정도 이동한 후 가속할지
-#define ACCELE_START_TICK			( 0.1f * TICK_PER_M )
-
-// 최소 몇 tick 동안 부스트할지를 저장한 매크로
-#define MIN_BOOST_TICK				( 0.1f * TICK_PER_M )
+#define ACCELE_START_TICK_INIT		( 0.1f * TICK_PER_M )
 
 // 감속 안전거리
-#define DECELE_END_TICK				( 0.2f * TICK_PER_M )
+#define DECELE_END_TICK_INIT		( 0.3f * TICK_PER_M )
+
+
+// 1차주행, 2차 주행의 driveData 관련 매크로
+#define MAX_DRIVE_DATA_LEN			512
+#define T_DRIVE_DATA_INIT			{ 0, 0, MARK_NONE, 0 }
+
+
+// 최대 크로스 개수
+#define MAX_CROSS_CNT				128
 
 
 
@@ -155,13 +158,14 @@
 typedef struct	s_driveData {
 
 		// 현재 마크에서 이동한 tick(거리)
-		 volatile uint16_t	tickCnt;
+		volatile uint16_t	tickCnt_L;
+		volatile uint16_t	tickCnt_R;
 
 		// 현재 마크의 상태
-		 volatile uint8_t	markState;
+		volatile uint8_t	markState;
 
 		// 마크 종료시점에서의 크로스 개수
-		 volatile uint8_t	crossCnt;
+		volatile uint8_t	crossCnt;
 
 }				t_driveData;
 
@@ -176,7 +180,7 @@ typedef struct	s_driveData {
 
 // 초기의 속도 값에 관한 변수
 extern volatile float		targetSpeed_init;
-extern volatile float		accele_init;
+extern volatile float		targetAccele_init;
 extern volatile float		decele_init;
 
 
@@ -186,7 +190,10 @@ extern volatile int32_t		absPositionVal;
 extern volatile float		positionCoef;
 extern volatile int32_t		limitedPositionVal;
 
-extern volatile int32_t		positionTable[8];
+extern volatile uint8_t		positionIdxMax;
+extern volatile uint8_t		positionIdxMin;
+extern volatile int32_t		positionSum;
+extern volatile int32_t		sensorNormValsSum;
 
 
 // 주행 중 변하는 속도 값에 관한 변수
@@ -202,7 +209,8 @@ extern volatile float		curveDecelCoef;
 
 
 // 현재 모터에 몇번 상이 잡혔는지를 카운트하는 변수
-extern volatile uint32_t	curTick;
+extern volatile uint32_t	curTick_L;
+extern volatile uint32_t	curTick_R;
 
 
 // 라인 아웃시간
@@ -226,7 +234,11 @@ extern volatile uint8_t		driveState;
 
 
 // 주행 컨트롤 변수
-extern volatile uint8_t		boostCntl;
+extern volatile uint8_t		starightBoostCntl;
+
+
+// 직선 주행, 곡선 인라인 최적화 레벨
+extern volatile uint32_t	optimizeLevel;
 
 
 // 2차주행에서 마크를 정확히 읽었는지 판단
@@ -264,7 +276,8 @@ extern volatile uint16_t	crossCnt;
 
 
 // 현재 마크가 시작된 tick
-extern volatile uint32_t	markStartTick;
+extern volatile uint32_t	markStartTick_L;
+extern volatile uint32_t	markStartTick_R;
 
 
 //end mark를 몇 번 봤는지 카운트하는 변수
@@ -281,6 +294,11 @@ extern volatile uint8_t		sensorStateSum;
 
 // 라인아웃 시간 누적
 extern volatile uint32_t	lineOutStartTime;
+
+
+// 2차 주행 직선가속에서 사용
+extern volatile float		acceleStartTick;
+extern volatile float		deceleEndTick;
 
 
 

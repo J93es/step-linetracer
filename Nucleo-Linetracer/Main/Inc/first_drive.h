@@ -8,5 +8,8 @@
 
 void	First_Drive();
 
+void	Drive_Time_Attack_Get_Data();
+void	Drive_Time_Attack();
+
 
 #endif

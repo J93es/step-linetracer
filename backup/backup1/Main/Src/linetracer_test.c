@@ -207,16 +207,28 @@ void Drive_Test_Position() {
 
 	Custom_OLED_Clear();
 	Sensor_Start();
+	Speed_Control_Start();
+
+	// 좌우 모터 포지션에 관한 변수
+	positionVal = 0;
+	absPositionVal = 0;
+	positionCoef = POSITION_COEF_INIT;
+	limitedPositionVal = 0;
+
+	// positionVal을 windowing하여 구하는 것에 사용되는 변수 초기화
+	positionIdxMax = 5;
+	positionIdxMin = 2;
+	positionSum = 0;
+	sensorNormValsSum = 0;
 
 	while (CUSTOM_SW_BOTH != (sw = Custom_Switch_Read())) {
-		Update_Position_Val();
 
 		Custom_OLED_Printf("/0pos:     %7d", positionVal);
-		//Custom_OLED_Printf("/1limited: %7d", limitedPositionVal);
+		Custom_OLED_Printf("/1limited: %7d", limitedPositionVal);
 		Custom_OLED_Printf("/2speedL:  %f", (1 + positionVal * positionCoef));
 		Custom_OLED_Printf("/3speedR:  %f", (1 - positionVal * positionCoef));
 	}
-
+	Speed_Control_Stop();
 	Sensor_Stop();
 	Custom_OLED_Clear();
 }
@@ -229,13 +241,12 @@ void Drive_Test_Info_Oled() {
 }
 
 
+
 void Current_Setting() {
 	uint8_t		sw = 0;
 	float		acc = ACCELE_INIT;
 	float		speed = MIN_SPEED;
 	float		target = 2.0f;
-
-	curTick = 0;
 
 	Motor_Start();
 
@@ -253,7 +264,5 @@ void Current_Setting() {
 	}
 
 	Motor_Stop();
-
-	curTick = 0;
 }
 

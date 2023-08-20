@@ -68,6 +68,10 @@ void Init() {
 			{ "Test Phase     ", Motor_Test_Phase },
 			//{ "Test Velocity  ", Motor_Test_Velocity },
 			{ "Test Position  ", Drive_Test_Position },
+
+			//{ "TimeAtt Data   ", Drive_Time_Attack_Get_Data },
+			//{ "TimeAtt Drive  ", Drive_Time_Attack },
+
 			{ "Current setting", Current_Setting },
 			{ "Print DriveData", Print_Drive_Data},
 			//{ "Drive Read Mark", Drive_Read_Mark},

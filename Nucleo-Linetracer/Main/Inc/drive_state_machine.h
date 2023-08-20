@@ -85,83 +85,104 @@ __STATIC_INLINE void	Decision(uint8_t sensorStateSum) {
 
 __STATIC_INLINE void	Drive_State_Machine() {
 
+	static uint32_t	lineOutStartTime;
+
 
 	switch (driveState) {
 
+
 		case DRIVE_STATE_IDLE :
 
-			// 라인 센서 4개 이상 인식
-			if (Get_Line_Sensor_Cnt() >= 4) {
+				// 라인 센서 4개 이상 인식
+				if (Get_Line_Sensor_Cnt() >= 4) {
 
-				sensorStateSum = 0x00;
-				driveState = DRIVE_STATE_CROSS;
-			}
+					sensorStateSum = 0x00;
 
-			// 라인 센서 4개 이하 and 마크 센서 1개 이상
-			else if (Get_Marker_Sensor_Cnt() != 0) {
+					driveState = DRIVE_STATE_CROSS;
+				}
 
-				sensorStateSum = 0x00;
-				driveState = DRIVE_STATE_MARKER;
-			}
+				// 라인 센서 4개 이하 and 마크 센서 1개 이상
+				else if (Get_Marker_Sensor_Cnt() != 0) {
 
-			// 라인아웃되거나 잠깐 떳을 때
-			else if (state == 0x00) {
+					sensorStateSum = 0x00;
 
-				lineOutStartTime = lineOutTime;
-				driveState = DRIVE_DECISION_LINE_OUT;
-			}
+					driveState = DRIVE_STATE_MARKER;
+				}
 
-			break;
+				// 라인아웃되거나 잠깐 떳을 때
+				else if (state == 0x00) {
+
+					lineOutStartTime = uwTick;
+
+					driveState = DRIVE_DECISION_LINE_OUT;
+				}
+
+				break;
+
+
+
 
 
 		case DRIVE_STATE_CROSS:
 
-			// accum
-			sensorStateSum |= state;
+				// accum
+				sensorStateSum |= state;
 
-			// 모든 센서를 읽었고 마크 센서가 선을 지나쳤을 때 IDLE
-			if (sensorStateSum == 0xff && Get_Marker_Sensor_Cnt() == 0) {
-				driveState = DRIVE_STATE_DECISION;
-			}
+				// 모든 센서를 읽었고 마크 센서가 선을 지나쳤을 때 IDLE
+				if (sensorStateSum == 0xff && Get_Marker_Sensor_Cnt() == 0) {
 
-			break;
+					driveState = DRIVE_STATE_DECISION;
+				}
+
+				break;
+
+
+
 
 
 		case DRIVE_STATE_MARKER :
 
-			// accum
-			sensorStateSum |= state;
+				// accum
+				sensorStateSum |= state;
 
-			// 마커 센서가 0개 일 때
-			if (Get_Marker_Sensor_Cnt() == 0) {
-				driveState = DRIVE_STATE_DECISION;
-			}
+				// 마커 센서가 0개 일 때
+				if (Get_Marker_Sensor_Cnt() == 0) {
 
-			break;
+					driveState = DRIVE_STATE_DECISION;
+				}
+
+				break;
+
+
+
 
 
 		case DRIVE_STATE_DECISION :
 
-			Decision(sensorStateSum);
-			driveState = DRIVE_STATE_IDLE;
+				Decision(sensorStateSum);
 
-			break;
+				driveState = DRIVE_STATE_IDLE;
+
+				break;
+
+
+
 
 
 		case DRIVE_DECISION_LINE_OUT :
 
-			if (state != 0x00) {
+				if (state != 0x00) {
 
-				driveState = DRIVE_STATE_IDLE;
-			}
+					driveState = DRIVE_STATE_IDLE;
+				}
 
-			// state == 0x00인 상태가 t(ms) 지속되었을 때
-			else if (lineOutTime > lineOutStartTime + 2 * LINE_OUT_DELAY_500US) {
+				// state == 0x00인 상태가 t(ms) 지속되었을 때
+				else if (uwTick > lineOutStartTime + LINE_OUT_DELAY_MS) {
 
-				markState = MARK_LINE_OUT;
-			}
+					markState = MARK_LINE_OUT;
+				}
 
-			break ;
+				break ;
 
 	}
 }

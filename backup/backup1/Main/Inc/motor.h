@@ -48,7 +48,7 @@ __STATIC_INLINE void	Motor_L_TIM3_IRQ() {
 
 
 	// tick 값 증가
-	curTick += 1;
+	curTick_L += 1;
 }
 
 
@@ -63,9 +63,11 @@ __STATIC_INLINE void	Motor_R_TIM4_IRQ() {
 	Custom_GPIO_Set_t(motorR + 2, (phaseR_table[phaseR] >> 2) & 0x01);
 	Custom_GPIO_Set_t(motorR + 3, (phaseR_table[phaseR] >> 3) & 0x01);
 
-	//phaseR = (phaseR + 1) & 0x03;
-
 	phaseR = (phaseR + 1) & 0x07;
+
+
+	// tick 값 증가
+	curTick_R += 1;
 }
 
 

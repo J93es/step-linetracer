@@ -16,12 +16,12 @@ volatile uint8_t	whiteMaxs[8];
 volatile uint8_t	blackMaxs[8];
 
 volatile uint8_t	state = 0x00;
-volatile uint32_t	threshold = THRESHOLD_INIT;
+volatile uint8_t	threshold = THRESHOLD_INIT;
 
 volatile uint8_t	sensorReadIdx = 0;
-volatile uint8_t	sensorReadIdxTable[8] = { 3, 4, 2, 5, 1, 6, 0, 7 };
+volatile uint8_t	sensorReadIdxTable[8] = { 3, 4, 0, 7, 1, 6, 2, 5 };
 
-volatile int32_t	positionTable[8] = { -1400, -1000, -600, -200, 200, 600, 1000, 1400 };
+volatile int32_t	positionTable[8] = { -14000, -10000, -6000, -2000, 2000, 6000, 10000, 14000 };
 
 
 
