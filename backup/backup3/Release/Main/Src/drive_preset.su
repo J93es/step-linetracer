@@ -1,5 +1,0 @@
-../Main/Src/drive_preset.c:138:6:Pre_Drive_Setting	16	static
-../Main/Src/drive_preset.c:148:13:Pre_Drive_Var_Adjust	224	static
-../Main/Src/drive_preset.c:247:13:Pre_Drive_Var_Init	32	static
-../Main/Src/drive_preset.c:328:6:Drive_Read_Mark	8	static
-../Main/Src/drive_preset.c:395:6:Drive_Last_Spurt	8	static

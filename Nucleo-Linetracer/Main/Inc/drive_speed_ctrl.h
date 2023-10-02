@@ -51,7 +51,7 @@ __STATIC_INLINE void	Drive_Speed_Accele_Cntl() {
 		// 속도 제어
 		curSpeed += curAccele / 2000;
 
-		if (curSpeed >= targetSpeed) {
+		if (curSpeed > targetSpeed) {
 
 			curSpeed = targetSpeed;
 		}
@@ -63,7 +63,7 @@ __STATIC_INLINE void	Drive_Speed_Accele_Cntl() {
 		// 속도 제어
 		curSpeed -= decele / 2000;
 
-		if (curSpeed <= targetSpeed) {
+		if (curSpeed < targetSpeed) {
 
 			curSpeed = targetSpeed;
 		}

@@ -1,4 +1,0 @@
-../External Library/Src/custom_oled.c:190:6:Custom_OLED_Clear	9
-../External Library/Src/custom_oled.c:200:6:Custom_OLED_Init	4
-../External Library/Src/custom_oled.c:241:5:Custom_OLED_Putchar	19
-../External Library/Src/custom_oled.c:269:6:Custom_OLED_Printf	41
