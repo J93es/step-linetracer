@@ -15,11 +15,6 @@ Sensor: IR 8조
 실제 작성 코드는 Nucleo-Linetracer/Main 참조
 
 
-
-
-대회 영상
-
-
 제 24회 서울시립대 라인트레이서 경연대회 예선 (1시간 31분)
 
 https://www.youtube.com/watch?v=5ExQolZ5YAg
