@@ -1,9 +1,9 @@
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_tim.h:1446:22:LL_TIM_SetAutoReload	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:20:22:Custom_Delay_us	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/External Library/Inc/custom_delay.h:28:22:Custom_Delay_ms	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:21:22:Motor_L_Speed_Control	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:26:22:Motor_R_Speed_Control	16	static
-/Users/j93es/STM32CubeIDE/workspace_1.13.1/Nucleo-Linetracer/External Library/Inc/custom_gpio.h:54:20:Custom_GPIO_Set_t	16	static
+/Users/j93es/workspace/imbedded/step-linetracer/Nucleo-Linetracer/External Library/Inc/custom_delay.h:20:22:Custom_Delay_us	16	static
+/Users/j93es/workspace/imbedded/step-linetracer/Nucleo-Linetracer/External Library/Inc/custom_delay.h:28:22:Custom_Delay_ms	16	static
+/Users/j93es/workspace/imbedded/step-linetracer/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:21:22:Motor_L_Speed_Control	16	static
+/Users/j93es/workspace/imbedded/step-linetracer/Nucleo-Linetracer/Main/Inc/drive_speed_ctrl.h:26:22:Motor_R_Speed_Control	16	static
+/Users/j93es/workspace/imbedded/step-linetracer/Nucleo-Linetracer/External Library/Inc/custom_gpio.h:54:20:Custom_GPIO_Set_t	16	static
 ../Main/Src/linetracer_test.c:13:6:Sensor_Test_Raw	48	static
 ../Main/Src/linetracer_test.c:35:6:Sensor_Test_Normalized	48	static
 ../Main/Src/linetracer_test.c:55:6:Sensor_Test_State	56	static
